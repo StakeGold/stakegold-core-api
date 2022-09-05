@@ -1,0 +1,33 @@
+import { DecodeAttributesArgs } from "../../../models/staking/decoded.attrs";
+import { Farm } from "../../../models/staking/Farm";
+import { StakingArgs, UnstakingArgs } from "../../../models/staking/staking.args";
+import { StakingTokenAttributesModel, UnbondTokenAttributesModel } from "../../../models/staking/stakingTokenAttributes.model";
+import { TransactionModel } from "../../../models/staking/transaction.model";
+import { StakeGoldApiConfigService } from "../../api-config/api-config.service";
+import { MetaEsdtService } from "../../meta-esdt/meta.esdt.service";
+import { StakingModuleOptions } from "../options/staking.module.options";
+import { StakingComputeService } from "./staking.compute.service";
+import { StakingGetterService } from "./staking.getter.service";
+import { TransactionsFarmService } from "./transactions-farm.service";
+export declare class StakingService {
+    private readonly stakingGetterService;
+    private readonly stakingComputeService;
+    private readonly metaEsdtService;
+    private readonly apiConfigService;
+    private readonly transactionService;
+    private options;
+    constructor(stakingGetterService: StakingGetterService, stakingComputeService: StakingComputeService, metaEsdtService: MetaEsdtService, apiConfigService: StakeGoldApiConfigService, transactionService: TransactionsFarmService, options: StakingModuleOptions);
+    getFarms(address?: string, vmQuery?: boolean): Promise<Farm[]>;
+    private getMetaEsdtsDetails;
+    private getAnnualPercentageRewards;
+    private getFarmTokenSupply;
+    private getFarmAddresses;
+    decodeStakingTokenAttributes(args: DecodeAttributesArgs): StakingTokenAttributesModel[];
+    decodeUnboundTokenAttributes(args: DecodeAttributesArgs): Promise<UnbondTokenAttributesModel[]>;
+    private getUnbondigRemaingEpochs;
+    stake(sender: string, args: StakingArgs): Promise<TransactionModel>;
+    unstake(sender: string, args: UnstakingArgs): Promise<TransactionModel>;
+    unbond(sender: string, args: StakingArgs): Promise<TransactionModel>;
+    reinvest(sender: string, args: StakingArgs): Promise<TransactionModel>;
+    harvest(sender: string, args: StakingArgs): Promise<TransactionModel>;
+}

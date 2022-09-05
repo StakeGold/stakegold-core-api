@@ -1,0 +1,1 @@
+{"version":3,"file":"unbondFarmToken.model.js","sourceRoot":"","sources":["../../../src/models/staking/unbondFarmToken.model.ts"],"names":[],"mappings":";;;AAAA,sDAA0D;AAG1D,MAAa,eAAgB,SAAQ,4BAAgB;IAGjD,YAAa,eAAiC,EAAE,iBAA8C;QAC1F,KAAK,CAAC,eAAe,CAAC,CAAC;QACvB,IAAI,CAAC,iBAAiB,GAAG,iBAAiB,CAAC;IAC/C,CAAC;CACJ;AAPD,0CAOC"}

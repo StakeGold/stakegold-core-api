@@ -1,0 +1,1 @@
+{"version":3,"file":"metrics.module.js","sourceRoot":"","sources":["../../../src/endpoints/metrics/metrics.module.ts"],"names":[],"mappings":";;;;AAAA,2CAAwC;AACxC,uDAAmD;AAW5C,IAAM,aAAa,GAAnB,MAAM,aAAa;CAAI,CAAA;AAAjB,aAAa;IATzB,IAAA,eAAM,EAAC;QACN,OAAO,EAAE,EAAE;QACX,SAAS,EAAE;YACT,gCAAc;SACf;QACD,OAAO,EAAE;YACP,gCAAc;SACf;KACF,CAAC;GACW,aAAa,CAAI;AAAjB,sCAAa"}
