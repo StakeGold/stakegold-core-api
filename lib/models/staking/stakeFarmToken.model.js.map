@@ -1,1 +1,1 @@
-{"version":3,"file":"stakeFarmToken.model.js","sourceRoot":"","sources":["../../../src/models/staking/stakeFarmToken.model.ts"],"names":[],"mappings":";;;AAAA,sDAA0D;AAG1D,MAAa,cAAe,SAAQ,4BAAgB;IAGhD,YAAa,eAAiC,EAAE,iBAA+C;QAC3F,KAAK,CAAC,eAAe,CAAC,CAAC;QACvB,IAAI,CAAC,iBAAiB,GAAG,iBAAiB,CAAC;IAC/C,CAAC;CACJ;AAPD,wCAOC"}
+{"version":3,"file":"stakeFarmToken.model.js","sourceRoot":"","sources":["../../../src/models/staking/stakeFarmToken.model.ts"],"names":[],"mappings":""}

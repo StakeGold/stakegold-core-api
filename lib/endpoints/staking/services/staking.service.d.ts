@@ -1,5 +1,6 @@
 import { DecodeAttributesArgs } from "../../../models/staking/decoded.attrs";
 import { Farm } from "../../../models/staking/Farm";
+import { FarmAddress } from "../../../models/staking/farm.address";
 import { StakingArgs, UnstakingArgs } from "../../../models/staking/staking.args";
 import { StakingTokenAttributesModel, UnbondTokenAttributesModel } from "../../../models/staking/stakingTokenAttributes.model";
 import { TransactionModel } from "../../../models/staking/transaction.model";
@@ -18,9 +19,14 @@ export declare class StakingService {
     private options;
     constructor(stakingGetterService: StakingGetterService, stakingComputeService: StakingComputeService, metaEsdtService: MetaEsdtService, apiConfigService: StakeGoldApiConfigService, transactionService: TransactionsFarmService, options: StakingModuleOptions);
     getFarms(address?: string, vmQuery?: boolean): Promise<Farm[]>;
+    getFarmsAddresses(): Farm[];
     private getMetaEsdtsDetails;
-    private getAnnualPercentageRewards;
-    private getFarmTokenSupply;
+    getApr(address: string): Promise<number | undefined>;
+    getAnnualPercentageRewards(farmAddress: FarmAddress): Promise<{
+        apr: number | undefined;
+        lockedApr: number | undefined;
+    }>;
+    getFarmTokenSupply(farmAddress: FarmAddress): Promise<string>;
     private getFarmAddresses;
     decodeStakingTokenAttributes(args: DecodeAttributesArgs): StakingTokenAttributesModel[];
     decodeUnboundTokenAttributes(args: DecodeAttributesArgs): Promise<UnbondTokenAttributesModel[]>;

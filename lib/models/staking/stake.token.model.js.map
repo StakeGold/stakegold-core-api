@@ -1,1 +1,1 @@
-{"version":3,"file":"stake.token.model.js","sourceRoot":"","sources":["../../../src/models/staking/stake.token.model.ts"],"names":[],"mappings":";;;AAAA,MAAa,eAAe;IAQxB,YAAY,IAA+B;QAP3C,eAAU,GAAW,EAAE,CAAC;QACxB,SAAI,GAAW,EAAE,CAAC;QAClB,aAAQ,GAAW,CAAC,CAAC;QACrB,SAAI,GAAW,EAAE,CAAC;QAClB,YAAO,GAAY,EAAE,CAAC;QACtB,eAAU,GAAW,EAAE,CAAC;QAGpB,MAAM,CAAC,MAAM,CAAC,IAAI,EAAE,IAAI,CAAC,CAAC;IAC9B,CAAC;CACJ;AAXD,0CAWC"}
+{"version":3,"file":"stake.token.model.js","sourceRoot":"","sources":["../../../src/models/staking/stake.token.model.ts"],"names":[],"mappings":""}

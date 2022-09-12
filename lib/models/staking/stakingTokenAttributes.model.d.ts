@@ -6,7 +6,6 @@ export declare enum StakingTokenType {
 export declare class StakingTokenAttributesModel {
     identifier?: string;
     attributes?: string;
-    type: StakingTokenType;
     rewardPerShare?: string;
     compoundedReward?: string;
     currentFarmAmount?: string;

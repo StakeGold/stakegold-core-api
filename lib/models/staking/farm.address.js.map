@@ -1,1 +1,1 @@
-{"version":3,"file":"farm.address.js","sourceRoot":"","sources":["../../../src/models/staking/farm.address.ts"],"names":[],"mappings":";;;AAAA,MAAa,WAAW;IAIpB,YAAa,IAA2B;QAHxC,2BAAsB,GAAW,EAAE,CAAC;QACpC,yBAAoB,GAAW,EAAE,CAAC;QAG9B,MAAM,CAAC,MAAM,CAAC,IAAI,EAAE,IAAI,CAAC,CAAC;IAC9B,CAAC;CACJ;AAPD,kCAOC"}
+{"version":3,"file":"farm.address.js","sourceRoot":"","sources":["../../../src/models/staking/farm.address.ts"],"names":[],"mappings":""}

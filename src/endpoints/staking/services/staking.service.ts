@@ -63,7 +63,7 @@ export class StakingService {
         this.stakingComputeService.computeAccumulatedStakings(positions);
 
       farms.push(
-        new Farm({
+        {
           addresses: farmAddress,
           farmingToken,
           farmTotalSupply,
@@ -72,7 +72,7 @@ export class StakingService {
           positions,
           accumulatedRewards,
           accumulatedStakings,
-        })
+        } as Farm
       );
     }
 
@@ -83,9 +83,9 @@ export class StakingService {
     const farms: Array<Farm> = [];
     for (const farmAddress of this.options.farmsInfo) {
         farms.push(
-            new Farm({
-                addresses: this.getFarmAddresses(farmAddress),
-            }),
+            {
+              addresses: this.getFarmAddresses(farmAddress),
+            } as Farm,
         );
     }
 
@@ -117,7 +117,9 @@ export class StakingService {
         ],
       });
       if (stakeDecodedAttributes && stakeDecodedAttributes.length > 0) {
-        return new StakeFarmToken(metaEsdt, stakeDecodedAttributes[0]);
+        const stakeFarmToken =  metaEsdt as StakeFarmToken;
+        stakeFarmToken.decodedAttributes = stakeDecodedAttributes[0];
+        return stakeFarmToken;
       } else {
         const unbondDecodedAttributes = await this.decodeUnboundTokenAttributes(
           {
@@ -129,15 +131,23 @@ export class StakingService {
             ],
           }
         );
+        const unbondFarmToken =  metaEsdt as UnbondFarmToken;
         if (unbondDecodedAttributes && unbondDecodedAttributes.length > 0) {
-          return new UnbondFarmToken(metaEsdt, unbondDecodedAttributes[0]);
-        } else {
-          return new UnbondFarmToken(metaEsdt, undefined);
+          unbondFarmToken.decodedAttributes = unbondDecodedAttributes[0];
         }
+
+        return unbondFarmToken;
       }
     });
 
     return await Promise.all(promises);
+  }
+
+  async getApr(address: string) {
+    const apr = await this.stakingComputeService.computeAnnualPercentageReward(
+      address
+    );
+    return apr;
   }
 
   async getAnnualPercentageRewards(farmAddress: FarmAddress) {
@@ -158,7 +168,7 @@ export class StakingService {
     return { apr, lockedApr };
   }
 
-  async getFarmTokenSupply(farmAddress: FarmAddress) {
+  async getFarmTokenSupply(farmAddress: FarmAddress): Promise<string> {
     let totalLockedValue = new BigNumber(0);
     if (farmAddress.lockedRewardsAddress) {
       const farmTotalSupply =
@@ -174,14 +184,14 @@ export class StakingService {
         );
       totalLockedValue = totalLockedValue.plus(new BigNumber(farmTotalSupply));
     }
-    return totalLockedValue;
+    return totalLockedValue.toFixed();
   }
 
   private getFarmAddresses(farmInfo: FarmInfo) {
     const unlockedRewardsAddress = farmInfo.unlockedRewards?.address;
     const lockedRewardsAddress = farmInfo.lockedRewards?.address;
 
-    return new FarmAddress({ unlockedRewardsAddress, lockedRewardsAddress });
+    return { unlockedRewardsAddress, lockedRewardsAddress } as FarmAddress;
   }
 
   decodeStakingTokenAttributes(

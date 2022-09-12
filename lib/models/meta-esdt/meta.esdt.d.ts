@@ -1,15 +1,14 @@
 import { UnlockMilestone } from "../account/LockedAssetAttributes";
 import { EsdtType } from "./esdt.type";
-export declare class MetaEsdt {
+export interface MetaEsdt {
     identifier: string;
     collection: string;
     attributes: string;
     nonce: number;
     type: EsdtType;
     balance: string | undefined;
-    constructor(init: MetaEsdtDetailed);
 }
-export declare class MetaEsdtDetailed extends MetaEsdt {
+export interface MetaEsdtDetailed extends MetaEsdt {
     timestamp?: number;
     name: string;
     creator: string;
@@ -17,7 +16,6 @@ export declare class MetaEsdtDetailed extends MetaEsdt {
     decimals: number | undefined;
     ticker?: string;
     assets?: any;
-    constructor(init: MetaEsdtDetailed);
 }
 export declare class LockedToken {
     identifier: string;

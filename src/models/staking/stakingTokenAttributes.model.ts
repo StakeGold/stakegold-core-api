@@ -13,7 +13,6 @@ export enum StakingTokenType {
 export class StakingTokenAttributesModel {
     identifier?: string;
     attributes?: string;
-    type = StakingTokenType.STAKING_FARM_TOKEN;
     rewardPerShare?: string;
     compoundedReward?: string;
     currentFarmAmount?: string;

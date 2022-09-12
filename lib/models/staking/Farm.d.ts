@@ -1,20 +1,17 @@
-import BigNumber from "bignumber.js";
 import { MetaEsdtDetailed } from "../meta-esdt/meta.esdt";
 import { FarmAddress } from "./farm.address";
 import { StakeTokenModel } from "./stake.token.model";
-export declare class Farm {
+export interface Farm {
     addresses: FarmAddress;
     farmingToken: StakeTokenModel;
-    farmTotalSupply: BigNumber;
+    farmTotalSupply: string;
     apr?: number;
     lockedApr?: number;
-    accumulatedRewards: BigNumber;
-    accumulatedStakings: BigNumber;
+    accumulatedRewards: string;
+    accumulatedStakings: string;
     positions: Position[];
-    constructor(init?: Partial<Farm>);
 }
-export declare class Position {
+export interface Position {
     farmToken: MetaEsdtDetailed;
     rewardToken: StakeTokenModel;
-    constructor(farmToken: MetaEsdtDetailed, rewardToken: StakeTokenModel);
 }

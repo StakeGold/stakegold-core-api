@@ -1,16 +1,15 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { MetaEsdtDetailed } from "../../../models/meta-esdt/meta.esdt";
 import { Position } from "../../../models/staking/Farm";
 import { FarmInfo, RewardsModel } from "../../../models/staking/farm.info";
-import { StakeTokenModel } from "../../../models/staking/stake.token.model";
 import { StakeFarmToken } from "../../../models/staking/stakeFarmToken.model";
-import { StakingTokenAttributesModel } from "../../../models/staking/stakingTokenAttributes.model";
+import { StakingTokenAttributesModel, StakingTokenType } from "../../../models/staking/stakingTokenAttributes.model";
 import { StakeGoldApiConfigService } from "../../api-config/api-config.service";
 import { AddressUtils } from "../../utils/address.utils";
 import { STAKEGOLD_API_CONFIG_SERVICE } from "../../utils/constants";
 import { NumberUtils } from "../../utils/number.utils";
 import { StakingGetterService } from "./staking.getter.service";
 import BigNumber from "bignumber.js";
+import { UnbondFarmToken } from "src/models";
 
 @Injectable()
 export class StakingComputeService {
@@ -51,7 +50,7 @@ export class StakingComputeService {
 
   async computePositions(
     farmInfo: FarmInfo,
-    metaEsdts: MetaEsdtDetailed[],
+    metaEsdts: (StakeFarmToken | UnbondFarmToken)[],
     vmQuery: boolean
   ): Promise<Position[]> {
     const positions: Position[][] = [];
@@ -81,7 +80,7 @@ export class StakingComputeService {
     return positions.flat();
   }
 
-  computeAccumulatedStakings(positions: Position[]): BigNumber {
+  computeAccumulatedStakings(positions: Position[]): string {
     let stakings = new BigNumber(0);
     for (let i = 0; i < positions.length; i++) {
       stakings = stakings.plus(
@@ -89,10 +88,10 @@ export class StakingComputeService {
       );
     }
 
-    return stakings;
+    return stakings.toFixed();
   }
 
-  computeAccumulatedRewards(positions: Position[]): BigNumber {
+  computeAccumulatedRewards(positions: Position[]): string {
     let stakings = new BigNumber(0);
     for (let i = 0; i < positions.length; i++) {
       stakings = stakings.plus(
@@ -100,12 +99,12 @@ export class StakingComputeService {
       );
     }
 
-    return stakings;
+    return stakings.toFixed();
   }
 
   private async computePosition(
     rewardModel: RewardsModel,
-    metaEsdts: MetaEsdtDetailed[],
+    metaEsdts: (StakeFarmToken | UnbondFarmToken)[],
     vmQuery: boolean
   ): Promise<Position[]> {
     const metaEsdt = metaEsdts.filter((metaEsdt) => {
@@ -113,7 +112,7 @@ export class StakingComputeService {
     });
 
     const promises = metaEsdt.map(async (esdt) => {
-      const rewardsToken = new StakeTokenModel(rewardModel.rewardsToken);
+      const rewardsToken = rewardModel.rewardsToken;
       if (esdt.balance) {
         const rewards = await this.getRewardsForPosition(
           rewardModel.address,
@@ -123,7 +122,7 @@ export class StakingComputeService {
         rewardsToken.balance = rewards.toFixed();
       }
 
-      return new Position(esdt, rewardsToken);
+      return { farmToken: esdt, rewardToken: rewardsToken } as Position;
     });
 
     return await Promise.all(promises);
@@ -131,18 +130,13 @@ export class StakingComputeService {
 
   async getRewardsForPosition(
     stakeAddress: string,
-    esdt: MetaEsdtDetailed,
+    esdt: StakeFarmToken | UnbondFarmToken,
     vmQuery: boolean
   ): Promise<BigNumber> {
-    if (!(esdt instanceof StakeFarmToken) || !esdt.decodedAttributes) {
-      return new BigNumber(0);
-    }
-
-    if (!esdt.balance) {
-      return new BigNumber(0);
-    }
-
-    if (!esdt.attributes) {
+    if (esdt.stakingTokenType !== StakingTokenType.STAKING_FARM_TOKEN 
+        || !esdt.decodedAttributes
+        || !esdt.balance
+        || !esdt.attributes) {
       return new BigNumber(0);
     }
 

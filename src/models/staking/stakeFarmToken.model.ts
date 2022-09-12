@@ -1,11 +1,7 @@
 import { MetaEsdtDetailed } from "../meta-esdt/meta.esdt";
-import { StakingTokenAttributesModel } from "./stakingTokenAttributes.model";
+import { StakingTokenAttributesModel, StakingTokenType } from "./stakingTokenAttributes.model";
 
-export class StakeFarmToken extends MetaEsdtDetailed {
+export interface StakeFarmToken extends MetaEsdtDetailed {
+    readonly stakingTokenType: StakingTokenType.STAKING_FARM_TOKEN;
     decodedAttributes?: StakingTokenAttributesModel;
-
-    constructor (metaEsdtDetails: MetaEsdtDetailed, decodedAttributes?: StakingTokenAttributesModel) {
-        super(metaEsdtDetails);
-        this.decodedAttributes = decodedAttributes;
-    }
 }
