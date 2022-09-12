@@ -70,7 +70,13 @@ export class StakingModule {
       module: StakingModule,
       imports: [MetaEsdtModule.forRootAsync(elrondApiOptions)],
       providers,
-      exports: [StakingService],
+      exports: [
+        StakingService,  
+        StakingGetterService,
+        StakingComputeService,
+        TransactionsFarmService,
+        ContextTransactionsService,
+      ],
     };
   }
 }

@@ -79,6 +79,19 @@ export class StakingService {
     return farms;
   }
 
+  getFarmsAddresses(): Farm[] {
+    const farms: Array<Farm> = [];
+    for (const farmAddress of this.options.farmsInfo) {
+        farms.push(
+            new Farm({
+                addresses: this.getFarmAddresses(farmAddress),
+            }),
+        );
+    }
+
+    return farms;
+}
+
   private async getMetaEsdtsDetails(
     address?: string
   ): Promise<(StakeFarmToken | UnbondFarmToken)[]> {
@@ -127,7 +140,7 @@ export class StakingService {
     return await Promise.all(promises);
   }
 
-  private async getAnnualPercentageRewards(farmAddress: FarmAddress) {
+  async getAnnualPercentageRewards(farmAddress: FarmAddress) {
     let lockedApr = undefined;
     if (farmAddress.lockedRewardsAddress) {
       lockedApr =
@@ -145,7 +158,7 @@ export class StakingService {
     return { apr, lockedApr };
   }
 
-  private async getFarmTokenSupply(farmAddress: FarmAddress) {
+  async getFarmTokenSupply(farmAddress: FarmAddress) {
     let totalLockedValue = new BigNumber(0);
     if (farmAddress.lockedRewardsAddress) {
       const farmTotalSupply =
