@@ -18,8 +18,8 @@ export declare class StakingService {
     private readonly transactionService;
     private options;
     constructor(stakingGetterService: StakingGetterService, stakingComputeService: StakingComputeService, metaEsdtService: MetaEsdtService, apiConfigService: StakeGoldApiConfigService, transactionService: TransactionsFarmService, options: StakingModuleOptions);
-    getFarms(address?: string, vmQuery?: boolean): Promise<Farm[]>;
-    getFarmsAddresses(): Farm[];
+    getFarmsOld(address?: string, vmQuery?: boolean): Promise<Farm[]>;
+    getFarms(): Farm[];
     private getMetaEsdtsDetails;
     getApr(address: string): Promise<number | undefined>;
     getAnnualPercentageRewards(farmAddress: FarmAddress): Promise<{

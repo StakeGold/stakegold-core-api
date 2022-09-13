@@ -39,7 +39,10 @@ export class StakingService {
     @Inject(STAKING_OPTIONS) private options: StakingModuleOptions
   ) {}
 
-  async getFarms(address?: string, vmQuery?: boolean): Promise<Farm[]> {
+  /**
+  * @deprecated The method should not be used
+  */
+  async getFarmsOld(address?: string, vmQuery?: boolean): Promise<Farm[]> {
     const farmTokens = (await this.getMetaEsdtsDetails(address)) ?? [];
 
     const farms: Farm[] = [];
@@ -79,18 +82,19 @@ export class StakingService {
     return farms;
   }
 
-  getFarmsAddresses(): Farm[] {
+  getFarms(): Farm[] {
     const farms: Array<Farm> = [];
     for (const farmAddress of this.options.farmsInfo) {
         farms.push(
             {
               addresses: this.getFarmAddresses(farmAddress),
+              farmingToken: farmAddress.farmingToken,
             } as Farm,
         );
     }
 
     return farms;
-}
+  }
 
   private async getMetaEsdtsDetails(
     address?: string
