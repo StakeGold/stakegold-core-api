@@ -3,7 +3,9 @@ import { FarmAddress } from "./farm.address";
 import { StakeTokenModel } from "./stake.token.model";
 
 export interface Farm {
-  addresses: FarmAddress;
+  farmAddress: FarmAddress;
+  address: string,
+  vmQuery: boolean,
   farmingToken: StakeTokenModel;
   farmTotalSupply: string;
   apr?: number;

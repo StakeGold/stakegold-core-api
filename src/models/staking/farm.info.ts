@@ -1,19 +1,13 @@
 import { StakeTokenModel } from "./stake.token.model";
 
-export class FarmInfo {
+export interface FarmInfo {
     unlockedRewards?: RewardsModel;
     lockedRewards?: RewardsModel;
     farmingToken?: StakeTokenModel;
 }
 
-export class RewardsModel {
+export interface RewardsModel {
     address: string;
     rewardsToken: StakeTokenModel;
     farmToken: string;
-
-    constructor(address : string, rewardsToken: StakeTokenModel, farmToken: string) {
-        this.address = address;
-        this.farmToken = farmToken;
-        this.rewardsToken = rewardsToken;
-    }
 }

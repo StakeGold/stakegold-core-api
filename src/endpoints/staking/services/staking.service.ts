@@ -67,7 +67,9 @@ export class StakingService {
 
       farms.push(
         {
-          addresses: farmAddress,
+          farmAddress: farmAddress,
+          address: address,
+          vmQuery: vmQuery,
           farmingToken,
           farmTotalSupply,
           lockedApr,
@@ -82,13 +84,25 @@ export class StakingService {
     return farms;
   }
 
-  getFarms(): Farm[] {
+  async getFarms(address?: string, vmQuery?: boolean): Promise<Farm[]> {
     const farms: Array<Farm> = [];
-    for (const farmAddress of this.options.farmsInfo) {
+
+    const farmTokens = (await this.getMetaEsdtsDetails(address)) ?? [];
+
+    for (const farmInfo of this.options.farmsInfo) {
+        const positions = await this.stakingComputeService.computePositions(
+          farmInfo,
+          farmTokens,
+          vmQuery ?? false
+        );
+
         farms.push(
             {
-              addresses: this.getFarmAddresses(farmAddress),
-              farmingToken: farmAddress.farmingToken,
+              farmAddress: this.getFarmAddresses(farmInfo),
+              positions: positions,
+              farmingToken: farmInfo.farmingToken,
+              address: address,
+              vmQuery: vmQuery,
             } as Farm,
         );
     }
@@ -96,7 +110,7 @@ export class StakingService {
     return farms;
   }
 
-  private async getMetaEsdtsDetails(
+  async getMetaEsdtsDetails(
     address?: string
   ): Promise<(StakeFarmToken | UnbondFarmToken)[]> {
     if (!address) {

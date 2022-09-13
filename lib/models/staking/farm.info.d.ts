@@ -1,12 +1,11 @@
 import { StakeTokenModel } from "./stake.token.model";
-export declare class FarmInfo {
+export interface FarmInfo {
     unlockedRewards?: RewardsModel;
     lockedRewards?: RewardsModel;
     farmingToken?: StakeTokenModel;
 }
-export declare class RewardsModel {
+export interface RewardsModel {
     address: string;
     rewardsToken: StakeTokenModel;
     farmToken: string;
-    constructor(address: string, rewardsToken: StakeTokenModel, farmToken: string);
 }

@@ -1,9 +1,11 @@
 import { DecodeAttributesArgs } from "../../../models/staking/decoded.attrs";
 import { Farm } from "../../../models/staking/Farm";
 import { FarmAddress } from "../../../models/staking/farm.address";
+import { StakeFarmToken } from "../../../models/staking/stakeFarmToken.model";
 import { StakingArgs, UnstakingArgs } from "../../../models/staking/staking.args";
 import { StakingTokenAttributesModel, UnbondTokenAttributesModel } from "../../../models/staking/stakingTokenAttributes.model";
 import { TransactionModel } from "../../../models/staking/transaction.model";
+import { UnbondFarmToken } from "../../../models/staking/unbondFarmToken.model";
 import { StakeGoldApiConfigService } from "../../api-config/api-config.service";
 import { MetaEsdtService } from "../../meta-esdt/meta.esdt.service";
 import { StakingModuleOptions } from "../options/staking.module.options";
@@ -19,8 +21,8 @@ export declare class StakingService {
     private options;
     constructor(stakingGetterService: StakingGetterService, stakingComputeService: StakingComputeService, metaEsdtService: MetaEsdtService, apiConfigService: StakeGoldApiConfigService, transactionService: TransactionsFarmService, options: StakingModuleOptions);
     getFarmsOld(address?: string, vmQuery?: boolean): Promise<Farm[]>;
-    getFarms(): Farm[];
-    private getMetaEsdtsDetails;
+    getFarms(address?: string, vmQuery?: boolean): Promise<Farm[]>;
+    getMetaEsdtsDetails(address?: string): Promise<(StakeFarmToken | UnbondFarmToken)[]>;
     getApr(address: string): Promise<number | undefined>;
     getAnnualPercentageRewards(farmAddress: FarmAddress): Promise<{
         apr: number | undefined;
