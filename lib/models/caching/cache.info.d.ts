@@ -15,4 +15,12 @@ export declare class CacheInfo {
     static getDivisionSafetyConstant(farmAddress: string): CacheInfo;
     static getProduceRewardsEnabled(farmAddress: string): CacheInfo;
     static getRewardPerShare(farmAddress: string): CacheInfo;
+    static getGroupIdentifiers(): CacheInfo;
+    static getAddressesByGroupId(groupId: string): CacheInfo;
+    static getFarmTokenId(childContractAddress: string): CacheInfo;
+    static getFarmingTokenId(childContractAddress: string): CacheInfo;
+    static getRewardTokenId(childContractAddress: string): CacheInfo;
+    static areRewardsLocked(childContractAddress: string): CacheInfo;
+    static stakeToken(identifier: string): CacheInfo;
+    static vestingAddressByGroupId(groupId: string): CacheInfo;
 }

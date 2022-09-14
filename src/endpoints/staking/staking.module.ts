@@ -4,8 +4,12 @@ import { ContextTransactionsService } from "../context/context.transactions.serv
 import { ElrondApiAsyncOptions, ElrondProxyAsyncOptions } from "../elrond-communication";
 import { MetaEsdtModule } from "../meta-esdt/meta.esdt.module";
 import { ProxyAsyncOptions } from "../proxy/options";
-import { STAKEGOLD_API_CONFIG_SERVICE, STAKEGOLD_ELROND_API_SERVICE, STAKEGOLD_ELROND_PROXY_SERVICE, STAKEGOLD_PROXY_SERVICE, STAKING_OPTIONS } from "../utils/constants";
-import { StakingModuleAsyncOptions } from "./options/staking.module.async.options";
+import {
+  STAKEGOLD_API_CONFIG_SERVICE,
+  STAKEGOLD_ELROND_API_SERVICE,
+  STAKEGOLD_ELROND_PROXY_SERVICE,
+  STAKEGOLD_PROXY_SERVICE,
+} from "../utils/constants";
 import { AbiStakingService } from "./services/staking.abi.service";
 import { StakingComputeService } from "./services/staking.compute.service";
 import { StakingGetterService } from "./services/staking.getter.service";
@@ -26,18 +30,12 @@ import { TransactionsFarmService } from "./services/transactions-farm.service";
 })
 export class StakingModule {
   static forRootAsync(
-    stakingModuleOptions: StakingModuleAsyncOptions,
     elrondProxyOptions: ElrondProxyAsyncOptions,
     proxyServiceOptions: ProxyAsyncOptions,
     apiConfigOptions: ApiConfigAsyncOptions,
     elrondApiOptions: ElrondApiAsyncOptions
   ): DynamicModule {
     const providers: Provider[] = [
-      {
-        provide: STAKING_OPTIONS,
-        useFactory: stakingModuleOptions.useFactory,
-        inject: stakingModuleOptions.inject,
-      },
       {
         provide: STAKEGOLD_ELROND_PROXY_SERVICE,
         useFactory: elrondProxyOptions.useFactory,
@@ -71,7 +69,7 @@ export class StakingModule {
       imports: [MetaEsdtModule.forRootAsync(elrondApiOptions)],
       providers,
       exports: [
-        StakingService,  
+        StakingService,
         StakingGetterService,
         StakingComputeService,
         TransactionsFarmService,

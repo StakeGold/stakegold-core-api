@@ -1,31 +1,23 @@
-import { BinaryCodec } from "@elrondnetwork/erdjs/out";
-import { Inject, Injectable } from "@nestjs/common";
-import BigNumber from "bignumber.js";
-import { DecodeAttributesArgs } from "../../../models/staking/decoded.attrs";
-import { Farm } from "../../../models/staking/Farm";
-import { FarmAddress } from "../../../models/staking/farm.address";
-import { FarmInfo } from "../../../models/staking/farm.info";
-import { StakeFarmToken } from "../../../models/staking/stakeFarmToken.model";
-import {
-  StakingArgs,
-  UnstakingArgs,
-} from "../../../models/staking/staking.args";
+import { BinaryCodec } from '@elrondnetwork/erdjs/out';
+import { Inject, Injectable } from '@nestjs/common';
+import BigNumber from 'bignumber.js';
+import { FarmAddresses } from 'src/models';
+import { DecodeAttributesArgs } from '../../../models/staking/decoded.attrs';
+import { Farm, Position } from '../../../models/staking/Farm';
+import { StakeFarmToken } from '../../../models/staking/stakeFarmToken.model';
+import { StakingArgs, UnstakingArgs } from '../../../models/staking/staking.args';
 import {
   StakingTokenAttributesModel,
   UnbondTokenAttributesModel,
-} from "../../../models/staking/stakingTokenAttributes.model";
-import { TransactionModel } from "../../../models/staking/transaction.model";
-import { UnbondFarmToken } from "../../../models/staking/unbondFarmToken.model";
-import { StakeGoldApiConfigService } from "../../api-config/api-config.service";
-import { MetaEsdtService } from "../../meta-esdt/meta.esdt.service";
-import {
-  STAKEGOLD_API_CONFIG_SERVICE,
-  STAKING_OPTIONS,
-} from "../../utils/constants";
-import { StakingModuleOptions } from "../options/staking.module.options";
-import { StakingComputeService } from "./staking.compute.service";
-import { StakingGetterService } from "./staking.getter.service";
-import { TransactionsFarmService } from "./transactions-farm.service";
+} from '../../../models/staking/stakingTokenAttributes.model';
+import { Transaction } from '../../../models/staking/transaction.model';
+import { UnbondFarmToken } from '../../../models/staking/unbondFarmToken.model';
+import { StakeGoldApiConfigService } from '../../api-config/api-config.service';
+import { MetaEsdtService } from '../../meta-esdt/meta.esdt.service';
+import { STAKEGOLD_API_CONFIG_SERVICE } from '../../utils/constants';
+import { StakingComputeService } from './staking.compute.service';
+import { StakingGetterService } from './staking.getter.service';
+import { TransactionsFarmService } from './transactions-farm.service';
 
 @Injectable()
 export class StakingService {
@@ -36,83 +28,111 @@ export class StakingService {
     @Inject(STAKEGOLD_API_CONFIG_SERVICE)
     private readonly apiConfigService: StakeGoldApiConfigService,
     private readonly transactionService: TransactionsFarmService,
-    @Inject(STAKING_OPTIONS) private options: StakingModuleOptions
   ) {}
 
-  /**
-  * @deprecated The method should not be used
-  */
-  async getFarmsOld(address?: string, vmQuery?: boolean): Promise<Farm[]> {
-    const farmTokens = (await this.getMetaEsdtsDetails(address)) ?? [];
-
-    const farms: Farm[] = [];
-    for (const info of this.options.farmsInfo) {
-      const farmingToken = info.farmingToken;
-      const farmAddress = this.getFarmAddresses(info);
-      const farmTotalSupply = await this.getFarmTokenSupply(farmAddress);
-      const annualPercentageRewards = await this.getAnnualPercentageRewards(
-        farmAddress
-      );
-      const lockedApr = annualPercentageRewards.lockedApr;
-      const apr = annualPercentageRewards.apr;
-      const positions = await this.stakingComputeService.computePositions(
-        info,
-        farmTokens,
-        vmQuery ?? false
-      );
-      const accumulatedRewards =
-        this.stakingComputeService.computeAccumulatedRewards(positions);
-      const accumulatedStakings =
-        this.stakingComputeService.computeAccumulatedStakings(positions);
-
-      farms.push(
-        {
-          farmAddress: farmAddress,
-          address: address,
-          vmQuery: vmQuery,
-          farmingToken,
-          farmTotalSupply,
-          lockedApr,
-          apr,
-          positions,
-          accumulatedRewards,
-          accumulatedStakings,
-        } as Farm
-      );
-    }
-
-    return farms;
-  }
-
   async getFarms(address?: string, vmQuery?: boolean): Promise<Farm[]> {
-    const farms: Array<Farm> = [];
+    const farms: Farm[] = [];
+    const groupIds = await this.stakingGetterService.getGroupIdentifiers();
+    const metaEsdtsDetails = (await this.getMetaEsdtsDetails(address)) ?? [];
 
-    const farmTokens = (await this.getMetaEsdtsDetails(address)) ?? [];
+    const results = await Promise.all(
+      groupIds.map((groupId) => {
+        // the key is the farmingToken and it's used for O(1) lookup
+        const knownFarms: Map<string, Farm> = new Map();
+        return this.handleAddressesByGroupId(groupId, metaEsdtsDetails, knownFarms, vmQuery);
+      }),
+    );
 
-    for (const farmInfo of this.options.farmsInfo) {
-        const positions = await this.stakingComputeService.computePositions(
-          farmInfo,
-          farmTokens,
-          vmQuery ?? false
-        );
-
-        farms.push(
-            {
-              farmAddress: this.getFarmAddresses(farmInfo),
-              positions: positions,
-              farmingToken: farmInfo.farmingToken,
-              address: address,
-              vmQuery: vmQuery,
-            } as Farm,
-        );
-    }
+    farms.push(...results.flat());
 
     return farms;
   }
 
-  async getMetaEsdtsDetails(
-    address?: string
-  ): Promise<(StakeFarmToken | UnbondFarmToken)[]> {
+  private async handleAddressesByGroupId(
+    groupId: string,
+    metaEsdtsDetails: (StakeFarmToken | UnbondFarmToken)[],
+    knownFarms: Map<string, Farm>,
+    vmQuery?: boolean,
+  ): Promise<Farm[]> {
+    const addressesByGroupId = await this.stakingGetterService.getAddressesByGroupId(groupId);
+
+    const results = await Promise.all(
+      addressesByGroupId.map(async (farmAddress) => {
+        const { farmingTokenId, areRewardsLocked, farmingToken, positions } =
+          await this.getFarmInfo(farmAddress.toString(), groupId, metaEsdtsDetails, vmQuery);
+
+        const farm =
+          knownFarms.get(farmingTokenId) ??
+          ({
+            farmingToken,
+            positions: Array<Position>(),
+            groupId: groupId,
+          } as Farm);
+
+        farm.farmAddresses = {
+          addressWithLockedRewards: areRewardsLocked
+            ? farmAddress.toString()
+            : farm.farmAddresses?.addressWithLockedRewards,
+          addressWithUnlockedRewards: !areRewardsLocked
+            ? farmAddress.toString()
+            : farm.farmAddresses?.addressWithUnlockedRewards,
+        };
+
+        farm.positions.push(...positions);
+
+        knownFarms.set(farmingTokenId, farm);
+
+        return farm;
+      }),
+    );
+
+    return results;
+  }
+
+  private async getFarmInfo(
+    farmAddress: string,
+    groupId: string,
+    metaEsdtsDetails: (StakeFarmToken | UnbondFarmToken)[],
+    vmQuery?: boolean,
+  ) {
+    const [farmTokenId, farmingTokenId, areRewardsLocked] = await Promise.all([
+      await this.stakingGetterService.getFarmTokenId(farmAddress),
+      await this.stakingGetterService.getFarmingTokenId(farmAddress),
+      await this.stakingGetterService.areRewardsLocked(farmAddress),
+    ]);
+
+    let rewardTokenId: string;
+    if (areRewardsLocked) {
+      rewardTokenId = await this.stakingGetterService.getLockedAssetTokenId(groupId);
+    } else {
+      rewardTokenId = await this.stakingGetterService.getRewardTokenId(farmAddress);
+    }
+
+    const [farmingToken, rewardToken] = await Promise.all([
+      await this.stakingGetterService.getToken(farmingTokenId),
+      await this.stakingGetterService.getToken(rewardTokenId),
+    ]);
+
+    let positions: Position[] = [];
+    if (rewardToken) {
+      positions = await this.stakingComputeService.computePositions(
+        farmAddress,
+        farmTokenId,
+        rewardToken,
+        metaEsdtsDetails,
+        vmQuery ?? false,
+      );
+    }
+
+    return {
+      farmingTokenId,
+      areRewardsLocked,
+      farmingToken,
+      positions,
+    };
+  }
+
+  async getMetaEsdtsDetails(address?: string): Promise<(StakeFarmToken | UnbondFarmToken)[]> {
     if (!address) {
       return [];
     }
@@ -120,10 +140,7 @@ export class StakingService {
     const farmTokensAddressMap = this.apiConfigService.getFarmTokens();
     const farmTokensAddress = Array.from(Object.keys(farmTokensAddressMap));
 
-    const metaEsdts = await this.metaEsdtService.getMetaEsdts(
-      address,
-      farmTokensAddress
-    );
+    const metaEsdts = await this.metaEsdtService.getMetaEsdts(address, farmTokensAddress);
 
     const promises = metaEsdts.map(async (metaEsdt) => {
       const stakeDecodedAttributes = this.decodeStakingTokenAttributes({
@@ -135,21 +152,19 @@ export class StakingService {
         ],
       });
       if (stakeDecodedAttributes && stakeDecodedAttributes.length > 0) {
-        const stakeFarmToken =  metaEsdt as StakeFarmToken;
+        const stakeFarmToken = metaEsdt as StakeFarmToken;
         stakeFarmToken.decodedAttributes = stakeDecodedAttributes[0];
         return stakeFarmToken;
       } else {
-        const unbondDecodedAttributes = await this.decodeUnboundTokenAttributes(
-          {
-            batchAttributes: [
-              {
-                attributes: metaEsdt.attributes,
-                identifier: metaEsdt.identifier,
-              },
-            ],
-          }
-        );
-        const unbondFarmToken =  metaEsdt as UnbondFarmToken;
+        const unbondDecodedAttributes = await this.decodeUnboundTokenAttributes({
+          batchAttributes: [
+            {
+              attributes: metaEsdt.attributes,
+              identifier: metaEsdt.identifier,
+            },
+          ],
+        });
+        const unbondFarmToken = metaEsdt as UnbondFarmToken;
         if (unbondDecodedAttributes && unbondDecodedAttributes.length > 0) {
           unbondFarmToken.decodedAttributes = unbondDecodedAttributes[0];
         }
@@ -162,62 +177,48 @@ export class StakingService {
   }
 
   async getApr(address: string) {
-    const apr = await this.stakingComputeService.computeAnnualPercentageReward(
-      address
-    );
+    const apr = await this.stakingComputeService.computeAnnualPercentageReward(address);
     return apr;
   }
 
-  async getAnnualPercentageRewards(farmAddress: FarmAddress) {
+  async getAnnualPercentageRewards(farmAddress: FarmAddresses) {
     let lockedApr = undefined;
-    if (farmAddress.lockedRewardsAddress) {
-      lockedApr =
-        await this.stakingComputeService.computeAnnualPercentageReward(
-          farmAddress.lockedRewardsAddress
-        );
+    if (farmAddress.addressWithUnlockedRewards) {
+      lockedApr = await this.stakingComputeService.computeAnnualPercentageReward(
+        farmAddress.addressWithUnlockedRewards,
+      );
     }
 
     let apr = undefined;
-    if (farmAddress.unlockedRewardsAddress) {
+    if (farmAddress.addressWithUnlockedRewards) {
       apr = await this.stakingComputeService.computeAnnualPercentageReward(
-        farmAddress.unlockedRewardsAddress
+        farmAddress.addressWithUnlockedRewards,
       );
     }
     return { apr, lockedApr };
   }
 
-  async getFarmTokenSupply(farmAddress: FarmAddress): Promise<string> {
+  async getFarmTokenSupply(farmAddress: FarmAddresses): Promise<string> {
     let totalLockedValue = new BigNumber(0);
-    if (farmAddress.lockedRewardsAddress) {
-      const farmTotalSupply =
-        await this.stakingGetterService.getFarmTokenSupply(
-          farmAddress.lockedRewardsAddress
-        );
+    if (farmAddress.addressWithLockedRewards) {
+      const farmTotalSupply = await this.stakingGetterService.getFarmTokenSupply(
+        farmAddress.addressWithLockedRewards,
+      );
       totalLockedValue = totalLockedValue.plus(new BigNumber(farmTotalSupply));
     }
-    if (farmAddress.unlockedRewardsAddress) {
-      const farmTotalSupply =
-        await this.stakingGetterService.getFarmTokenSupply(
-          farmAddress.unlockedRewardsAddress
-        );
+    if (farmAddress.addressWithUnlockedRewards) {
+      const farmTotalSupply = await this.stakingGetterService.getFarmTokenSupply(
+        farmAddress.addressWithUnlockedRewards,
+      );
       totalLockedValue = totalLockedValue.plus(new BigNumber(farmTotalSupply));
     }
     return totalLockedValue.toFixed();
   }
 
-  private getFarmAddresses(farmInfo: FarmInfo) {
-    const unlockedRewardsAddress = farmInfo.unlockedRewards?.address;
-    const lockedRewardsAddress = farmInfo.lockedRewards?.address;
-
-    return { unlockedRewardsAddress, lockedRewardsAddress } as FarmAddress;
-  }
-
-  decodeStakingTokenAttributes(
-    args: DecodeAttributesArgs
-  ): StakingTokenAttributesModel[] {
+  decodeStakingTokenAttributes(args: DecodeAttributesArgs): StakingTokenAttributesModel[] {
     try {
       return args.batchAttributes.map((arg) => {
-        const attributesBuffer = Buffer.from(arg.attributes ?? "", "base64");
+        const attributesBuffer = Buffer.from(arg.attributes ?? '', 'base64');
         const codec = new BinaryCodec();
         const structType = StakingTokenAttributesModel.getStructure();
         const [decoded] = codec.decodeNested(attributesBuffer, structType);
@@ -236,18 +237,18 @@ export class StakingService {
   }
 
   async decodeUnboundTokenAttributes(
-    args: DecodeAttributesArgs
+    args: DecodeAttributesArgs,
   ): Promise<UnbondTokenAttributesModel[]> {
     const decodedAttributesBatch = [];
     try {
       for (const arg of args.batchAttributes) {
-        const attributesBuffer = Buffer.from(arg.attributes ?? "", "base64");
+        const attributesBuffer = Buffer.from(arg.attributes ?? '', 'base64');
         const codec = new BinaryCodec();
         const structType = UnbondTokenAttributesModel.getStructure();
         const [decoded] = codec.decodeNested(attributesBuffer, structType);
         const decodedAttributes = decoded.valueOf();
         const remainingEpochs = await this.getUnbondigRemaingEpochs(
-          decodedAttributes.unlockEpoch.toNumber()
+          decodedAttributes.unlockEpoch.toNumber(),
         );
         const unboundFarmTokenAttributes = new UnbondTokenAttributesModel({
           identifier: arg.identifier,
@@ -270,26 +271,23 @@ export class StakingService {
     return unlockEpoch - currentEpoch > 0 ? unlockEpoch - currentEpoch : 0;
   }
 
-  async stake(sender: string, args: StakingArgs): Promise<TransactionModel> {
+  async stake(sender: string, args: StakingArgs): Promise<Transaction> {
     return await this.transactionService.stake(sender, args);
   }
 
-  async unstake(
-    sender: string,
-    args: UnstakingArgs
-  ): Promise<TransactionModel> {
+  async unstake(sender: string, args: UnstakingArgs): Promise<Transaction> {
     return await this.transactionService.unstake(sender, args);
   }
 
-  async unbond(sender: string, args: StakingArgs): Promise<TransactionModel> {
+  async unbond(sender: string, args: StakingArgs): Promise<Transaction> {
     return await this.transactionService.unbond(sender, args);
   }
 
-  async reinvest(sender: string, args: StakingArgs): Promise<TransactionModel> {
+  async reinvest(sender: string, args: StakingArgs): Promise<Transaction> {
     return await this.transactionService.reinvest(sender, args);
   }
 
-  async harvest(sender: string, args: StakingArgs): Promise<TransactionModel> {
+  async harvest(sender: string, args: StakingArgs): Promise<Transaction> {
     return await this.transactionService.harvest(sender, args);
   }
 }

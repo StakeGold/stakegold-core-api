@@ -1,24 +1,15 @@
-import {
-  Address,
-  BooleanValue,
-  TypedValue,
-  U32Value,
-} from "@elrondnetwork/erdjs/out";
-import { BadRequestException, Inject, Injectable } from "@nestjs/common";
-import {
-  StakingArgs,
-  TransactionArgs,
-  UnstakingArgs,
-} from "../../../models/staking/staking.args";
-import { TransactionModel } from "../../../models/staking/transaction.model";
-import { StakeGoldApiConfigService } from "../../api-config/api-config.service";
-import { ContextTransactionsService } from "../../context/context.transactions.service";
-import { StakeGoldElrondProxyService } from "../../elrond-communication/elrond-proxy.service";
-import { AddressUtils } from "../../utils/address.utils";
+import { Address, BooleanValue, TypedValue, U32Value } from '@elrondnetwork/erdjs/out';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { StakingArgs, TransactionArgs, UnstakingArgs } from '../../../models/staking/staking.args';
+import { Transaction } from '../../../models/staking/transaction.model';
+import { StakeGoldApiConfigService } from '../../api-config/api-config.service';
+import { ContextTransactionsService } from '../../context/context.transactions.service';
+import { StakeGoldElrondProxyService } from '../../elrond-communication/elrond-proxy.service';
+import { AddressUtils } from '../../utils/address.utils';
 import {
   STAKEGOLD_API_CONFIG_SERVICE,
   STAKEGOLD_ELROND_PROXY_SERVICE,
-} from "../../utils/constants";
+} from '../../utils/constants';
 
 @Injectable()
 export class TransactionsFarmService {
@@ -27,24 +18,18 @@ export class TransactionsFarmService {
     private readonly elrondProxy: StakeGoldElrondProxyService,
     private readonly contextTransactions: ContextTransactionsService,
     @Inject(STAKEGOLD_API_CONFIG_SERVICE)
-    private readonly apiConfigService: StakeGoldApiConfigService
+    private readonly apiConfigService: StakeGoldApiConfigService,
   ) {}
 
-  async stake(sender: string, args: StakingArgs): Promise<TransactionModel> {
-    const senderShard = AddressUtils.computeShard(
-      AddressUtils.bech32Decode(sender)
-    );
-    const contract = await this.elrondProxy.getForwarderSmartContract(
-      senderShard
-    );
+  async stake(sender: string, args: StakingArgs): Promise<Transaction> {
+    const senderShard = AddressUtils.computeShard(AddressUtils.bech32Decode(sender));
+    const contract = await this.elrondProxy.getForwarderSmartContract(senderShard);
 
     if (!AddressUtils.isAddressValid(sender)) {
-      throw new BadRequestException(
-        "Provided address is not a valid bech32 address"
-      );
+      throw new BadRequestException('Provided address is not a valid bech32 address');
     }
 
-    const method = "stakeFarm";
+    const method = 'stakeFarm';
     const gasLimit = 30000000;
 
     if (args.tokens.length > 1) {
@@ -55,19 +40,19 @@ export class TransactionsFarmService {
         method,
         [new BooleanValue(args.lockRewards)],
         gasLimit,
-        this.apiConfigService.getChainId()
+        this.apiConfigService.getChainId(),
       );
     }
 
     const collection = args.tokens[0].collection;
-    if (collection === undefined || collection === "") {
+    if (collection === undefined || collection === '') {
       return this.contextTransactions.esdtTransfer(
         contract,
         args.tokens[0],
         method,
         [new BooleanValue(args.lockRewards)],
         gasLimit,
-        this.apiConfigService.getChainId()
+        this.apiConfigService.getChainId(),
       );
     }
 
@@ -76,11 +61,8 @@ export class TransactionsFarmService {
     ]);
   }
 
-  async unstake(
-    sender: string,
-    args: UnstakingArgs
-  ): Promise<TransactionModel> {
-    const method = "unstakeFarm";
+  async unstake(sender: string, args: UnstakingArgs): Promise<Transaction> {
+    const method = 'unstakeFarm';
     const gasLimit = 20000000;
 
     return await this.SftFarmInteraction(sender, args, method, gasLimit, [
@@ -88,22 +70,22 @@ export class TransactionsFarmService {
     ]);
   }
 
-  async unbond(sender: string, args: StakingArgs): Promise<TransactionModel> {
-    const method = "unbondFarm";
+  async unbond(sender: string, args: StakingArgs): Promise<Transaction> {
+    const method = 'unbondFarm';
     const gasLimit = 20000000;
 
     return await this.SftFarmInteraction(sender, args, method, gasLimit, []);
   }
 
-  async harvest(sender: string, args: StakingArgs): Promise<TransactionModel> {
-    const method = "claimRewards";
+  async harvest(sender: string, args: StakingArgs): Promise<Transaction> {
+    const method = 'claimRewards';
     const gasLimit = 35000000;
 
     return await this.SftFarmInteraction(sender, args, method, gasLimit, []);
   }
 
-  async reinvest(sender: string, args: StakingArgs): Promise<TransactionModel> {
-    const method = "compoundRewards";
+  async reinvest(sender: string, args: StakingArgs): Promise<Transaction> {
+    const method = 'compoundRewards';
     const gasLimit = 35000000;
 
     return await this.SftFarmInteraction(sender, args, method, gasLimit, []);
@@ -114,23 +96,17 @@ export class TransactionsFarmService {
     stakingArgs: TransactionArgs,
     method: string,
     gasLimit: number,
-    args: TypedValue[]
-  ): Promise<TransactionModel> {
-    const senderShard = AddressUtils.computeShard(
-      AddressUtils.bech32Decode(sender)
-    );
-    const contract = await this.elrondProxy.getForwarderSmartContract(
-      senderShard
-    );
+    args: TypedValue[],
+  ): Promise<Transaction> {
+    const senderShard = AddressUtils.computeShard(AddressUtils.bech32Decode(sender));
+    const contract = await this.elrondProxy.getForwarderSmartContract(senderShard);
 
     if (!AddressUtils.isAddressValid(sender)) {
-      throw new BadRequestException(
-        "Provided address is not a valid bech32 address"
-      );
+      throw new BadRequestException('Provided address is not a valid bech32 address');
     }
 
     if (!stakingArgs.tokens || stakingArgs.tokens.length == 0) {
-      throw new BadRequestException("No tokens sent");
+      throw new BadRequestException('No tokens sent');
     }
 
     return this.contextTransactions.nftTransfer(
@@ -140,7 +116,7 @@ export class TransactionsFarmService {
       method,
       args,
       gasLimit,
-      this.apiConfigService.getChainId()
+      this.apiConfigService.getChainId(),
     );
   }
 }

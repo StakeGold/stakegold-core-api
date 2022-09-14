@@ -1,7 +1,7 @@
-import { Interaction, TypedOutcomeBundle } from "@elrondnetwork/erdjs/out";
-import BigNumber from "bignumber.js";
-import { StakeGoldElrondProxyService } from "../../elrond-communication/elrond-proxy.service";
-import { SmartContractProfiler } from "../../utils/smartcontract.profiler";
+import { Interaction, TypedOutcomeBundle } from '@elrondnetwork/erdjs/out';
+import BigNumber from 'bignumber.js';
+import { StakeGoldElrondProxyService } from '../../elrond-communication/elrond-proxy.service';
+import { SmartContractProfiler } from '../../utils/smartcontract.profiler';
 export declare class AbiStakingService {
     private readonly elrondProxy;
     private readonly logger;
@@ -19,4 +19,12 @@ export declare class AbiStakingService {
     getDivisionSafetyConstant(farmAddress: string): Promise<string>;
     getProduceRewardsEnabled(farmAddress: string): Promise<boolean>;
     getRewardPerShare(farmAddress: string): Promise<string>;
+    getGroupIdentifiers(): Promise<string[]>;
+    getAddressesByGroupId(groupId: string): Promise<string[]>;
+    getVestingAddressByGroupIdentifier(groupId: string): Promise<string>;
+    getLockedAssetTokenId(vestingAddress: string): Promise<string>;
+    getFarmTokenId(childContractAddress: string): Promise<string>;
+    getFarmingTokenId(childContractAddress: string): Promise<string>;
+    getRewardTokenId(childContractAddress: string): Promise<string>;
+    areRewardsLocked(childContractAddress: string): Promise<boolean>;
 }

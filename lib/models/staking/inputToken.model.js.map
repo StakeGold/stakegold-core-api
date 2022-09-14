@@ -1,1 +1,1 @@
-{"version":3,"file":"inputToken.model.js","sourceRoot":"","sources":["../../../src/models/staking/inputToken.model.ts"],"names":[],"mappings":";;;AAAA,MAAa,eAAe;IAOxB,YAAY,IAA+B;QAN3C,eAAU,GAAW,EAAE,CAAC;QACxB,UAAK,GAAW,CAAC,CAAC;QAClB,WAAM,GAAW,GAAG,CAAC;QAErB,eAAU,GAAW,EAAE,CAAC;QAGpB,MAAM,CAAC,MAAM,CAAC,IAAI,EAAE,IAAI,CAAC,CAAC;IAC9B,CAAC;CACJ;AAVD,0CAUC"}
+{"version":3,"file":"inputToken.model.js","sourceRoot":"","sources":["../../../src/models/staking/inputToken.model.ts"],"names":[],"mappings":""}

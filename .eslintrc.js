@@ -4,7 +4,6 @@ module.exports = {
     project: 'tsconfig.json',
     sourceType: 'module',
   },
-  ignorePatterns: ['.eslintrc.js'],
   plugins: ['@typescript-eslint/eslint-plugin'],
   extends: [
     'plugin:@typescript-eslint/recommended',
@@ -16,10 +15,10 @@ module.exports = {
     jest: true,
   },
   rules: {
-    "@typescript-eslint/no-inferrable-types": ["off"],
-    "max-len": ["off"],
-    "semi": ["error"],
-    "comma-dangle": ["error", "always-multiline"]
+    '@typescript-eslint/no-inferrable-types': ['off'],
+    'max-len': ['off'],
+    semi: ['error'],
+    'comma-dangle': ['error', 'always-multiline'],
   },
   ignorePatterns: ['.eslintrc.js'],
 };

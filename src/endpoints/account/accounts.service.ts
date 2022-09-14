@@ -1,20 +1,20 @@
-import { CachingService } from "@elrondnetwork/erdnest";
-import { Inject, Injectable } from "@nestjs/common";
-import { AccountDetails } from "../../models/account/account.details";
-import { AccountStatus } from "../../models/account/AccountStatus";
-import { EsdtToken } from "../../models/account/esdtToken.model";
-import { LockedAssetAttributes } from "../../models/account/LockedAssetAttributes";
-import { CacheInfo } from "../../models/caching/cache.info";
-import { LockedToken } from "../../models/meta-esdt/meta.esdt";
-import { StakeGoldElrondApiService } from "../elrond-communication/elrond-api.service";
-import { StakeGoldElrondProxyService } from "../elrond-communication/elrond-proxy.service";
-import { MetaEsdtService } from "../meta-esdt/meta.esdt.service";
+import { CachingService } from '@elrondnetwork/erdnest';
+import { Inject, Injectable } from '@nestjs/common';
+import { AccountDetails } from '../../models/account/account.details';
+import { AccountStatus } from '../../models/account/AccountStatus';
+import { EsdtToken } from '../../models/account/esdtToken.model';
+import { LockedAssetAttributes } from '../../models/account/LockedAssetAttributes';
+import { CacheInfo } from '../../models/caching/cache.info';
+import { LockedToken } from '../../models/meta-esdt/meta.esdt';
+import { StakeGoldElrondApiService } from '../elrond-communication/elrond-api.service';
+import { StakeGoldElrondProxyService } from '../elrond-communication/elrond-proxy.service';
+import { MetaEsdtService } from '../meta-esdt/meta.esdt.service';
 import {
   ACCOUNT_OPTIONS,
   STAKEGOLD_ELROND_API_SERVICE,
   STAKEGOLD_ELROND_PROXY_SERVICE,
-} from "../utils/constants";
-import { AccountsModuleOptions } from "./options/account.module.options";
+} from '../utils/constants';
+import { AccountsModuleOptions } from './options/account.module.options';
 
 @Injectable()
 export class AccountsService {
@@ -25,29 +25,26 @@ export class AccountsService {
     private readonly elrondProxyService: StakeGoldElrondProxyService,
     private readonly cachingService: CachingService,
     private readonly metaEsdtService: MetaEsdtService,
-    @Inject(ACCOUNT_OPTIONS) private options: AccountsModuleOptions
+    @Inject(ACCOUNT_OPTIONS) private options: AccountsModuleOptions,
   ) {}
 
   async getAccountDetails(address: string): Promise<AccountDetails> {
     const egldBalance = await this.elrondApiService.getAccountBalance(address);
 
     const esdtTokenRequests = this.options.esdtTokens.map(
-      async (token) =>
-        await this.elrondApiService.getEsdtTokenDetails(token, address)
+      async (token) => await this.elrondApiService.getEsdtToken(token, address),
     );
     const tokens = await Promise.all(esdtTokenRequests);
     const filteredTokens = tokens.filter((token) => token) as EsdtToken[];
 
     const metaEsdts = await this.metaEsdtService.getMetaEsdts(
       address,
-      this.options.metaEsdtCollection
+      this.options.metaEsdtCollection,
     );
 
     const lockedTokens = metaEsdts
       .map((token) => {
-        const { unlockSchedule } = LockedAssetAttributes.fromAttributes(
-          token.attributes
-        );
+        const { unlockSchedule } = LockedAssetAttributes.fromAttributes(token.attributes);
         return LockedToken.fromMetaEsdt(token, unlockSchedule);
       })
       .filter((token) => token.unlockSchedule && token.balance)
@@ -55,7 +52,7 @@ export class AccountsService {
 
     const farmTokens = await this.metaEsdtService.getMetaEsdts(
       address,
-      this.options.getFarmTokensAddresses()
+      this.options.getFarmTokensAddresses(),
     );
 
     return new AccountDetails({
@@ -72,7 +69,7 @@ export class AccountsService {
       async () => {
         return await this.elrondProxyService.isAddressWhitelisted(address);
       },
-      CacheInfo.WhitelistAddress(address).ttl
+      CacheInfo.WhitelistAddress(address).ttl,
     );
   }
 

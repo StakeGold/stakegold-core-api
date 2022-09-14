@@ -1,16 +1,17 @@
 import {
+  Address,
   BigUIntValue,
   BytesValue,
   Interaction,
   ResultsParser,
   TypedOutcomeBundle,
-} from "@elrondnetwork/erdjs/out";
-import { Inject, Injectable, Logger } from "@nestjs/common";
-import BigNumber from "bignumber.js";
-import { StakeGoldElrondProxyService } from "../../elrond-communication/elrond-proxy.service";
-import { STAKEGOLD_ELROND_PROXY_SERVICE } from "../../utils/constants";
-import { generateRunQueryLogMessage } from "../../utils/generate-log-message";
-import { SmartContractProfiler } from "../../utils/smartcontract.profiler";
+} from '@elrondnetwork/erdjs/out';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import BigNumber from 'bignumber.js';
+import { StakeGoldElrondProxyService } from '../../elrond-communication/elrond-proxy.service';
+import { STAKEGOLD_ELROND_PROXY_SERVICE } from '../../utils/constants';
+import { generateRunQueryLogMessage } from '../../utils/generate-log-message';
+import { SmartContractProfiler } from '../../utils/smartcontract.profiler';
 
 @Injectable()
 export class AbiStakingService {
@@ -19,7 +20,7 @@ export class AbiStakingService {
 
   constructor(
     @Inject(STAKEGOLD_ELROND_PROXY_SERVICE)
-    private readonly elrondProxy: StakeGoldElrondProxyService
+    private readonly elrondProxy: StakeGoldElrondProxyService,
   ) {
     this.logger = new Logger(AbiStakingService.name);
     this.resultParser = new ResultsParser();
@@ -27,22 +28,19 @@ export class AbiStakingService {
 
   async getGenericData(
     contract: SmartContractProfiler,
-    interaction: Interaction
+    interaction: Interaction,
   ): Promise<TypedOutcomeBundle> {
     try {
       const queryResponse = await contract.runQuery(
         this.elrondProxy.getService(),
-        interaction.buildQuery()
+        interaction.buildQuery(),
       );
-      return this.resultParser.parseQueryResponse(
-        queryResponse,
-        interaction.getEndpoint()
-      );
+      return this.resultParser.parseQueryResponse(queryResponse, interaction.getEndpoint());
     } catch (error: any) {
       const logMessage = generateRunQueryLogMessage(
         AbiStakingService.name,
         interaction.getEndpoint().name,
-        error.message
+        error.message,
       );
       this.logger.error(logMessage);
 
@@ -53,14 +51,13 @@ export class AbiStakingService {
   async calculateRewardsForGivenPosition(
     farmAddress: string,
     amount: string,
-    attributes: string
+    attributes: string,
   ): Promise<BigNumber> {
     const contract = await this.elrondProxy.getFarmSmartContract(farmAddress);
-    const interaction: Interaction =
-      contract.methodsExplicit.calculateRewardsForGivenPosition([
-        new BigUIntValue(new BigNumber(amount)),
-        BytesValue.fromHex(Buffer.from(attributes, "base64").toString("hex")),
-      ]);
+    const interaction: Interaction = contract.methodsExplicit.calculateRewardsForGivenPosition([
+      new BigUIntValue(new BigNumber(amount)),
+      BytesValue.fromHex(Buffer.from(attributes, 'base64').toString('hex')),
+    ]);
     const response = await this.getGenericData(contract, interaction);
     return response.firstValue?.valueOf();
   }
@@ -74,26 +71,21 @@ export class AbiStakingService {
 
   async getAnnualPercentageRewards(farmAddress: string): Promise<string> {
     const contract = await this.elrondProxy.getFarmSmartContract(farmAddress);
-    const interaction: Interaction =
-      contract.methods.getAnnualPercentageRewards([]);
+    const interaction: Interaction = contract.methods.getAnnualPercentageRewards([]);
     const response = await this.getGenericData(contract, interaction);
     return response.firstValue?.valueOf()?.toFixed();
   }
 
   async getPerBlockRewardAmount(farmAddress: string): Promise<string> {
     const contract = await this.elrondProxy.getFarmSmartContract(farmAddress);
-    const interaction: Interaction = contract.methods.getPerBlockRewardAmount(
-      []
-    );
+    const interaction: Interaction = contract.methods.getPerBlockRewardAmount([]);
     const response = await this.getGenericData(contract, interaction);
     return response.firstValue?.valueOf().toFixed();
   }
 
   async getLastRewardBlockNonce(farmAddress: string): Promise<string> {
     const contract = await this.elrondProxy.getFarmSmartContract(farmAddress);
-    const interaction: Interaction = contract.methods.getLastRewardBlockNonce(
-      []
-    );
+    const interaction: Interaction = contract.methods.getLastRewardBlockNonce([]);
     const response = await this.getGenericData(contract, interaction);
     return response.firstValue?.valueOf().toFixed();
   }
@@ -112,32 +104,26 @@ export class AbiStakingService {
     const interaction: Interaction = contract.methods.getCurrentBlockFee([]);
     const response = await this.getGenericData(contract, interaction);
     const currentBlockFee = response.firstValue?.valueOf();
-    return currentBlockFee ? currentBlockFee[1].toFixed() : "0";
+    return currentBlockFee ? currentBlockFee[1].toFixed() : '0';
   }
 
   async getRewardsPerBlock(farmAddress: string): Promise<string> {
     const contract = await this.elrondProxy.getFarmSmartContract(farmAddress);
-    const interaction: Interaction = contract.methods.getPerBlockRewardAmount(
-      []
-    );
+    const interaction: Interaction = contract.methods.getPerBlockRewardAmount([]);
     const response = await this.getGenericData(contract, interaction);
     return response.firstValue?.valueOf().toFixed();
   }
 
   async getDivisionSafetyConstant(farmAddress: string): Promise<string> {
     const contract = await this.elrondProxy.getFarmSmartContract(farmAddress);
-    const interaction: Interaction = contract.methods.getDivisionSafetyConstant(
-      []
-    );
+    const interaction: Interaction = contract.methods.getDivisionSafetyConstant([]);
     const response = await this.getGenericData(contract, interaction);
     return response.firstValue?.valueOf().toFixed();
   }
 
   async getProduceRewardsEnabled(farmAddress: string): Promise<boolean> {
     const contract = await this.elrondProxy.getFarmSmartContract(farmAddress);
-    const interaction: Interaction = contract.methods.isProduceRewardsEnabled(
-      []
-    );
+    const interaction: Interaction = contract.methods.isProduceRewardsEnabled([]);
     const response = await this.getGenericData(contract, interaction);
     return response.firstValue?.valueOf() ?? true;
   }
@@ -147,5 +133,65 @@ export class AbiStakingService {
     const interaction: Interaction = contract.methods.getRewardPerShare([]);
     const response = await this.getGenericData(contract, interaction);
     return response.firstValue?.valueOf().toFixed();
+  }
+
+  async getGroupIdentifiers(): Promise<string[]> {
+    const contract = await this.elrondProxy.getRouterSmartContract();
+    const interaction: Interaction = contract.methods.getGroupIdentifiers([]);
+    const response = await this.getGenericData(contract, interaction);
+    return (response.firstValue?.valueOf() as any[]).map((group) => group.toString()) ?? [];
+  }
+
+  async getAddressesByGroupId(groupId: string): Promise<string[]> {
+    const contract = await this.elrondProxy.getRouterSmartContract();
+    const interaction: Interaction = contract.methodsExplicit.getAddressesByGroupIdentifier([
+      new BytesValue(Buffer.from(groupId)),
+    ]);
+    const response = await this.getGenericData(contract, interaction);
+    return (response.firstValue?.valueOf() as Address[]).map((address) => address.toString());
+  }
+
+  async getVestingAddressByGroupIdentifier(groupId: string): Promise<string> {
+    const contract = await this.elrondProxy.getRouterSmartContract();
+    const interaction: Interaction = contract.methodsExplicit.getVestingAddressByGroupIdentifier([
+      new BytesValue(Buffer.from(groupId)),
+    ]);
+    const response = await this.getGenericData(contract, interaction);
+    return response.firstValue?.valueOf().toString();
+  }
+
+  async getLockedAssetTokenId(vestingAddress: string): Promise<string> {
+    const contract = await this.elrondProxy.getVestingSmartContract(vestingAddress);
+    const interaction: Interaction = contract.methods.getLockedAssetTokenId([]);
+    const response = await this.getGenericData(contract, interaction);
+    return response.firstValue?.valueOf();
+  }
+
+  async getFarmTokenId(childContractAddress: string): Promise<string> {
+    const contract = await this.elrondProxy.getFarmSmartContract(childContractAddress);
+    const interaction: Interaction = contract.methods.getFarmTokenIdentifier([]);
+    const response = await this.getGenericData(contract, interaction);
+    return response.firstValue?.valueOf();
+  }
+
+  async getFarmingTokenId(childContractAddress: string): Promise<string> {
+    const contract = await this.elrondProxy.getFarmSmartContract(childContractAddress);
+    const interaction: Interaction = contract.methods.getFarmingTokenId([]);
+    const response = await this.getGenericData(contract, interaction);
+    return response.firstValue?.valueOf();
+  }
+
+  async getRewardTokenId(childContractAddress: string): Promise<string> {
+    const contract = await this.elrondProxy.getFarmSmartContract(childContractAddress);
+    const interaction: Interaction = contract.methods.getRewardTokenId([]);
+    const response = await this.getGenericData(contract, interaction);
+    return response.firstValue?.valueOf();
+  }
+
+  async areRewardsLocked(childContractAddress: string): Promise<boolean> {
+    const contract = await this.elrondProxy.getFarmSmartContract(childContractAddress);
+    const interaction: Interaction = contract.methods.areRewardsLocked([]);
+    const response = await this.getGenericData(contract, interaction);
+    return response.firstValue?.valueOf();
   }
 }

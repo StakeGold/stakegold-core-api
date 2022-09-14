@@ -1,20 +1,17 @@
-import { EsdtToken } from "../../models/account/esdtToken.model";
-import { MetaEsdtDetailed } from "../../models/meta-esdt/meta.esdt";
+import { NftCollection } from 'src/models';
+import { EsdtToken } from '../../models/account/esdtToken.model';
+import { MetaEsdtDetailed } from '../../models/meta-esdt/meta.esdt';
 
 export interface StakeGoldElrondApiService {
   getAccountBalance(address: string): Promise<string>;
 
-  getEsdtTokenDetails(
-    token: string,
-    address: string
-  ): Promise<EsdtToken | undefined>;
+  getEsdtToken(token: string, address?: string): Promise<EsdtToken | undefined>;
 
-  getMetaEsdts(
-    address: string,
-    collections?: string[]
-  ): Promise<MetaEsdtDetailed[]>;
+  getMetaEsdts(address: string, collections?: string[]): Promise<MetaEsdtDetailed[]>;
 
   getAccountEsdtBalance(token: string, address: string): Promise<string>;
 
   getCurrentBlockNonce(shardId: number): Promise<number>;
+
+  getNftCollection(identifier: string): Promise<NftCollection | undefined>;
 }

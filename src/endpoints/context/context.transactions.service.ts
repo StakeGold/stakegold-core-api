@@ -6,26 +6,24 @@ import {
   SmartContract,
   TypedValue,
   U32Value,
-} from "@elrondnetwork/erdjs/out";
-import BigNumber from "bignumber.js";
-import { InputTokenModel } from "../../models/staking/inputToken.model";
-import { TransactionModel } from "../../models/staking/transaction.model";
+} from '@elrondnetwork/erdjs/out';
+import BigNumber from 'bignumber.js';
+import { InputToken } from '../../models/staking/inputToken.model';
+import { Transaction } from '../../models/staking/transaction.model';
 
 export class ContextTransactionsService {
   multiESDTNFTTransfer(
     sender: Address,
     contract: SmartContract,
-    tokens: InputTokenModel[],
+    tokens: InputToken[],
     funcName: string,
     args: TypedValue[],
     gasLimit: number,
-    chainId: string
-  ): TransactionModel {
+    chainId: string,
+  ): Transaction {
     const receiverAddress = contract.getAddress();
     const transactionArgs: TypedValue[] = [];
-    transactionArgs.push(
-      BytesValue.fromHex(Address.fromBech32(receiverAddress.bech32()).hex())
-    );
+    transactionArgs.push(BytesValue.fromHex(Address.fromBech32(receiverAddress.bech32()).hex()));
 
     transactionArgs.push(new U32Value(tokens.length));
     for (const token of tokens) {
@@ -38,7 +36,7 @@ export class ContextTransactionsService {
     transactionArgs.push(...args);
 
     const transaction = contract.call({
-      func: new ContractFunction("MultiESDTNFTTransfer"),
+      func: new ContractFunction('MultiESDTNFTTransfer'),
       args: transactionArgs,
       gasLimit: gasLimit,
       chainID: chainId,
@@ -54,12 +52,12 @@ export class ContextTransactionsService {
   nftTransfer(
     sender: Address,
     contract: SmartContract,
-    token: InputTokenModel,
+    token: InputToken,
     funcName: string,
     args: TypedValue[],
     gasLimit: number,
-    chainId: string
-  ): TransactionModel {
+    chainId: string,
+  ): Transaction {
     const receiverAddress = contract.getAddress();
 
     const transactionArgs = [
@@ -72,7 +70,7 @@ export class ContextTransactionsService {
     ];
 
     const transaction = contract.call({
-      func: new ContractFunction("ESDTNFTTransfer"),
+      func: new ContractFunction('ESDTNFTTransfer'),
       args: transactionArgs,
       gasLimit: gasLimit,
       chainID: chainId,
@@ -87,12 +85,12 @@ export class ContextTransactionsService {
 
   esdtTransfer(
     contract: SmartContract,
-    token: InputTokenModel,
+    token: InputToken,
     funcName: string,
     args: TypedValue[],
     gasLimit: number,
-    chainId: string
-  ): TransactionModel {
+    chainId: string,
+  ): Transaction {
     const receiverAddress = contract.getAddress();
 
     const transactionArgs = [
@@ -103,7 +101,7 @@ export class ContextTransactionsService {
     ];
 
     const transaction = contract.call({
-      func: new ContractFunction("ESDTTransfer"),
+      func: new ContractFunction('ESDTTransfer'),
       args: transactionArgs,
       gasLimit: gasLimit,
       chainID: chainId,

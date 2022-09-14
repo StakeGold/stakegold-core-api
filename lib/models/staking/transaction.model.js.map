@@ -1,1 +1,1 @@
-{"version":3,"file":"transaction.model.js","sourceRoot":"","sources":["../../../src/models/staking/transaction.model.ts"],"names":[],"mappings":";;;AAAA,MAAa,gBAAgB;IAczB,YAAY,IAAgC;QACxC,MAAM,CAAC,MAAM,CAAC,IAAI,EAAE,IAAI,CAAC,CAAC;IAC9B,CAAC;CACJ;AAjBD,4CAiBC"}
+{"version":3,"file":"transaction.model.js","sourceRoot":"","sources":["../../../src/models/staking/transaction.model.ts"],"names":[],"mappings":""}

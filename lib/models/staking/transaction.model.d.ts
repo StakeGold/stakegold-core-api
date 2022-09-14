@@ -1,4 +1,4 @@
-export declare class TransactionModel {
+export interface Transaction {
     nonce?: number;
     value?: string;
     sender?: string;
@@ -11,5 +11,4 @@ export declare class TransactionModel {
     options?: number;
     status?: string;
     signature?: string;
-    constructor(init?: Partial<TransactionModel>);
 }

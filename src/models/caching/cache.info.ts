@@ -1,7 +1,7 @@
-import { Constants } from "@elrondnetwork/erdnest";
+import { Constants } from '@elrondnetwork/erdnest';
 
 export class CacheInfo {
-  key: string = "";
+  key: string = '';
   ttl: number = Constants.oneSecond() * 6;
 
   static WhitelistAddress(address: string): CacheInfo {
@@ -17,41 +17,6 @@ export class CacheInfo {
       ttl: Constants.oneMinute() * 10,
     };
   }
-
-  // static WhitelistActive: CacheInfo = {
-  //   key: 'WhitelistActive',
-  //   ttl: Constants.oneHour(),
-  // };
-
-  // static BuyMinLimit: CacheInfo = {
-  //   key: 'BuyMinLimit',
-  //   ttl: Constants.oneHour(),
-  // };
-
-  // static BuyMaxLimit: CacheInfo = {
-  //   key: 'BuyMaxLimit',
-  //   ttl: Constants.oneHour(),
-  // };
-
-  // static SwappedEgld: CacheInfo = {
-  //   key: 'SwappedEgld',
-  //   ttl: Constants.oneHour(),
-  // };
-
-  // static SaleStartTimestamp: CacheInfo = {
-  //   key: 'SaleStartTimestamp',
-  //   ttl: Constants.oneHour(),
-  // };
-
-  // static Pause: CacheInfo = {
-  //   key: 'Pause',
-  //   ttl: Constants.oneHour(),
-  // };
-
-  // static SoldTokens: CacheInfo = {
-  //   key: 'sold-tokens',
-  //   ttl: Constants.oneSecond() * 6,
-  // };
 
   static FarmTokenSupply(address: string): CacheInfo {
     return {
@@ -75,7 +40,7 @@ export class CacheInfo {
   }
 
   static CurrentEpoch: CacheInfo = {
-    key: "currentEpoch",
+    key: 'currentEpoch',
     ttl: Constants.oneSecond() * 6,
   };
 
@@ -132,6 +97,62 @@ export class CacheInfo {
     return {
       key: `rewardPerShare:${farmAddress}`,
       ttl: Constants.oneMinute(),
+    };
+  }
+
+  static getGroupIdentifiers(): CacheInfo {
+    return {
+      key: `groupIdentifiers`,
+      ttl: Constants.oneMinute(),
+    };
+  }
+
+  static getAddressesByGroupId(groupId: string): CacheInfo {
+    return {
+      key: `groupAddresses:${groupId}`,
+      ttl: Constants.oneMinute(),
+    };
+  }
+
+  static getFarmTokenId(childContractAddress: string): CacheInfo {
+    return {
+      key: `farmTokenId:${childContractAddress}`,
+      ttl: Constants.oneWeek(),
+    };
+  }
+
+  static getFarmingTokenId(childContractAddress: string): CacheInfo {
+    return {
+      key: `farmingTokenId:${childContractAddress}`,
+      ttl: Constants.oneWeek(),
+    };
+  }
+
+  static getRewardTokenId(childContractAddress: string): CacheInfo {
+    return {
+      key: `rewardTokenId:${childContractAddress}`,
+      ttl: Constants.oneWeek(),
+    };
+  }
+
+  static areRewardsLocked(childContractAddress: string): CacheInfo {
+    return {
+      key: `areRewardsLocked:${childContractAddress}`,
+      ttl: Constants.oneWeek(),
+    };
+  }
+
+  static stakeToken(identifier: string): CacheInfo {
+    return {
+      key: `stakeToken:${identifier}`,
+      ttl: Constants.oneWeek(),
+    };
+  }
+
+  static vestingAddressByGroupId(groupId: string): CacheInfo {
+    return {
+      key: `vestingAddressByGroupId:${groupId}`,
+      ttl: Constants.oneWeek(),
     };
   }
 }

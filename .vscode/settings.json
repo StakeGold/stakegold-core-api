@@ -2,9 +2,7 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },
-  "eslint.validate": [
-    "javascript"
-  ],
+  "eslint.validate": ["javascript"],
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "files.exclude": {
@@ -14,12 +12,15 @@
     "**/coverage": true,
     "**/dist": true,
     "**/config/config.yaml": true,
-    "**/lib": true,
+    "**/lib": true
   },
   "search.exclude": {
     "**/node_modules": true,
     "**/coverage": true,
-    "**/dist": true,
+    "**/dist": true
   },
-  "search.useIgnoreFiles": false
+  "search.useIgnoreFiles": false,
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

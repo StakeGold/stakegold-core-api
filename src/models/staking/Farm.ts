@@ -1,12 +1,12 @@
-import { MetaEsdtDetailed } from "../meta-esdt/meta.esdt";
-import { FarmAddress } from "./farm.address";
-import { StakeTokenModel } from "./stake.token.model";
+import { EsdtToken } from '../account';
+import { NftCollection } from '../meta-esdt';
+import { MetaEsdtDetailed } from '../meta-esdt/meta.esdt';
+import { FarmAddresses } from './farm.address';
 
 export interface Farm {
-  farmAddress: FarmAddress;
-  address: string,
-  vmQuery: boolean,
-  farmingToken: StakeTokenModel;
+  farmAddresses: FarmAddresses;
+  farmingToken: NftCollection | EsdtToken;
+  groupId: string;
   farmTotalSupply: string;
   apr?: number;
   lockedApr?: number;
@@ -17,5 +17,5 @@ export interface Farm {
 
 export interface Position {
   farmToken: MetaEsdtDetailed;
-  rewardToken: StakeTokenModel;
+  rewardToken: NftCollection | EsdtToken;
 }

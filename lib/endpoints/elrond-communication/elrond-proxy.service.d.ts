@@ -5,6 +5,8 @@ export interface StakeGoldElrondProxyService {
     getForwarderSmartContract(shard: number): Promise<SmartContractProfiler>;
     getService(): ProxyNetworkProvider;
     getFarmSmartContract(farmAddress: string): Promise<SmartContractProfiler>;
+    getRouterSmartContract(): Promise<SmartContractProfiler>;
+    getVestingSmartContract(vestingAddress: string): Promise<SmartContractProfiler>;
     isAddressWhitelisted(address: string): Promise<boolean>;
     getAddressBuys(address: string): Promise<BigNumber>;
 }

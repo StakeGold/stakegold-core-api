@@ -1,4 +1,4 @@
-export interface FarmAddress {
-    unlockedRewardsAddress?: string;
-    lockedRewardsAddress?: string;
+export interface FarmAddresses {
+  addressWithUnlockedRewards?: string;
+  addressWithLockedRewards?: string;
 }

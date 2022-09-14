@@ -1,34 +1,32 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { Position } from "../../../models/staking/Farm";
-import { FarmInfo, RewardsModel } from "../../../models/staking/farm.info";
-import { StakeFarmToken } from "../../../models/staking/stakeFarmToken.model";
-import { StakingTokenAttributesModel, StakingTokenType } from "../../../models/staking/stakingTokenAttributes.model";
-import { StakeGoldApiConfigService } from "../../api-config/api-config.service";
-import { AddressUtils } from "../../utils/address.utils";
-import { STAKEGOLD_API_CONFIG_SERVICE } from "../../utils/constants";
-import { NumberUtils } from "../../utils/number.utils";
-import { StakingGetterService } from "./staking.getter.service";
-import BigNumber from "bignumber.js";
-import { UnbondFarmToken } from "src/models";
+import { Inject, Injectable } from '@nestjs/common';
+import { Position } from '../../../models/staking/Farm';
+import { StakeFarmToken } from '../../../models/staking/stakeFarmToken.model';
+import {
+  StakingTokenAttributesModel,
+  StakingTokenType,
+} from '../../../models/staking/stakingTokenAttributes.model';
+import { StakeGoldApiConfigService } from '../../api-config/api-config.service';
+import { AddressUtils } from '../../utils/address.utils';
+import { STAKEGOLD_API_CONFIG_SERVICE } from '../../utils/constants';
+import { NumberUtils } from '../../utils/number.utils';
+import { StakingGetterService } from './staking.getter.service';
+import BigNumber from 'bignumber.js';
+import { EsdtToken, NftCollection, UnbondFarmToken } from 'src/models';
 
 @Injectable()
 export class StakingComputeService {
   constructor(
     private readonly stakingGetterService: StakingGetterService,
     @Inject(STAKEGOLD_API_CONFIG_SERVICE)
-    private readonly apiConfigService: StakeGoldApiConfigService
+    private readonly apiConfigService: StakeGoldApiConfigService,
   ) {}
 
-  async computeAnnualPercentageReward(
-    address: string
-  ): Promise<number | undefined> {
-    const perBlockRewardAmount =
-      await this.stakingGetterService.getPerBlockRewardAmount(address);
-    const farmTotalSupply = await this.stakingGetterService.getFarmTokenSupply(
-      address
+  async computeAnnualPercentageReward(address: string): Promise<number | undefined> {
+    const perBlockRewardAmount = await this.stakingGetterService.getPerBlockRewardAmount(address);
+    const farmTotalSupply = await this.stakingGetterService.getFarmTokenSupply(address);
+    const maxAnnualPercentageRewards = await this.stakingGetterService.getAnnualPercentageRewards(
+      address,
     );
-    const maxAnnualPercentageRewards =
-      await this.stakingGetterService.getAnnualPercentageRewards(address);
     if (perBlockRewardAmount && farmTotalSupply && maxAnnualPercentageRewards) {
       let totalSupplyNumber = new BigNumber(farmTotalSupply);
       if (totalSupplyNumber.isLessThanOrEqualTo(new BigNumber(0))) {
@@ -41,51 +39,17 @@ export class StakingComputeService {
         .multipliedBy(100);
       return Math.min(
         result.toNumber(),
-        NumberUtils.denominate(BigInt(maxAnnualPercentageRewards), 2)
+        NumberUtils.denominate(BigInt(maxAnnualPercentageRewards), 2),
       );
     }
 
     return undefined;
   }
 
-  async computePositions(
-    farmInfo: FarmInfo,
-    metaEsdts: (StakeFarmToken | UnbondFarmToken)[],
-    vmQuery: boolean
-  ): Promise<Position[]> {
-    const positions: Position[][] = [];
-
-    if (farmInfo.lockedRewards) {
-      const position = await this.computePosition(
-        farmInfo.lockedRewards,
-        metaEsdts,
-        vmQuery
-      );
-      if (position) {
-        positions.push(position);
-      }
-    }
-
-    if (farmInfo.unlockedRewards) {
-      const position = await this.computePosition(
-        farmInfo.unlockedRewards,
-        metaEsdts,
-        vmQuery
-      );
-      if (position) {
-        positions.push(position);
-      }
-    }
-
-    return positions.flat();
-  }
-
   computeAccumulatedStakings(positions: Position[]): string {
     let stakings = new BigNumber(0);
     for (let i = 0; i < positions.length; i++) {
-      stakings = stakings.plus(
-        new BigNumber(positions[i].farmToken?.balance ?? 0)
-      );
+      stakings = stakings.plus(new BigNumber(positions[i].farmToken?.balance ?? 0));
     }
 
     return stakings.toFixed();
@@ -94,35 +58,30 @@ export class StakingComputeService {
   computeAccumulatedRewards(positions: Position[]): string {
     let stakings = new BigNumber(0);
     for (let i = 0; i < positions.length; i++) {
-      stakings = stakings.plus(
-        new BigNumber(positions[i].rewardToken?.balance ?? 0)
-      );
+      stakings = stakings.plus(new BigNumber(positions[i].rewardToken?.balance ?? 0));
     }
 
     return stakings.toFixed();
   }
 
-  private async computePosition(
-    rewardModel: RewardsModel,
+  async computePositions(
+    farmAddress: string,
+    farmTokenId: string,
+    rewardToken: NftCollection | EsdtToken,
     metaEsdts: (StakeFarmToken | UnbondFarmToken)[],
-    vmQuery: boolean
+    vmQuery: boolean,
   ): Promise<Position[]> {
     const metaEsdt = metaEsdts.filter((metaEsdt) => {
-      return metaEsdt.collection.trim() === rewardModel.farmToken.trim();
+      return metaEsdt.collection.trim() === farmTokenId;
     });
 
     const promises = metaEsdt.map(async (esdt) => {
-      const rewardsToken = rewardModel.rewardsToken;
       if (esdt.balance) {
-        const rewards = await this.getRewardsForPosition(
-          rewardModel.address,
-          esdt,
-          vmQuery
-        );
-        rewardsToken.balance = rewards.toFixed();
+        const rewards = await this.getRewardsForPosition(farmAddress, esdt, vmQuery);
+        rewardToken.balance = rewards.toFixed();
       }
 
-      return { farmToken: esdt, rewardToken: rewardsToken } as Position;
+      return { farmToken: esdt, rewardToken: rewardToken } as Position;
     });
 
     return await Promise.all(promises);
@@ -131,12 +90,14 @@ export class StakingComputeService {
   async getRewardsForPosition(
     stakeAddress: string,
     esdt: StakeFarmToken | UnbondFarmToken,
-    vmQuery: boolean
+    vmQuery: boolean,
   ): Promise<BigNumber> {
-    if (esdt.stakingTokenType !== StakingTokenType.STAKING_FARM_TOKEN 
-        || !esdt.decodedAttributes
-        || !esdt.balance
-        || !esdt.attributes) {
+    if (
+      esdt.stakingTokenType !== StakingTokenType.STAKING_FARM_TOKEN ||
+      !esdt.decodedAttributes ||
+      !esdt.balance ||
+      !esdt.attributes
+    ) {
       return new BigNumber(0);
     }
 
@@ -149,14 +110,14 @@ export class StakingComputeService {
         (await this.stakingGetterService.calculateRewardsForGivenPosition(
           stakeAddress,
           liquidity,
-          attributes
+          attributes,
         )) ?? new BigNumber(0);
     } else {
       rewards =
         (await this.computeFarmRewardsForPosition(
           stakeAddress,
           liquidity,
-          esdt.decodedAttributes
+          esdt.decodedAttributes,
         )) ?? new BigNumber(0);
     }
 
@@ -166,7 +127,7 @@ export class StakingComputeService {
   async computeFarmRewardsForPosition(
     farmAddress: string,
     liquidity: string,
-    decodedAttributes: StakingTokenAttributesModel
+    decodedAttributes: StakingTokenAttributesModel,
   ): Promise<BigNumber> {
     const [
       currentNonce,
@@ -179,7 +140,7 @@ export class StakingComputeService {
       rewardPerShare,
     ] = await Promise.all([
       this.stakingGetterService.getShardCurrentBlockNonce(
-        AddressUtils.computeShard(AddressUtils.bech32Decode(farmAddress))
+        AddressUtils.computeShard(AddressUtils.bech32Decode(farmAddress)),
       ),
       this.stakingGetterService.getLastRewardBlockNonce(farmAddress),
       this.stakingGetterService.getFarmTokenSupply(farmAddress),
@@ -190,9 +151,7 @@ export class StakingComputeService {
       this.stakingGetterService.getRewardPerShare(farmAddress),
     ]);
 
-    const attributesRewardsPerShareBig = new BigNumber(
-      decodedAttributes.rewardPerShare ?? 0
-    );
+    const attributesRewardsPerShareBig = new BigNumber(decodedAttributes.rewardPerShare ?? 0);
     const amountBig = new BigNumber(liquidity);
     const currentBlockBig = new BigNumber(currentNonce);
     const lastRewardBlockNonceBig = new BigNumber(lastRewardBlockNonce);
@@ -208,13 +167,13 @@ export class StakingComputeService {
       produceRewardsEnabled,
       perBlockRewardAmountBig,
       farmTokenSupplyBig,
-      maxAprBig
+      maxAprBig,
     );
 
     const rewardPerShareIncrease = this.calculateRewardPerShareIncrease(
       rewardIncrease,
       farmTokenSupplyBig,
-      divisionSafetyConstantBig
+      divisionSafetyConstantBig,
     );
 
     const futureRewardPerShare = rewardPerShareBig.plus(rewardPerShareIncrease);
@@ -223,7 +182,7 @@ export class StakingComputeService {
       amountBig,
       futureRewardPerShare,
       attributesRewardsPerShareBig,
-      divisionSafetyConstantBig
+      divisionSafetyConstantBig,
     );
   }
 
@@ -231,12 +190,10 @@ export class StakingComputeService {
     amount: BigNumber,
     currentRewardPerShare: BigNumber,
     initialRewardPerShare: BigNumber,
-    divisionSafetyConstant: BigNumber
+    divisionSafetyConstant: BigNumber,
   ): BigNumber {
     if (currentRewardPerShare.isGreaterThan(initialRewardPerShare)) {
-      const rewardPerShareDiff = currentRewardPerShare.minus(
-        initialRewardPerShare
-      );
+      const rewardPerShareDiff = currentRewardPerShare.minus(initialRewardPerShare);
       return amount
         .multipliedBy(rewardPerShareDiff)
         .dividedBy(divisionSafetyConstant)
@@ -249,21 +206,15 @@ export class StakingComputeService {
   calculateRewardPerShareIncrease(
     rewardIncrease: BigNumber,
     farmTokenSupply: BigNumber,
-    divisionSafetyConstant: BigNumber
+    divisionSafetyConstant: BigNumber,
   ): BigNumber {
-    const result = rewardIncrease
-      .multipliedBy(divisionSafetyConstant)
-      .dividedBy(farmTokenSupply);
+    const result = rewardIncrease.multipliedBy(divisionSafetyConstant).dividedBy(farmTokenSupply);
     return result;
   }
 
   getAmountAprBounded(amount: BigNumber, maxApr: BigNumber): BigNumber {
-    const maxPercent = new BigNumber(
-      this.apiConfigService.getStakingMaxPercent()
-    );
-    const blocksPerYear = new BigNumber(
-      this.apiConfigService.getBlocksPerYear()
-    );
+    const maxPercent = new BigNumber(this.apiConfigService.getStakingMaxPercent());
+    const blocksPerYear = new BigNumber(this.apiConfigService.getBlocksPerYear());
     const result = new BigNumber(amount)
       .multipliedBy(maxApr)
       .dividedBy(maxPercent)
@@ -275,12 +226,9 @@ export class StakingComputeService {
     currentBlockNonce: BigNumber,
     lastRewardBlockNonce: BigNumber,
     produceRewardsEnabled: boolean,
-    perBlockRewardAmount: BigNumber
+    perBlockRewardAmount: BigNumber,
   ): BigNumber {
-    if (
-      currentBlockNonce.isLessThanOrEqualTo(lastRewardBlockNonce) ||
-      !produceRewardsEnabled
-    ) {
+    if (currentBlockNonce.isLessThanOrEqualTo(lastRewardBlockNonce) || !produceRewardsEnabled) {
       return new BigNumber(0);
     }
 
@@ -295,22 +243,19 @@ export class StakingComputeService {
     produceRewardsEnabled: boolean,
     perBlockRewardAmount: BigNumber,
     farmTokenSupply: BigNumber,
-    maxApr: BigNumber
+    maxApr: BigNumber,
   ): BigNumber {
     const extraRewardsUnbounded = this.calculatePerBlockRewards(
       currentBlockNonce,
       lastRewardBlockNonce,
       produceRewardsEnabled,
-      perBlockRewardAmount
+      perBlockRewardAmount,
     );
     const extraRewardsAprBoundedPerBlock = this.getAmountAprBounded(
       farmTokenSupply,
-      maxApr
+      maxApr,
     ).multipliedBy(currentBlockNonce.minus(lastRewardBlockNonce));
-    const rewardIncrease = BigNumber.minimum(
-      extraRewardsUnbounded,
-      extraRewardsAprBoundedPerBlock
-    );
+    const rewardIncrease = BigNumber.minimum(extraRewardsUnbounded, extraRewardsAprBoundedPerBlock);
     return rewardIncrease;
   }
 }

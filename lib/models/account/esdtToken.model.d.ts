@@ -1,4 +1,4 @@
-export declare class EsdtToken {
+export interface EsdtToken {
     identifier: string;
     name: string;
     owner: string;
@@ -17,9 +17,7 @@ export declare class EsdtToken {
     type: string;
     balance?: string;
     assets?: Assets;
-    constructor(init?: Partial<EsdtToken>);
 }
-export declare class Assets {
+export interface Assets {
     svgUrl?: string;
-    constructor(init?: Partial<Assets>);
 }

@@ -1,11 +1,10 @@
-import BigNumber from "bignumber.js";
-import { InputTokenModel } from "./inputToken.model";
-export declare class TransactionArgs {
-    tokens: InputTokenModel[];
+import { InputToken } from './inputToken.model';
+export interface TransactionArgs {
+    tokens: InputToken[];
 }
-export declare class StakingArgs extends TransactionArgs {
+export interface StakingArgs extends TransactionArgs {
     lockRewards: boolean;
 }
-export declare class UnstakingArgs extends TransactionArgs {
-    value: BigNumber;
+export interface UnstakingArgs extends TransactionArgs {
+    value: string;
 }

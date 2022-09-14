@@ -21,13 +21,13 @@ export interface MetaEsdtDetailed extends MetaEsdt {
 }
 
 export class LockedToken {
-  identifier: string = '';
+  identifier: string = "";
   nonce: number = 0;
-  name: string = '';
-  collection: string = '';
-  balance: string = '0';
+  name: string = "";
+  collection: string = "";
+  balance: string = "0";
   decimals: number | undefined = undefined;
-  ticker?: string = '';
+  ticker?: string = "";
   unlockSchedule: UnlockMilestone[] = [];
   assets?: any;
 
@@ -35,7 +35,10 @@ export class LockedToken {
     Object.assign(this, init);
   }
 
-  static fromMetaEsdt(esdt: MetaEsdtDetailed, unlockSchedule: UnlockMilestone[] | undefined): LockedToken {
+  static fromMetaEsdt(
+    esdt: MetaEsdtDetailed,
+    unlockSchedule: UnlockMilestone[] | undefined
+  ): LockedToken {
     return new LockedToken({
       ticker: esdt.ticker,
       collection: esdt.collection,

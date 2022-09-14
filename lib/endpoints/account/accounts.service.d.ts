@@ -1,9 +1,9 @@
-import { CachingService } from "@elrondnetwork/erdnest";
-import { AccountDetails } from "../../models/account/account.details";
-import { StakeGoldElrondApiService } from "../elrond-communication/elrond-api.service";
-import { StakeGoldElrondProxyService } from "../elrond-communication/elrond-proxy.service";
-import { MetaEsdtService } from "../meta-esdt/meta.esdt.service";
-import { AccountsModuleOptions } from "./options/account.module.options";
+import { CachingService } from '@elrondnetwork/erdnest';
+import { AccountDetails } from '../../models/account/account.details';
+import { StakeGoldElrondApiService } from '../elrond-communication/elrond-api.service';
+import { StakeGoldElrondProxyService } from '../elrond-communication/elrond-proxy.service';
+import { MetaEsdtService } from '../meta-esdt/meta.esdt.service';
+import { AccountsModuleOptions } from './options/account.module.options';
 export declare class AccountsService {
     private readonly elrondApiService;
     private readonly elrondProxyService;
