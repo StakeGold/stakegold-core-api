@@ -1,97 +1,80 @@
-import { CachingService } from '@elrondnetwork/erdnest';
 import { Inject, Injectable } from '@nestjs/common';
-import { AccountDetails } from '../../models/account/account.details';
-import { AccountStatus } from '../../models/account/AccountStatus';
+import { AccountDetails } from 'src/models/account/account.details.model';
 import { EsdtToken } from '../../models/account/esdtToken.model';
 import { LockedAssetAttributes } from '../../models/account/LockedAssetAttributes';
-import { CacheInfo } from '../../models/caching/cache.info';
-import { LockedToken } from '../../models/meta-esdt/meta.esdt';
+import { LockedToken, MetaEsdtDetailed } from '../../models/meta-esdt/meta.esdt';
 import { StakeGoldElrondApiService } from '../elrond-communication/elrond-api.service';
-import { StakeGoldElrondProxyService } from '../elrond-communication/elrond-proxy.service';
 import { MetaEsdtService } from '../meta-esdt/meta.esdt.service';
-import {
-  ACCOUNT_OPTIONS,
-  STAKEGOLD_ELROND_API_SERVICE,
-  STAKEGOLD_ELROND_PROXY_SERVICE,
-} from '../utils/constants';
-import { AccountsModuleOptions } from './options/account.module.options';
+import { StakingGetterService } from '../staking';
+import { STAKEGOLD_ELROND_API_SERVICE } from '../utils/constants';
 
 @Injectable()
 export class AccountsService {
   constructor(
     @Inject(STAKEGOLD_ELROND_API_SERVICE)
     private readonly elrondApiService: StakeGoldElrondApiService,
-    @Inject(STAKEGOLD_ELROND_PROXY_SERVICE)
-    private readonly elrondProxyService: StakeGoldElrondProxyService,
-    private readonly cachingService: CachingService,
     private readonly metaEsdtService: MetaEsdtService,
-    @Inject(ACCOUNT_OPTIONS) private options: AccountsModuleOptions,
+    private readonly stakingGetterService: StakingGetterService,
   ) {}
 
-  async getAccountDetails(address: string): Promise<AccountDetails> {
-    const egldBalance = await this.elrondApiService.getAccountBalance(address);
+  async getAccountDetails(address: string) {
+    const egldBalance = await this.getEgldBalance(address);
+    return { address, egldBalance } as AccountDetails;
+  }
 
-    const esdtTokenRequests = this.options.esdtTokens.map(
-      async (token) => await this.elrondApiService.getEsdtToken(token, address),
-    );
-    const tokens = await Promise.all(esdtTokenRequests);
-    const filteredTokens = tokens.filter((token) => token) as EsdtToken[];
+  async getEgldBalance(address: string): Promise<string> {
+    return await this.elrondApiService.getAccountBalance(address);
+  }
 
-    const metaEsdts = await this.metaEsdtService.getMetaEsdts(
-      address,
-      this.options.metaEsdtCollection,
-    );
+  async getEsdtTokens(address: string): Promise<EsdtToken[]> {
+    return this.elrondApiService.getEsdtTokens(address);
+  }
+
+  async getLockedTokens(address: string): Promise<LockedToken[]> {
+    const farmStakingGroups = await this.stakingGetterService.getFarmStakingGroups();
+
+    const lockedTokenIds = farmStakingGroups
+      .map((group) =>
+        group.childContracts
+          .map((childContract) => [childContract.farmTokenId, childContract.rewardTokenId])
+          .flat(),
+      )
+      .flat();
+    const uniqueLockedTokenIds = [...new Set(lockedTokenIds.map((id) => id))];
+
+    const metaEsdts = await this.metaEsdtService.getMetaEsdts(address, uniqueLockedTokenIds);
 
     const lockedTokens = metaEsdts
       .map((token) => {
         const { unlockSchedule } = LockedAssetAttributes.fromAttributes(token.attributes);
-        return LockedToken.fromMetaEsdt(token, unlockSchedule);
+        return {
+          ticker: token.ticker,
+          collection: token.collection,
+          identifier: token.identifier,
+          name: token.name,
+          nonce: token.nonce,
+          balance: token.balance,
+          decimals: token.decimals,
+          assets: token.assets,
+          unlockSchedule,
+        } as LockedToken;
       })
-      .filter((token) => token.unlockSchedule && token.balance)
-      .groupBy((item) => item.collection) as Map<string, LockedToken[]>;
+      .filter((token) => token.unlockSchedule && token.balance);
 
-    const farmTokens = await this.metaEsdtService.getMetaEsdts(
-      address,
-      this.options.getFarmTokensAddresses(),
-    );
-
-    return new AccountDetails({
-      egldBalance,
-      esdtTokens: filteredTokens,
-      lockedTokens,
-      farmTokens,
-    });
+    return lockedTokens;
   }
 
-  async isAddressWhitelisted(address: string): Promise<any> {
-    return await this.cachingService.getOrSetCache(
-      CacheInfo.WhitelistAddress(address).key,
-      async () => {
-        return await this.elrondProxyService.isAddressWhitelisted(address);
-      },
-      CacheInfo.WhitelistAddress(address).ttl,
-    );
-  }
+  async getFarmTokens(address: string): Promise<MetaEsdtDetailed[]> {
+    const farmStakingGroups = await this.stakingGetterService.getFarmStakingGroups();
 
-  async getAddressBuys(address: string): Promise<any> {
-    return await this.elrondProxyService.getAddressBuys(address);
-  }
+    const farmTokenIds = farmStakingGroups
+      .map((group) => group.childContracts.map((childContract) => childContract.farmTokenId))
+      .flat();
 
-  async getStatus(address: string): Promise<any> {
-    const egldBalance = await this.elrondApiService.getAccountBalance(address);
-    const balanceRequests = this.options.esdtTokens.map(async (token) => {
-      return await this.elrondApiService.getAccountEsdtBalance(token, address);
-    });
+    const uniqueFarmTokenIds = [...new Set(farmTokenIds.map((id) => id))];
 
-    const balances = await Promise.all(balanceRequests);
+    const metaEsdts = await this.metaEsdtService.getMetaEsdts(address, uniqueFarmTokenIds);
 
-    const whitelisted = await this.isAddressWhitelisted(address);
-    const addressBuys = await this.getAddressBuys(address);
-    return new AccountStatus({
-      egldBalance,
-      balances,
-      addressBuys,
-      whitelisted,
-    });
+    return metaEsdts;
   }
 }

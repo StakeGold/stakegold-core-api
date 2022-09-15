@@ -1,7 +1,11 @@
 import { BinaryCodec } from '@elrondnetwork/erdjs/out';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import BigNumber from 'bignumber.js';
 import { FarmAddresses } from 'src/models';
+import {
+  ChildFarmStakingContract,
+  FarmStakingGroupContract,
+} from 'src/models/staking/farm.staking.contract';
 import { DecodeAttributesArgs } from '../../../models/staking/decoded.attrs';
 import { Farm, Position } from '../../../models/staking/Farm';
 import { StakeFarmToken } from '../../../models/staking/stakeFarmToken.model';
@@ -12,9 +16,7 @@ import {
 } from '../../../models/staking/stakingTokenAttributes.model';
 import { Transaction } from '../../../models/staking/transaction.model';
 import { UnbondFarmToken } from '../../../models/staking/unbondFarmToken.model';
-import { StakeGoldApiConfigService } from '../../api-config/api-config.service';
 import { MetaEsdtService } from '../../meta-esdt/meta.esdt.service';
-import { STAKEGOLD_API_CONFIG_SERVICE } from '../../utils/constants';
 import { StakingComputeService } from './staking.compute.service';
 import { StakingGetterService } from './staking.getter.service';
 import { TransactionsFarmService } from './transactions-farm.service';
@@ -25,21 +27,23 @@ export class StakingService {
     private readonly stakingGetterService: StakingGetterService,
     private readonly stakingComputeService: StakingComputeService,
     private readonly metaEsdtService: MetaEsdtService,
-    @Inject(STAKEGOLD_API_CONFIG_SERVICE)
-    private readonly apiConfigService: StakeGoldApiConfigService,
     private readonly transactionService: TransactionsFarmService,
   ) {}
 
   async getFarms(address?: string, vmQuery?: boolean): Promise<Farm[]> {
     const farms: Farm[] = [];
-    const groupIds = await this.stakingGetterService.getGroupIdentifiers();
-    const metaEsdtsDetails = (await this.getMetaEsdtsDetails(address)) ?? [];
+    const farmStakingGroups = await this.stakingGetterService.getFarmStakingGroups();
+    const farmTokenIds = farmStakingGroups
+      .map((group) => group.childContracts.map((childContract) => childContract.farmTokenId))
+      .flat();
+    const uniqueFarmTokenIds = [...new Set(farmTokenIds.map((id) => id))];
 
+    const metaEsdtsDetails = (await this.getMetaEsdtsDetails(uniqueFarmTokenIds, address)) ?? [];
     const results = await Promise.all(
-      groupIds.map((groupId) => {
+      farmStakingGroups.map((group) => {
         // the key is the farmingToken and it's used for O(1) lookup
         const knownFarms: Map<string, Farm> = new Map();
-        return this.handleAddressesByGroupId(groupId, metaEsdtsDetails, knownFarms, vmQuery);
+        return this.handleAddressesByGroupId(group, knownFarms, metaEsdtsDetails, vmQuery);
       }),
     );
 
@@ -49,17 +53,18 @@ export class StakingService {
   }
 
   private async handleAddressesByGroupId(
-    groupId: string,
-    metaEsdtsDetails: (StakeFarmToken | UnbondFarmToken)[],
+    farmStakingGroup: FarmStakingGroupContract,
     knownFarms: Map<string, Farm>,
+    metaEsdtsDetails: (StakeFarmToken | UnbondFarmToken)[],
     vmQuery?: boolean,
   ): Promise<Farm[]> {
-    const addressesByGroupId = await this.stakingGetterService.getAddressesByGroupId(groupId);
+    const addressesByGroupId = farmStakingGroup.childContracts;
+    const groupId = farmStakingGroup.groupId;
 
     const results = await Promise.all(
-      addressesByGroupId.map(async (farmAddress) => {
+      addressesByGroupId.map(async (childContract: ChildFarmStakingContract) => {
         const { farmingTokenId, areRewardsLocked, farmingToken, positions } =
-          await this.getFarmInfo(farmAddress.toString(), groupId, metaEsdtsDetails, vmQuery);
+          await this.getFarmInfo(childContract, metaEsdtsDetails, vmQuery);
 
         const farm =
           knownFarms.get(farmingTokenId) ??
@@ -71,10 +76,10 @@ export class StakingService {
 
         farm.farmAddresses = {
           addressWithLockedRewards: areRewardsLocked
-            ? farmAddress.toString()
+            ? childContract.farmAddress.toString()
             : farm.farmAddresses?.addressWithLockedRewards,
           addressWithUnlockedRewards: !areRewardsLocked
-            ? farmAddress.toString()
+            ? childContract.farmAddress.toString()
             : farm.farmAddresses?.addressWithUnlockedRewards,
         };
 
@@ -90,34 +95,24 @@ export class StakingService {
   }
 
   private async getFarmInfo(
-    farmAddress: string,
-    groupId: string,
+    childFarmStakingContract: ChildFarmStakingContract,
     metaEsdtsDetails: (StakeFarmToken | UnbondFarmToken)[],
     vmQuery?: boolean,
-  ) {
-    const [farmTokenId, farmingTokenId, areRewardsLocked] = await Promise.all([
-      await this.stakingGetterService.getFarmTokenId(farmAddress),
-      await this.stakingGetterService.getFarmingTokenId(farmAddress),
-      await this.stakingGetterService.areRewardsLocked(farmAddress),
-    ]);
-
-    let rewardTokenId: string;
-    if (areRewardsLocked) {
-      rewardTokenId = await this.stakingGetterService.getLockedAssetTokenId(groupId);
-    } else {
-      rewardTokenId = await this.stakingGetterService.getRewardTokenId(farmAddress);
-    }
+  ): Promise<any> {
+    const farmAddress = childFarmStakingContract.farmAddress;
+    const farmingTokenId = childFarmStakingContract.farmingTokenId;
+    const areRewardsLocked = childFarmStakingContract.areRewardsLocked;
 
     const [farmingToken, rewardToken] = await Promise.all([
-      await this.stakingGetterService.getToken(farmingTokenId),
-      await this.stakingGetterService.getToken(rewardTokenId),
+      await this.stakingGetterService.getToken(childFarmStakingContract.farmingTokenId),
+      await this.stakingGetterService.getToken(childFarmStakingContract.rewardTokenId),
     ]);
 
     let positions: Position[] = [];
     if (rewardToken) {
       positions = await this.stakingComputeService.computePositions(
         farmAddress,
-        farmTokenId,
+        childFarmStakingContract.farmTokenId,
         rewardToken,
         metaEsdtsDetails,
         vmQuery ?? false,
@@ -132,15 +127,15 @@ export class StakingService {
     };
   }
 
-  async getMetaEsdtsDetails(address?: string): Promise<(StakeFarmToken | UnbondFarmToken)[]> {
+  async getMetaEsdtsDetails(
+    farmTokens: string[],
+    address?: string,
+  ): Promise<(StakeFarmToken | UnbondFarmToken)[]> {
     if (!address) {
       return [];
     }
 
-    const farmTokensAddressMap = this.apiConfigService.getFarmTokens();
-    const farmTokensAddress = Array.from(Object.keys(farmTokensAddressMap));
-
-    const metaEsdts = await this.metaEsdtService.getMetaEsdts(address, farmTokensAddress);
+    const metaEsdts = await this.metaEsdtService.getMetaEsdts(address, farmTokens);
 
     const promises = metaEsdts.map(async (metaEsdt) => {
       const stakeDecodedAttributes = this.decodeStakingTokenAttributes({

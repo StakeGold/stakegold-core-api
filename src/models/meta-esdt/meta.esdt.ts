@@ -1,5 +1,6 @@
-import { UnlockMilestone } from "../account/LockedAssetAttributes";
-import { EsdtType } from "./esdt.type";
+import { Assets } from '../account';
+import { UnlockMilestone } from '../account/LockedAssetAttributes';
+import { EsdtType } from './esdt.type';
 
 export interface MetaEsdt {
   identifier: string;
@@ -17,38 +18,17 @@ export interface MetaEsdtDetailed extends MetaEsdt {
   isWhitelistedStorage: boolean;
   decimals: number | undefined;
   ticker?: string;
-  assets?: any;
+  assets?: Assets;
 }
 
-export class LockedToken {
-  identifier: string = "";
-  nonce: number = 0;
-  name: string = "";
-  collection: string = "";
-  balance: string = "0";
-  decimals: number | undefined = undefined;
-  ticker?: string = "";
-  unlockSchedule: UnlockMilestone[] = [];
-  assets?: any;
-
-  constructor(init?: Partial<LockedToken>) {
-    Object.assign(this, init);
-  }
-
-  static fromMetaEsdt(
-    esdt: MetaEsdtDetailed,
-    unlockSchedule: UnlockMilestone[] | undefined
-  ): LockedToken {
-    return new LockedToken({
-      ticker: esdt.ticker,
-      collection: esdt.collection,
-      identifier: esdt.identifier,
-      name: esdt.name,
-      nonce: esdt.nonce,
-      balance: esdt.balance,
-      decimals: esdt.decimals,
-      assets: esdt.assets,
-      unlockSchedule,
-    });
-  }
+export interface LockedToken {
+  identifier: string;
+  nonce: number;
+  name: string;
+  collection: string;
+  balance: string;
+  decimals?: number;
+  ticker?: string;
+  unlockSchedule: UnlockMilestone[];
+  assets?: Assets;
 }

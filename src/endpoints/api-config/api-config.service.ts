@@ -4,6 +4,4 @@ export interface StakeGoldApiConfigService {
   getStakingMaxPercent(): string;
 
   getBlocksPerYear(): string;
-
-  getFarmTokens(): Map<string, string>;
 }

@@ -1,4 +1,11 @@
-import { BinaryCodec, BooleanType, FieldDefinition, ListType, StructType, U64Type } from "@elrondnetwork/erdjs/out";
+import {
+  BinaryCodec,
+  BooleanType,
+  FieldDefinition,
+  ListType,
+  StructType,
+  U64Type,
+} from '@elrondnetwork/erdjs/out';
 
 export type UnlockMilestoneType = {
   epoch: number | undefined;
@@ -10,13 +17,9 @@ export type LockedAssetAttributesType = {
   isMerged: boolean | undefined;
 };
 
-export class UnlockMilestone {
-  public epoch: number = 0;
-  public percent: number = 0;
-
-  constructor(init?: Partial<UnlockMilestone>) {
-    Object.assign(this, init);
-  }
+export interface UnlockMilestone {
+  epoch: number;
+  percent: number;
 }
 
 export class LockedAssetAttributes {
@@ -27,13 +30,15 @@ export class LockedAssetAttributes {
     Object.assign(this, init);
   }
 
-  static fromDecodedAttributes(
-    decodedAttributes: any,
-  ): LockedAssetAttributes {
-    const unlockSchedule = decodedAttributes.UnlockSchedule.valueOf().map((value: any) => new UnlockMilestone({
-      epoch: value.unlock_epoch?.toNumber(),
-      percent: value.unlock_percent?.toNumber(),
-    }));
+  static fromDecodedAttributes(decodedAttributes: any): LockedAssetAttributes {
+    const unlockSchedule = decodedAttributes.UnlockSchedule.valueOf().map((value: any) => {
+      const epoch = value.unlock_epoch?.toNumber();
+      const percent = value.unlock_percent?.toNumber();
+      return {
+        epoch,
+        percent,
+      } as UnlockMilestone;
+    });
 
     return new LockedAssetAttributes({
       unlockSchedule,
@@ -45,8 +50,7 @@ export class LockedAssetAttributes {
     const attributesBuffer = Buffer.from(attributes, 'base64');
     const codec = new BinaryCodec();
 
-    const structType =
-      LockedAssetAttributes.getStructure();
+    const structType = LockedAssetAttributes.getStructure();
     const [decodedRaw] = codec.decodeNested(attributesBuffer, structType);
 
     const decoded = decodedRaw.valueOf();
@@ -62,11 +66,7 @@ export class LockedAssetAttributes {
         new ListType(
           new StructType('UnlockMilestone', [
             new FieldDefinition('unlock_epoch', '', new U64Type()),
-            new FieldDefinition(
-              'unlock_percent',
-              '',
-              new U64Type(),
-            ),
+            new FieldDefinition('unlock_percent', '', new U64Type()),
           ]),
         ),
       ),

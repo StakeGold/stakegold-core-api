@@ -1,41 +1,60 @@
-import { DynamicModule, Module, Provider } from "@nestjs/common";
+import { DynamicModule, Module, Provider } from '@nestjs/common';
 import {
-  ACCOUNT_OPTIONS, STAKEGOLD_ELROND_API_SERVICE, STAKEGOLD_ELROND_PROXY_SERVICE,
-} from "../utils/constants";
-import { AccountModuleAsyncOptions } from "./options/account.module.async.options";
-import { AccountsService } from "./accounts.service";
-import { MetaEsdtModule } from "../meta-esdt/meta.esdt.module";
-import { ElrondApiAsyncOptions, ElrondProxyAsyncOptions } from "../elrond-communication";
+  STAKEGOLD_ELROND_API_SERVICE,
+  STAKEGOLD_ELROND_PROXY_SERVICE,
+  STAKEGOLD_PROXY_SERVICE,
+  STAKEGOLD_API_CONFIG_SERVICE,
+} from '../utils/constants';
+import { AccountsService } from './accounts.service';
+import { MetaEsdtModule } from '../meta-esdt/meta.esdt.module';
+import { ElrondApiAsyncOptions, ElrondProxyAsyncOptions } from '../elrond-communication';
+import { ProxyAsyncOptions } from '../proxy';
+import { ApiConfigAsyncOptions } from '../api-config';
+import { StakingModule } from '../staking';
 
 @Module({})
 export class AccountsModule {
   static forRootAsync(
-    options: AccountModuleAsyncOptions,
-    elrondApiOptions: ElrondApiAsyncOptions,
     elrondProxyOptions: ElrondProxyAsyncOptions,
+    proxyServiceOptions: ProxyAsyncOptions,
+    apiConfigOptions: ApiConfigAsyncOptions,
+    elrondApiOptions: ElrondApiAsyncOptions,
   ): DynamicModule {
     const providers: Provider[] = [
       {
-        provide: ACCOUNT_OPTIONS,
-        useFactory: options.useFactory,
-        inject: options.inject,
+        provide: STAKEGOLD_ELROND_PROXY_SERVICE,
+        useFactory: elrondProxyOptions.useFactory,
+        inject: elrondProxyOptions.inject,
+      },
+      {
+        provide: STAKEGOLD_PROXY_SERVICE,
+        useFactory: proxyServiceOptions.useFactory,
+        inject: proxyServiceOptions.inject,
+      },
+      {
+        provide: STAKEGOLD_API_CONFIG_SERVICE,
+        useFactory: apiConfigOptions.useFactory,
+        inject: apiConfigOptions.inject,
       },
       {
         provide: STAKEGOLD_ELROND_API_SERVICE,
         useFactory: elrondApiOptions.useFactory,
         inject: elrondApiOptions.inject,
       },
-      {
-        provide: STAKEGOLD_ELROND_PROXY_SERVICE,
-        useFactory: elrondProxyOptions.useFactory,
-        inject: elrondProxyOptions.inject,
-      },
       AccountsService,
     ];
 
     return {
       module: AccountsModule,
-      imports: [MetaEsdtModule.forRootAsync(elrondApiOptions)],
+      imports: [
+        StakingModule.forRootAsync(
+          elrondProxyOptions,
+          proxyServiceOptions,
+          apiConfigOptions,
+          elrondApiOptions,
+        ),
+        MetaEsdtModule.forRootAsync(elrondApiOptions),
+      ],
       providers,
       exports: [AccountsService],
     };

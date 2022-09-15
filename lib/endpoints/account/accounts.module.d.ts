@@ -1,6 +1,7 @@
-import { DynamicModule } from "@nestjs/common";
-import { AccountModuleAsyncOptions } from "./options/account.module.async.options";
-import { ElrondApiAsyncOptions, ElrondProxyAsyncOptions } from "../elrond-communication";
+import { DynamicModule } from '@nestjs/common';
+import { ElrondApiAsyncOptions, ElrondProxyAsyncOptions } from '../elrond-communication';
+import { ProxyAsyncOptions } from '../proxy';
+import { ApiConfigAsyncOptions } from '../api-config';
 export declare class AccountsModule {
-    static forRootAsync(options: AccountModuleAsyncOptions, elrondApiOptions: ElrondApiAsyncOptions, elrondProxyOptions: ElrondProxyAsyncOptions): DynamicModule;
+    static forRootAsync(elrondProxyOptions: ElrondProxyAsyncOptions, proxyServiceOptions: ProxyAsyncOptions, apiConfigOptions: ApiConfigAsyncOptions, elrondApiOptions: ElrondApiAsyncOptions): DynamicModule;
 }

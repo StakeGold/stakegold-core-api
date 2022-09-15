@@ -7,9 +7,9 @@ export interface StakeGoldElrondApiService {
 
   getEsdtToken(token: string, address?: string): Promise<EsdtToken | undefined>;
 
-  getMetaEsdts(address: string, collections?: string[]): Promise<MetaEsdtDetailed[]>;
+  getEsdtTokens(address?: string): Promise<EsdtToken[]>;
 
-  getAccountEsdtBalance(token: string, address: string): Promise<string>;
+  getMetaEsdts(address: string, collections?: string[]): Promise<MetaEsdtDetailed[]>;
 
   getCurrentBlockNonce(shardId: number): Promise<number>;
 

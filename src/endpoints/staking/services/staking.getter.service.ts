@@ -7,8 +7,11 @@ import { CachingService, Constants } from '@elrondnetwork/erdnest';
 import { generateGetLogMessage } from '../../utils/generate-log-message';
 import { StakeGoldProxyService } from '../../proxy/proxy.service';
 import { StakeGoldElrondApiService } from 'src/endpoints/elrond-communication/elrond-api.service';
-import { Address } from '@elrondnetwork/erdjs/out';
 import { EsdtToken, NftCollection } from 'src/models';
+import {
+  ChildFarmStakingContract,
+  FarmStakingGroupContract,
+} from 'src/models/staking/farm.staking.contract';
 
 @Injectable()
 export class StakingGetterService {
@@ -156,7 +159,7 @@ export class StakingGetterService {
     );
   }
 
-  async getAddressesByGroupId(groupId: string): Promise<Address[]> {
+  async getAddressesByGroupId(groupId: string): Promise<string[]> {
     return await this.getData(
       CacheInfo.getAddressesByGroupId(groupId).key,
       () => this.abiService.getAddressesByGroupId(groupId),
@@ -231,5 +234,44 @@ export class StakingGetterService {
   async getLockedAssetTokenId(groupId: string): Promise<string> {
     const vestingAddress = await this.getVestingAddressByGroupIdentifier(groupId);
     return await this.abiService.getLockedAssetTokenId(vestingAddress);
+  }
+
+  async getFarmStakingGroups(): Promise<FarmStakingGroupContract[]> {
+    const groupIds = await this.getGroupIdentifiers();
+
+    const results = await Promise.all(
+      groupIds.map(async (groupId) => {
+        const farmAddresses = await this.getAddressesByGroupId(groupId);
+
+        const childContracts = await Promise.all(
+          farmAddresses.map(async (farmAddress) => {
+            const [farmTokenId, farmingTokenId, areRewardsLocked] = await Promise.all([
+              await this.getFarmTokenId(farmAddress),
+              await this.getFarmingTokenId(farmAddress),
+              await this.areRewardsLocked(farmAddress),
+            ]);
+
+            let rewardTokenId: string;
+            if (areRewardsLocked) {
+              rewardTokenId = await this.getLockedAssetTokenId(groupId);
+            } else {
+              rewardTokenId = await this.getRewardTokenId(farmAddress);
+            }
+
+            return {
+              farmAddress,
+              farmTokenId,
+              farmingTokenId,
+              rewardTokenId,
+              areRewardsLocked,
+            } as ChildFarmStakingContract;
+          }),
+        );
+
+        return { groupId, childContracts } as FarmStakingGroupContract;
+      }),
+    );
+
+    return results.flat();
   }
 }

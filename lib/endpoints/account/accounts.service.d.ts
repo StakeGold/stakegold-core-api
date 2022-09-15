@@ -1,18 +1,17 @@
-import { CachingService } from '@elrondnetwork/erdnest';
-import { AccountDetails } from '../../models/account/account.details';
+import { AccountDetails } from 'src/models/account/account.details.model';
+import { EsdtToken } from '../../models/account/esdtToken.model';
+import { LockedToken, MetaEsdtDetailed } from '../../models/meta-esdt/meta.esdt';
 import { StakeGoldElrondApiService } from '../elrond-communication/elrond-api.service';
-import { StakeGoldElrondProxyService } from '../elrond-communication/elrond-proxy.service';
 import { MetaEsdtService } from '../meta-esdt/meta.esdt.service';
-import { AccountsModuleOptions } from './options/account.module.options';
+import { StakingGetterService } from '../staking';
 export declare class AccountsService {
     private readonly elrondApiService;
-    private readonly elrondProxyService;
-    private readonly cachingService;
     private readonly metaEsdtService;
-    private options;
-    constructor(elrondApiService: StakeGoldElrondApiService, elrondProxyService: StakeGoldElrondProxyService, cachingService: CachingService, metaEsdtService: MetaEsdtService, options: AccountsModuleOptions);
+    private readonly stakingGetterService;
+    constructor(elrondApiService: StakeGoldElrondApiService, metaEsdtService: MetaEsdtService, stakingGetterService: StakingGetterService);
     getAccountDetails(address: string): Promise<AccountDetails>;
-    isAddressWhitelisted(address: string): Promise<any>;
-    getAddressBuys(address: string): Promise<any>;
-    getStatus(address: string): Promise<any>;
+    getEgldBalance(address: string): Promise<string>;
+    getEsdtTokens(address: string): Promise<EsdtToken[]>;
+    getLockedTokens(address: string): Promise<LockedToken[]>;
+    getFarmTokens(address: string): Promise<MetaEsdtDetailed[]>;
 }

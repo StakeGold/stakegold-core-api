@@ -4,13 +4,6 @@ export class CacheInfo {
   key: string = '';
   ttl: number = Constants.oneSecond() * 6;
 
-  static WhitelistAddress(address: string): CacheInfo {
-    return {
-      key: `whitelistAddress:${address}`,
-      ttl: Constants.oneHour(),
-    };
-  }
-
   static Transactions(hash: string): CacheInfo {
     return {
       key: `transactions:${hash}`,

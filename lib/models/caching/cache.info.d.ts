@@ -1,7 +1,6 @@
 export declare class CacheInfo {
     key: string;
     ttl: number;
-    static WhitelistAddress(address: string): CacheInfo;
     static Transactions(hash: string): CacheInfo;
     static FarmTokenSupply(address: string): CacheInfo;
     static AnnualPercentageRewards(address: string): CacheInfo;
