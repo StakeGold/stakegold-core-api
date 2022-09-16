@@ -104,8 +104,8 @@ export class StakingService {
     const areRewardsLocked = childFarmStakingContract.areRewardsLocked;
 
     const [farmingToken, rewardToken] = await Promise.all([
-      await this.stakingGetterService.getToken(childFarmStakingContract.farmingTokenId),
-      await this.stakingGetterService.getToken(childFarmStakingContract.rewardTokenId),
+      await this.stakingGetterService.getEsdtOrNft(childFarmStakingContract.farmingTokenId),
+      await this.stakingGetterService.getEsdtOrNft(childFarmStakingContract.rewardTokenId),
     ]);
 
     let positions: Position[] = [];

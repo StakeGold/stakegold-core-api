@@ -207,7 +207,15 @@ export class StakingGetterService {
     );
   }
 
-  async getToken(identifier: string): Promise<EsdtToken | NftCollection | undefined> {
+  async getGroupByOwner(address: string): Promise<string | undefined> {
+    return await this.getData(
+      CacheInfo.groupByOwner(address).key,
+      () => this.abiService.getGroupByOwner(address),
+      CacheInfo.groupByOwner(address).ttl,
+    );
+  }
+
+  async getEsdtOrNft(identifier: string): Promise<EsdtToken | NftCollection | undefined> {
     try {
       return await this.getData(
         CacheInfo.stakeToken(identifier).key,

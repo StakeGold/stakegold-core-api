@@ -148,4 +148,11 @@ export class CacheInfo {
       ttl: Constants.oneWeek(),
     };
   }
+
+  static groupByOwner(address: string): CacheInfo {
+    return {
+      key: `groupByOwner:${address}`,
+      ttl: Constants.oneWeek(),
+    };
+  }
 }

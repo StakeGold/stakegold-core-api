@@ -22,4 +22,5 @@ export declare class CacheInfo {
     static areRewardsLocked(childContractAddress: string): CacheInfo;
     static stakeToken(identifier: string): CacheInfo;
     static vestingAddressByGroupId(groupId: string): CacheInfo;
+    static groupByOwner(address: string): CacheInfo;
 }
