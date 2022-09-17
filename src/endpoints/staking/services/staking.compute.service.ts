@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Position } from '../../../models/staking/Farm';
+import { FarmGroup, Position } from '../../../models/staking/Farm';
 import { StakeFarmToken } from '../../../models/staking/stakeFarmToken.model';
 import {
   StakingTokenAttributesModel,
@@ -46,7 +46,30 @@ export class StakingComputeService {
     return undefined;
   }
 
-  computeAccumulatedStakings(positions: Position[]): string {
+  private getAllAprs(group: FarmGroup): number[] {
+    const apr = group.farms.map((farm) => farm.apr).filter((apr) => apr) as number[];
+    const lockedApr = group.farms.map((farm) => farm.lockedApr).filter((apr) => apr) as number[];
+    return [...apr, ...lockedApr];
+  }
+
+  computeLowestApr(group: FarmGroup): number | undefined {
+    const allAprs = this.getAllAprs(group);
+    if (allAprs.length === 0) {
+      return undefined;
+    }
+    return Math.min(...this.getAllAprs(group));
+  }
+
+  computeHighestApr(group: FarmGroup): number | undefined {
+    const allAprs = this.getAllAprs(group);
+    if (allAprs.length === 0) {
+      return undefined;
+    }
+    return Math.max(...this.getAllAprs(group));
+  }
+
+  computeAccumulatedStakings(group: FarmGroup): string {
+    const positions = group.farms.map((farm) => farm.positions).flat();
     let stakings = new BigNumber(0);
     for (let i = 0; i < positions.length; i++) {
       stakings = stakings.plus(new BigNumber(positions[i].farmToken?.balance ?? 0));
@@ -55,7 +78,8 @@ export class StakingComputeService {
     return stakings.toFixed();
   }
 
-  computeAccumulatedRewards(positions: Position[]): string {
+  computeAccumulatedRewards(group: FarmGroup): string {
+    const positions = group.farms.map((farm) => farm.positions).flat();
     let stakings = new BigNumber(0);
     for (let i = 0; i < positions.length; i++) {
       stakings = stakings.plus(new BigNumber(positions[i].rewardToken?.balance ?? 0));

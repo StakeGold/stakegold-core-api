@@ -1,13 +1,13 @@
 import { BinaryCodec } from '@elrondnetwork/erdjs/out';
 import { Injectable } from '@nestjs/common';
 import BigNumber from 'bignumber.js';
-import { FarmAddresses } from 'src/models';
+import { FarmStaking } from 'src/models';
 import {
   ChildFarmStakingContract,
   FarmStakingGroupContract,
 } from 'src/models/staking/farm.staking.contract';
 import { DecodeAttributesArgs } from '../../../models/staking/decoded.attrs';
-import { Farm, Position } from '../../../models/staking/Farm';
+import { Farm, FarmGroup, Position } from '../../../models/staking/Farm';
 import { StakeFarmToken } from '../../../models/staking/stakeFarmToken.model';
 import { StakingArgs, UnstakingArgs } from '../../../models/staking/staking.args';
 import {
@@ -30,26 +30,30 @@ export class StakingService {
     private readonly transactionService: TransactionsFarmService,
   ) {}
 
-  async getFarms(address?: string, vmQuery?: boolean): Promise<Farm[]> {
-    const farms: Farm[] = [];
+  async getFarms(address?: string, vmQuery?: boolean): Promise<FarmGroup[]> {
+    const groups: FarmGroup[] = [];
     const farmStakingGroups = await this.stakingGetterService.getFarmStakingGroups();
     const farmTokenIds = farmStakingGroups
       .map((group) => group.childContracts.map((childContract) => childContract.farmTokenId))
       .flat();
     const uniqueFarmTokenIds = [...new Set(farmTokenIds.map((id) => id))];
-
     const metaEsdtsDetails = (await this.getMetaEsdtsDetails(uniqueFarmTokenIds, address)) ?? [];
-    const results = await Promise.all(
-      farmStakingGroups.map((group) => {
+
+    await Promise.all(
+      farmStakingGroups.map(async (group) => {
         // the key is the farmingToken and it's used for O(1) lookup
         const knownFarms: Map<string, Farm> = new Map();
-        return this.handleAddressesByGroupId(group, knownFarms, metaEsdtsDetails, vmQuery);
+        const farms =
+          (await this.handleAddressesByGroupId(group, knownFarms, metaEsdtsDetails, vmQuery)) ?? [];
+
+        groups.push({
+          groupId: group.groupId,
+          farms,
+        } as FarmGroup);
       }),
     );
 
-    farms.push(...results.flat());
-
-    return farms;
+    return groups;
   }
 
   private async handleAddressesByGroupId(
@@ -59,7 +63,6 @@ export class StakingService {
     vmQuery?: boolean,
   ): Promise<Farm[]> {
     const addressesByGroupId = farmStakingGroup.childContracts;
-    const groupId = farmStakingGroup.groupId;
 
     const results = await Promise.all(
       addressesByGroupId.map(async (childContract: ChildFarmStakingContract) => {
@@ -71,17 +74,20 @@ export class StakingService {
           ({
             farmingToken,
             positions: Array<Position>(),
-            groupId: groupId,
           } as Farm);
 
-        farm.farmAddresses = {
+        farm.farmStaking = {
           addressWithLockedRewards: areRewardsLocked
             ? childContract.farmAddress.toString()
-            : farm.farmAddresses?.addressWithLockedRewards,
+            : farm.farmStaking?.addressWithLockedRewards,
           addressWithUnlockedRewards: !areRewardsLocked
             ? childContract.farmAddress.toString()
-            : farm.farmAddresses?.addressWithUnlockedRewards,
+            : farm.farmStaking?.addressWithUnlockedRewards,
         };
+
+        const { apr, lockedApr } = await this.getAnnualPercentageRewards(farm.farmStaking);
+        farm.apr = apr;
+        farm.lockedApr = lockedApr;
 
         farm.positions.push(...positions);
 
@@ -171,41 +177,39 @@ export class StakingService {
     return await Promise.all(promises);
   }
 
-  async getApr(address: string) {
-    const apr = await this.stakingComputeService.computeAnnualPercentageReward(address);
-    return apr;
-  }
-
-  async getAnnualPercentageRewards(farmAddress: FarmAddresses) {
+  private async getAnnualPercentageRewards(farmStaking: FarmStaking) {
     let lockedApr = undefined;
-    if (farmAddress.addressWithUnlockedRewards) {
+    if (farmStaking.addressWithUnlockedRewards) {
       lockedApr = await this.stakingComputeService.computeAnnualPercentageReward(
-        farmAddress.addressWithUnlockedRewards,
+        farmStaking.addressWithUnlockedRewards,
       );
     }
 
     let apr = undefined;
-    if (farmAddress.addressWithUnlockedRewards) {
+    if (farmStaking.addressWithUnlockedRewards) {
       apr = await this.stakingComputeService.computeAnnualPercentageReward(
-        farmAddress.addressWithUnlockedRewards,
+        farmStaking.addressWithUnlockedRewards,
       );
     }
     return { apr, lockedApr };
   }
 
-  async getFarmTokenSupply(farmAddress: FarmAddresses): Promise<string> {
+  async getGroupTokenSupply(group: FarmGroup): Promise<string> {
     let totalLockedValue = new BigNumber(0);
-    if (farmAddress.addressWithLockedRewards) {
-      const farmTotalSupply = await this.stakingGetterService.getFarmTokenSupply(
-        farmAddress.addressWithLockedRewards,
-      );
-      totalLockedValue = totalLockedValue.plus(new BigNumber(farmTotalSupply));
-    }
-    if (farmAddress.addressWithUnlockedRewards) {
-      const farmTotalSupply = await this.stakingGetterService.getFarmTokenSupply(
-        farmAddress.addressWithUnlockedRewards,
-      );
-      totalLockedValue = totalLockedValue.plus(new BigNumber(farmTotalSupply));
+    for (const farm of group.farms) {
+      const farmStaking = farm.farmStaking;
+      if (farmStaking.addressWithLockedRewards) {
+        const farmTotalSupply = await this.stakingGetterService.getFarmTokenSupply(
+          farmStaking.addressWithLockedRewards,
+        );
+        totalLockedValue = totalLockedValue.plus(new BigNumber(farmTotalSupply));
+      }
+      if (farmStaking.addressWithUnlockedRewards) {
+        const farmTotalSupply = await this.stakingGetterService.getFarmTokenSupply(
+          farmStaking.addressWithUnlockedRewards,
+        );
+        totalLockedValue = totalLockedValue.plus(new BigNumber(farmTotalSupply));
+      }
     }
     return totalLockedValue.toFixed();
   }

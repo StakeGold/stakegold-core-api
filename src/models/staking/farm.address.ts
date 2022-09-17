@@ -1,4 +1,4 @@
-export interface FarmAddresses {
+export interface FarmStaking {
   addressWithUnlockedRewards?: string;
   addressWithLockedRewards?: string;
 }

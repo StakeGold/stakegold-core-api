@@ -1,4 +1,4 @@
-import { Position } from '../../../models/staking/Farm';
+import { FarmGroup, Position } from '../../../models/staking/Farm';
 import { StakeFarmToken } from '../../../models/staking/stakeFarmToken.model';
 import { StakingTokenAttributesModel } from '../../../models/staking/stakingTokenAttributes.model';
 import { StakeGoldApiConfigService } from '../../api-config/api-config.service';
@@ -10,8 +10,11 @@ export declare class StakingComputeService {
     private readonly apiConfigService;
     constructor(stakingGetterService: StakingGetterService, apiConfigService: StakeGoldApiConfigService);
     computeAnnualPercentageReward(address: string): Promise<number | undefined>;
-    computeAccumulatedStakings(positions: Position[]): string;
-    computeAccumulatedRewards(positions: Position[]): string;
+    private getAllAprs;
+    computeLowestApr(group: FarmGroup): number | undefined;
+    computeHighestApr(group: FarmGroup): number | undefined;
+    computeAccumulatedStakings(group: FarmGroup): string;
+    computeAccumulatedRewards(group: FarmGroup): string;
     computePositions(farmAddress: string, farmTokenId: string, rewardToken: NftCollection | EsdtToken, metaEsdts: (StakeFarmToken | UnbondFarmToken)[], vmQuery: boolean): Promise<Position[]>;
     getRewardsForPosition(stakeAddress: string, esdt: StakeFarmToken | UnbondFarmToken, vmQuery: boolean): Promise<BigNumber>;
     computeFarmRewardsForPosition(farmAddress: string, liquidity: string, decodedAttributes: StakingTokenAttributesModel): Promise<BigNumber>;

@@ -27,7 +27,21 @@ export class AccountsService {
   }
 
   async getEsdtTokens(address: string): Promise<EsdtToken[]> {
-    return this.elrondApiService.getEsdtTokens(address);
+    const esdtTokens = await this.elrondApiService.getEsdtTokens(address);
+    const farmStakingGroups = await this.stakingGetterService.getFarmStakingGroups();
+
+    const tokenIds = farmStakingGroups
+      .map((group) =>
+        group.childContracts
+          .map((childContract) => [childContract.farmingTokenId, childContract.rewardTokenId])
+          .flat(),
+      )
+      .flat();
+    const uniqueLockedTokenIds = [...new Set(tokenIds.map((id) => id))];
+    const result = esdtTokens.filter((token) =>
+      uniqueLockedTokenIds.firstOrUndefined((item) => item === token.identifier),
+    );
+    return result;
   }
 
   async getLockedTokens(address: string): Promise<LockedToken[]> {
