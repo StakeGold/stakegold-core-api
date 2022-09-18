@@ -41,14 +41,15 @@ export class StakingService {
 
     await Promise.all(
       farmStakingGroups.map(async (group) => {
-        // the key is the farmingToken and it's used for O(1) lookup
-        const knownFarms: Map<string, Farm> = new Map();
-        const farms =
-          (await this.handleAddressesByGroupId(group, knownFarms, metaEsdtsDetails, vmQuery)) ?? [];
+        const farms = (await this.handleAddressesByGroupId(group, metaEsdtsDetails, vmQuery)) ?? [];
+
+        const decimals = farms.firstOrUndefined()?.farmingToken?.decimals ?? 0;
 
         groups.push({
           groupId: group.groupId,
           farms,
+          groupName: this.getGroupName(farms),
+          groupDecimals: decimals,
         } as FarmGroup);
       }),
     );
@@ -58,10 +59,12 @@ export class StakingService {
 
   private async handleAddressesByGroupId(
     farmStakingGroup: FarmStakingGroupContract,
-    knownFarms: Map<string, Farm>,
     metaEsdtsDetails: (StakeFarmToken | UnbondFarmToken)[],
     vmQuery?: boolean,
   ): Promise<Farm[]> {
+    // the key is the farmingToken and it's used for O(1) lookup
+    const knownFarms: Map<string, Farm> = new Map();
+
     const addressesByGroupId = farmStakingGroup.childContracts;
 
     const results = await Promise.all(
@@ -192,6 +195,18 @@ export class StakingService {
       );
     }
     return { apr, lockedApr };
+  }
+
+  getGroupName(farms: Farm[]): string {
+    let groupName = '';
+    for (let i = 0; i < farms.length; i++) {
+      groupName += farms[i].farmingToken?.name;
+      if (i !== farms.length - 1) {
+        groupName += ' / ';
+      }
+    }
+
+    return groupName;
   }
 
   async getGroupTokenSupply(group: FarmGroup): Promise<string> {

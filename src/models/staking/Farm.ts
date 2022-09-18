@@ -10,6 +10,8 @@ export interface FarmGroup {
   highestApr?: number;
   accumulatedRewards: string;
   accumulatedStakings: string;
+  groupName?: string;
+  groupDecimals: number;
   farms: Farm[];
 }
 

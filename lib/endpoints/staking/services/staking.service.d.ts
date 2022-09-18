@@ -1,5 +1,5 @@
 import { DecodeAttributesArgs } from '../../../models/staking/decoded.attrs';
-import { FarmGroup } from '../../../models/staking/Farm';
+import { Farm, FarmGroup } from '../../../models/staking/Farm';
 import { StakeFarmToken } from '../../../models/staking/stakeFarmToken.model';
 import { StakingArgs, UnstakingArgs } from '../../../models/staking/staking.args';
 import { StakingTokenAttributesModel, UnbondTokenAttributesModel } from '../../../models/staking/stakingTokenAttributes.model';
@@ -20,6 +20,7 @@ export declare class StakingService {
     private getFarmInfo;
     getMetaEsdtsDetails(farmTokens: string[], address?: string): Promise<(StakeFarmToken | UnbondFarmToken)[]>;
     private getAnnualPercentageRewards;
+    getGroupName(farms: Farm[]): string;
     getGroupTokenSupply(group: FarmGroup): Promise<string>;
     decodeStakingTokenAttributes(args: DecodeAttributesArgs): StakingTokenAttributesModel[];
     decodeUnboundTokenAttributes(args: DecodeAttributesArgs): Promise<UnbondTokenAttributesModel[]>;
