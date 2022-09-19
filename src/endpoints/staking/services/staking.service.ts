@@ -220,24 +220,31 @@ export class StakingService {
     return groupName;
   }
 
-  async getGroupTokenSupply(group: FarmGroup): Promise<string> {
+  async getGroupTotalLockedValue(group: FarmGroup): Promise<string> {
     let totalLockedValue = new BigNumber(0);
     for (const farm of group.farms) {
       const farmStaking = farm.farmStaking;
       if (farmStaking.addressWithLockedRewards) {
-        const farmTotalSupply = await this.stakingGetterService.getFarmTokenSupply(
+        const lockedRewardsTotalSupply = await this.getFarmTotalSupply(
           farmStaking.addressWithLockedRewards,
         );
-        totalLockedValue = totalLockedValue.plus(new BigNumber(farmTotalSupply));
+        totalLockedValue = totalLockedValue.plus(new BigNumber(lockedRewardsTotalSupply));
       }
       if (farmStaking.addressWithUnlockedRewards) {
-        const farmTotalSupply = await this.stakingGetterService.getFarmTokenSupply(
+        const unlockedRewardsTotalSupply = await this.getFarmTotalSupply(
           farmStaking.addressWithUnlockedRewards,
         );
-        totalLockedValue = totalLockedValue.plus(new BigNumber(farmTotalSupply));
+        totalLockedValue = totalLockedValue.plus(new BigNumber(unlockedRewardsTotalSupply));
       }
     }
     return totalLockedValue.toFixed();
+  }
+
+  async getFarmTotalSupply(farmAddress?: string): Promise<string> {
+    if (!farmAddress) {
+      return '0';
+    }
+    return await this.stakingGetterService.getFarmTokenSupply(farmAddress);
   }
 
   decodeStakingTokenAttributes(args: DecodeAttributesArgs): StakingTokenAttributesModel[] {
