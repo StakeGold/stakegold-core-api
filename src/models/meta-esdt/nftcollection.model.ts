@@ -1,4 +1,4 @@
-import { Assets } from "../account";
+import { Assets } from '../account';
 
 export interface NftCollection {
   collection: string;
@@ -19,4 +19,8 @@ export interface NftCollection {
   NFTCreateStopped?: boolean;
   assets?: Assets;
   balance?: string;
+}
+
+export function isNftCollection(object: any): object is NftCollection {
+  return 'collection' in object;
 }

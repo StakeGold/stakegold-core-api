@@ -1,7 +1,6 @@
 import { BinaryCodec } from '@elrondnetwork/erdjs/out';
 import { Injectable } from '@nestjs/common';
 import BigNumber from 'bignumber.js';
-import { FarmStaking } from 'src/models';
 import {
   ChildFarmStakingContract,
   FarmStakingGroupContract,
@@ -20,6 +19,8 @@ import { MetaEsdtService } from '../../meta-esdt/meta.esdt.service';
 import { StakingComputeService } from './staking.compute.service';
 import { StakingGetterService } from './staking.getter.service';
 import { TransactionsFarmService } from './transactions-farm.service';
+import { isNftCollection } from '../../../models/meta-esdt';
+import { FarmStaking } from '../../../models/staking';
 
 @Injectable()
 export class StakingService {
@@ -43,13 +44,19 @@ export class StakingService {
       farmStakingGroups.map(async (group) => {
         const farms = (await this.handleAddressesByGroupId(group, metaEsdtsDetails, vmQuery)) ?? [];
 
-        const decimals = farms.firstOrUndefined()?.farmingToken?.decimals ?? 0;
+        const farmingToken =
+          farms.find((farm) => !isNftCollection(farm.farmingToken))?.farmingToken ??
+          farms.firstOrUndefined()?.farmingToken;
+        const decimals = farmingToken?.decimals ?? 0;
+        const icon = farmingToken?.assets?.svgUrl;
 
         groups.push({
           groupId: group.groupId,
           farms,
           groupName: this.getGroupName(farms),
           groupDecimals: decimals,
+          groupIcon: icon,
+          farmingToken,
         } as FarmGroup);
       }),
     );
@@ -200,9 +207,13 @@ export class StakingService {
   getGroupName(farms: Farm[]): string {
     let groupName = '';
     for (let i = 0; i < farms.length; i++) {
-      groupName += farms[i].farmingToken?.name;
-      if (i !== farms.length - 1) {
-        groupName += ' / ';
+      const ticker = farms[i].farmingToken?.ticker.split('-');
+      if (ticker.length > 0) {
+        const name = ticker[0];
+        groupName += name;
+        if (i !== farms.length - 1) {
+          groupName += ' / ';
+        }
       }
     }
 

@@ -11,6 +11,8 @@ export interface FarmGroup {
     accumulatedStakings: string;
     groupName?: string;
     groupDecimals: number;
+    groupIcon?: string;
+    farmingToken?: NftCollection | EsdtToken;
     farms: Farm[];
 }
 export interface Farm {
