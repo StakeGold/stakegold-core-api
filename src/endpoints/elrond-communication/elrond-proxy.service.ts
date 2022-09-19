@@ -11,4 +11,8 @@ export interface StakeGoldElrondProxyService {
   getRouterSmartContract(): Promise<SmartContractProfiler>;
 
   getVestingSmartContract(vestingAddress: string): Promise<SmartContractProfiler>;
+
+  getPairSmartContract(pairAddress: string): Promise<SmartContractProfiler>;
+
+  getPairRouterSmartContract(): Promise<SmartContractProfiler>;
 }
