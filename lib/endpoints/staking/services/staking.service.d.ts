@@ -21,7 +21,7 @@ export declare class StakingService {
     getMetaEsdtsDetails(farmTokens: string[], address?: string): Promise<(StakeFarmToken | UnbondFarmToken)[]>;
     private getAnnualPercentageRewards;
     getGroupName(farms: Farm[]): string;
-    getGroupTotalLockedValue(group: FarmGroup): Promise<string>;
+    getGroupTotalSupply(group: FarmGroup): Promise<string>;
     getFarmTotalSupply(farmAddress?: string): Promise<string>;
     decodeStakingTokenAttributes(args: DecodeAttributesArgs): StakingTokenAttributesModel[];
     decodeUnboundTokenAttributes(args: DecodeAttributesArgs): Promise<UnbondTokenAttributesModel[]>;

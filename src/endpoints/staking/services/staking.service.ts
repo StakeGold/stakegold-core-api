@@ -220,7 +220,7 @@ export class StakingService {
     return groupName;
   }
 
-  async getGroupTotalLockedValue(group: FarmGroup): Promise<string> {
+  async getGroupTotalSupply(group: FarmGroup): Promise<string> {
     let totalLockedValue = new BigNumber(0);
     for (const farm of group.farms) {
       const farmStaking = farm.farmStaking;
