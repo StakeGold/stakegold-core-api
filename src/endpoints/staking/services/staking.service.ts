@@ -76,7 +76,7 @@ export class StakingService {
 
     const results = await Promise.all(
       addressesByGroupId.map(async (childContract: ChildFarmStakingContract) => {
-        const { farmingTokenId, areRewardsLocked, farmingToken, positions } =
+        const { farmingTokenId, areRewardsLocked, rewardToken, farmingToken, positions } =
           await this.getFarmInfo(childContract, metaEsdtsDetails, vmQuery);
 
         const farm =
@@ -94,6 +94,9 @@ export class StakingService {
             ? childContract.farmAddress.toString()
             : farm.farmStaking?.addressWithUnlockedRewards,
         };
+
+        farm.unlockedRewardToken = areRewardsLocked ? rewardToken : farm.unlockedRewardToken;
+        farm.lockedRewardToken = !areRewardsLocked ? rewardToken : farm.lockedRewardToken;
 
         const { apr, lockedApr } = await this.getAnnualPercentageRewards(farm.farmStaking);
         farm.apr = apr;
@@ -138,6 +141,7 @@ export class StakingService {
     return {
       farmingTokenId,
       areRewardsLocked,
+      rewardToken,
       farmingToken,
       positions,
     };

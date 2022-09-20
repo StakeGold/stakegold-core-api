@@ -22,6 +22,8 @@ export interface Farm {
   farmingToken: NftCollection | EsdtToken;
   apr?: number;
   lockedApr?: number;
+  lockedRewardToken?: NftCollection | EsdtToken;
+  unlockedRewardToken?: NftCollection | EsdtToken;
   positions: Position[];
 }
 
