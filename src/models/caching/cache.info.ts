@@ -155,4 +155,11 @@ export class CacheInfo {
       ttl: Constants.oneWeek(),
     };
   }
+
+  static lockedTokenId(groupId: string): CacheInfo {
+    return {
+      key: `lockedTokenId:${groupId}`,
+      ttl: Constants.oneMinute() * 10,
+    };
+  }
 }

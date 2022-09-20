@@ -32,3 +32,8 @@ export interface LockedToken {
   unlockSchedule: UnlockMilestone[];
   assets?: Assets;
 }
+
+export interface LockedTokenCollection {
+  collection: string;
+  tokens: LockedToken[];
+}

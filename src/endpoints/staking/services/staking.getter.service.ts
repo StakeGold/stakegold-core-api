@@ -241,7 +241,11 @@ export class StakingGetterService {
 
   async getLockedAssetTokenId(groupId: string): Promise<string> {
     const vestingAddress = await this.getVestingAddressByGroupIdentifier(groupId);
-    return await this.abiService.getLockedAssetTokenId(vestingAddress);
+    return await this.getData(
+      CacheInfo.lockedTokenId(groupId).key,
+      async () => await this.abiService.getLockedAssetTokenId(vestingAddress),
+      CacheInfo.lockedTokenId(groupId).ttl,
+    );
   }
 
   async getFarmStakingGroups(): Promise<FarmStakingGroupContract[]> {

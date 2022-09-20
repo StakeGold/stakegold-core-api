@@ -1,8 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { AccountDetails } from 'src/models/account/account.details.model';
+import { FarmStakingGroupContract } from 'src/models/staking/farm.staking.contract';
 import { EsdtToken } from '../../models/account/esdtToken.model';
 import { LockedAssetAttributes } from '../../models/account/LockedAssetAttributes';
-import { LockedToken, MetaEsdtDetailed } from '../../models/meta-esdt/meta.esdt';
+import {
+  LockedToken,
+  LockedTokenCollection,
+  MetaEsdtDetailed,
+} from '../../models/meta-esdt/meta.esdt';
 import { StakeGoldElrondApiService } from '../elrond-communication/elrond-api.service';
 import { MetaEsdtService } from '../meta-esdt/meta.esdt.service';
 import { StakingGetterService } from '../staking';
@@ -44,38 +49,63 @@ export class AccountsService {
     return result;
   }
 
-  async getLockedTokens(address: string): Promise<LockedToken[]> {
+  async getLockedTokens(address: string): Promise<LockedTokenCollection[]> {
     const farmStakingGroups = await this.stakingGetterService.getFarmStakingGroups();
 
-    const lockedTokenIds = farmStakingGroups
-      .map((group) =>
-        group.childContracts
-          .map((childContract) => [childContract.farmTokenId, childContract.rewardTokenId])
-          .flat(),
-      )
-      .flat();
-    const uniqueLockedTokenIds = [...new Set(lockedTokenIds.map((id) => id))];
+    const uniqueLockedTokenIds = await this.getLockedTokenUniqueIds(farmStakingGroups);
 
     const metaEsdts = await this.metaEsdtService.getMetaEsdts(address, uniqueLockedTokenIds);
 
-    const lockedTokens = metaEsdts
-      .map((token) => {
-        const { unlockSchedule } = LockedAssetAttributes.fromAttributes(token.attributes);
-        return {
-          ticker: token.ticker,
-          collection: token.collection,
-          identifier: token.identifier,
-          name: token.name,
-          nonce: token.nonce,
-          balance: token.balance,
-          decimals: token.decimals,
-          assets: token.assets,
-          unlockSchedule,
-        } as LockedToken;
-      })
-      .filter((token) => token.unlockSchedule && token.balance);
+    const lockedTokensMap: Map<string, LockedTokenCollection> = new Map();
 
-    return lockedTokens;
+    for (const token of metaEsdts) {
+      const { unlockSchedule } = LockedAssetAttributes.fromAttributes(token.attributes);
+      if (!unlockSchedule || !token.balance) {
+        continue;
+      }
+
+      const lockedTokenCollection =
+        lockedTokensMap.get(token.collection) ??
+        ({ collection: token.collection, tokens: [] } as LockedTokenCollection);
+
+      lockedTokenCollection.tokens.push({
+        ticker: token.ticker,
+        collection: token.collection,
+        identifier: token.identifier,
+        name: token.name,
+        nonce: token.nonce,
+        balance: token.balance,
+        decimals: token.decimals,
+        assets: token.assets,
+        unlockSchedule,
+      } as LockedToken);
+
+      lockedTokensMap.set(token.collection, lockedTokenCollection);
+    }
+
+    return Array.from(lockedTokensMap.values());
+  }
+
+  private async getLockedTokenUniqueIds(farmStakingGroups: FarmStakingGroupContract[]) {
+    const lockedTokenIds = await Promise.all(
+      farmStakingGroups
+        .map(async (group) => {
+          try {
+            const lockedAssetTokenId = await this.stakingGetterService.getLockedAssetTokenId(
+              group.groupId,
+            );
+            return lockedAssetTokenId;
+          } catch {
+            return undefined;
+          }
+        })
+        .flat(),
+    );
+
+    const uniqueLockedTokenIds = [
+      ...new Set(lockedTokenIds.map((id) => id).filter((id) => id) as string[]),
+    ];
+    return uniqueLockedTokenIds;
   }
 
   async getFarmTokens(address: string): Promise<MetaEsdtDetailed[]> {
