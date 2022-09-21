@@ -167,14 +167,16 @@ export class AbiStakingService {
       new BytesValue(Buffer.from(groupId)),
     ]);
     const response = await this.getGenericData(contract, interaction);
-    return response.firstValue?.valueOf().toString();
+    console.log('getVestingAddressByGroupIdentifier', response.firstValue?.valueOf()?.toString());
+    return response.firstValue?.valueOf()?.toString();
   }
 
   async getLockedAssetTokenId(vestingAddress: string): Promise<string> {
     const contract = await this.elrondProxy.getVestingSmartContract(vestingAddress);
     const interaction: Interaction = contract.methods.getLockedAssetTokenId([]);
     const response = await this.getGenericData(contract, interaction);
-    return response.firstValue?.valueOf();
+    console.log('Marius', `getLockedAssetTokenId = ${response.firstValue?.valueOf()?.toString()}`);
+    return response.firstValue?.valueOf()?.toString();
   }
 
   async getFarmTokenId(childContractAddress: string): Promise<string> {

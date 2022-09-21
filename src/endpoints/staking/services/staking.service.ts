@@ -34,6 +34,7 @@ export class StakingService {
   async getFarms(address?: string, vmQuery?: boolean): Promise<FarmGroup[]> {
     const groups: FarmGroup[] = [];
     const farmStakingGroups = await this.stakingGetterService.getFarmStakingGroups();
+    console.log('farmStakingGroups', JSON.stringify(farmStakingGroups));
     const farmTokenIds = farmStakingGroups
       .map((group) => group.childContracts.map((childContract) => childContract.farmTokenId))
       .flat();
@@ -74,7 +75,7 @@ export class StakingService {
 
     const addressesByGroupId = farmStakingGroup.childContracts;
 
-    const results = await Promise.all(
+    await Promise.all(
       addressesByGroupId.map(async (childContract: ChildFarmStakingContract) => {
         const { farmingTokenId, areRewardsLocked, rewardToken, farmingToken, positions } =
           await this.getFarmInfo(childContract, metaEsdtsDetails, vmQuery);
@@ -105,12 +106,10 @@ export class StakingService {
         farm.positions.push(...positions);
 
         knownFarms.set(farmingTokenId, farm);
-
-        return farm;
       }),
     );
 
-    return results;
+    return Array.from(knownFarms.values());
   }
 
   private async getFarmInfo(

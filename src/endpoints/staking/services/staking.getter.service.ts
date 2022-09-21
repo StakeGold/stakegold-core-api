@@ -36,6 +36,7 @@ export class StakingGetterService {
     try {
       return await this.cachingService.getOrSetCache(cacheKey, createValueFunc, ttl);
     } catch (error) {
+      console.log('Marius', error);
       const logMessage = generateGetLogMessage(
         StakingGetterService.name,
         createValueFunc.name,
@@ -200,6 +201,7 @@ export class StakingGetterService {
   }
 
   async getVestingAddressByGroupIdentifier(groupId: string): Promise<string> {
+    console.log('getVestingAddressByGroupIdentifier groupId = ', groupId);
     return await this.getData(
       CacheInfo.vestingAddressByGroupId(groupId).key,
       () => this.abiService.getVestingAddressByGroupIdentifier(groupId),
@@ -240,7 +242,9 @@ export class StakingGetterService {
   }
 
   async getLockedAssetTokenId(groupId: string): Promise<string> {
+    console.log('getLockedAssetTokenId groupId = ', groupId);
     const vestingAddress = await this.getVestingAddressByGroupIdentifier(groupId);
+    console.log('vestingAddress = ', vestingAddress);
     return await this.getData(
       CacheInfo.lockedTokenId(groupId).key,
       async () => await this.abiService.getLockedAssetTokenId(vestingAddress),
@@ -253,6 +257,7 @@ export class StakingGetterService {
 
     const results = await Promise.all(
       groupIds.map(async (groupId) => {
+        console.log('getFarmStakingGroups groupId = ', groupId);
         const farmAddresses = await this.getAddressesByGroupId(groupId);
 
         const childContracts = await Promise.all(
