@@ -36,7 +36,6 @@ export class StakingGetterService {
     try {
       return await this.cachingService.getOrSetCache(cacheKey, createValueFunc, ttl);
     } catch (error) {
-      console.log('Marius', error);
       const logMessage = generateGetLogMessage(
         StakingGetterService.name,
         createValueFunc.name,
@@ -201,7 +200,6 @@ export class StakingGetterService {
   }
 
   async getVestingAddressByGroupIdentifier(groupId: string): Promise<string> {
-    console.log('getVestingAddressByGroupIdentifier groupId = ', groupId);
     return await this.getData(
       CacheInfo.vestingAddressByGroupId(groupId).key,
       () => this.abiService.getVestingAddressByGroupIdentifier(groupId),
@@ -242,9 +240,7 @@ export class StakingGetterService {
   }
 
   async getLockedAssetTokenId(groupId: string): Promise<string> {
-    console.log('getLockedAssetTokenId groupId = ', groupId);
     const vestingAddress = await this.getVestingAddressByGroupIdentifier(groupId);
-    console.log('vestingAddress = ', vestingAddress);
     return await this.getData(
       CacheInfo.lockedTokenId(groupId).key,
       async () => await this.abiService.getLockedAssetTokenId(vestingAddress),
@@ -255,39 +251,39 @@ export class StakingGetterService {
   async getFarmStakingGroups(): Promise<FarmStakingGroupContract[]> {
     const groupIds = await this.getGroupIdentifiers();
 
-    const results: FarmStakingGroupContract[] = [];
+    const results = await Promise.all(
+      groupIds.map(async (groupId) => {
+        const farmAddresses = await this.getAddressesByGroupId(groupId);
 
-    for (const groupId of groupIds) {
-      console.log('getFarmStakingGroups groupId = ', groupId);
-      const farmAddresses = await this.getAddressesByGroupId(groupId);
+        const childContracts = await Promise.all(
+          farmAddresses.map(async (farmAddress) => {
+            const [farmTokenId, farmingTokenId, areRewardsLocked] = await Promise.all([
+              await this.getFarmTokenId(farmAddress),
+              await this.getFarmingTokenId(farmAddress),
+              await this.areRewardsLocked(farmAddress),
+            ]);
 
-      const childContracts: ChildFarmStakingContract[] = [];
+            let rewardTokenId: string;
+            if (areRewardsLocked) {
+              rewardTokenId = await this.getLockedAssetTokenId(groupId);
+            } else {
+              rewardTokenId = await this.getRewardTokenId(farmAddress);
+            }
 
-      for (const farmAddress of farmAddresses) {
-        const [farmTokenId, farmingTokenId, areRewardsLocked] = await Promise.all([
-          await this.getFarmTokenId(farmAddress),
-          await this.getFarmingTokenId(farmAddress),
-          await this.areRewardsLocked(farmAddress),
-        ]);
+            return {
+              farmAddress,
+              farmTokenId,
+              farmingTokenId,
+              rewardTokenId,
+              areRewardsLocked,
+            } as ChildFarmStakingContract;
+          }),
+        );
 
-        let rewardTokenId: string;
-        if (areRewardsLocked) {
-          rewardTokenId = await this.getLockedAssetTokenId(groupId);
-        } else {
-          rewardTokenId = await this.getRewardTokenId(farmAddress);
-        }
+        return { groupId, childContracts } as FarmStakingGroupContract;
+      }),
+    );
 
-        childContracts.push({
-          farmAddress,
-          farmTokenId,
-          farmingTokenId,
-          rewardTokenId,
-          areRewardsLocked,
-        } as ChildFarmStakingContract);
-      }
-      results.push({ groupId, childContracts } as FarmStakingGroupContract);
-    }
-
-    return results;
+    return results.flat();
   }
 }

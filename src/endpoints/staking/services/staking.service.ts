@@ -34,7 +34,6 @@ export class StakingService {
   async getFarms(address?: string, vmQuery?: boolean): Promise<FarmGroup[]> {
     const groups: FarmGroup[] = [];
     const farmStakingGroups = await this.stakingGetterService.getFarmStakingGroups();
-    console.log('farmStakingGroups', JSON.stringify(farmStakingGroups));
     const farmTokenIds = farmStakingGroups
       .map((group) => group.childContracts.map((childContract) => childContract.farmTokenId))
       .flat();
@@ -75,39 +74,41 @@ export class StakingService {
 
     const addressesByGroupId = farmStakingGroup.childContracts;
 
-    await Promise.all(
-      addressesByGroupId.map(async (childContract: ChildFarmStakingContract) => {
-        const { farmingTokenId, areRewardsLocked, rewardToken, farmingToken, positions } =
-          await this.getFarmInfo(childContract, metaEsdtsDetails, vmQuery);
+    for (const childContract of addressesByGroupId) {
+      const { farmingTokenId, areRewardsLocked, rewardToken, farmingToken, positions } =
+        await this.getFarmInfo(childContract, metaEsdtsDetails, vmQuery);
 
-        const farm =
-          knownFarms.get(farmingTokenId) ??
-          ({
-            farmingToken,
-            positions: Array<Position>(),
-          } as Farm);
+      let farm: Farm;
+      const foundFarm = knownFarms.get(farmingTokenId);
+      if (foundFarm) {
+        farm = foundFarm;
+      } else {
+        farm = {
+          farmingToken,
+          positions: Array<Position>(),
+        } as Farm;
+      }
 
-        farm.farmStaking = {
-          addressWithLockedRewards: areRewardsLocked
-            ? childContract.farmAddress.toString()
-            : farm.farmStaking?.addressWithLockedRewards,
-          addressWithUnlockedRewards: !areRewardsLocked
-            ? childContract.farmAddress.toString()
-            : farm.farmStaking?.addressWithUnlockedRewards,
-        };
+      farm.farmStaking = {
+        addressWithLockedRewards: areRewardsLocked
+          ? childContract.farmAddress.toString()
+          : farm.farmStaking?.addressWithLockedRewards,
+        addressWithUnlockedRewards: !areRewardsLocked
+          ? childContract.farmAddress.toString()
+          : farm.farmStaking?.addressWithUnlockedRewards,
+      };
 
-        farm.unlockedRewardToken = areRewardsLocked ? rewardToken : farm.unlockedRewardToken;
-        farm.lockedRewardToken = !areRewardsLocked ? rewardToken : farm.lockedRewardToken;
+      farm.lockedRewardToken = areRewardsLocked ? rewardToken : farm.lockedRewardToken;
+      farm.unlockedRewardToken = !areRewardsLocked ? rewardToken : farm.unlockedRewardToken;
 
-        const { apr, lockedApr } = await this.getAnnualPercentageRewards(farm.farmStaking);
-        farm.apr = apr;
-        farm.lockedApr = lockedApr;
+      const { apr, lockedApr } = await this.getAnnualPercentageRewards(farm.farmStaking);
+      farm.apr = apr;
+      farm.lockedApr = lockedApr;
 
-        farm.positions.push(...positions);
+      farm.positions.push(...positions);
 
-        knownFarms.set(farmingTokenId, farm);
-      }),
-    );
+      knownFarms.set(farmingTokenId, farm);
+    }
 
     return Array.from(knownFarms.values());
   }
