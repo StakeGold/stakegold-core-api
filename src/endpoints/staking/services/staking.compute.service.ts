@@ -1,10 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { FarmGroup, Position } from '../../../models/staking/Farm';
-import { StakeFarmToken } from '../../../models/staking/stakeFarmToken.model';
-import {
-  StakingTokenAttributesModel,
-  StakingTokenType,
-} from '../../../models/staking/stakingTokenAttributes.model';
+import { isStakeFarmToken, StakeFarmToken } from '../../../models/staking/stakeFarmToken.model';
+import { StakingTokenAttributesModel } from '../../../models/staking/stakingTokenAttributes.model';
 import { StakeGoldApiConfigService } from '../../api-config/api-config.service';
 import { AddressUtils } from '../../utils/address.utils';
 import { STAKEGOLD_API_CONFIG_SERVICE } from '../../utils/constants';
@@ -116,12 +113,7 @@ export class StakingComputeService {
     esdt: StakeFarmToken | UnbondFarmToken,
     vmQuery: boolean,
   ): Promise<BigNumber> {
-    if (
-      esdt.stakingTokenType !== StakingTokenType.STAKING_FARM_TOKEN ||
-      !esdt.decodedAttributes ||
-      !esdt.balance ||
-      !esdt.attributes
-    ) {
+    if (!isStakeFarmToken(esdt) || !esdt.decodedAttributes || !esdt.balance || !esdt.attributes) {
       return new BigNumber(0);
     }
 

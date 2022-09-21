@@ -9,6 +9,7 @@ export declare class StakingTokenAttributesModel {
     rewardPerShare?: string;
     compoundedReward?: string;
     currentFarmAmount?: string;
+    type: StakingTokenType;
     constructor(init?: Partial<StakingTokenAttributesModel>);
     toJSON(): {
         rewardPerShare: string | undefined;

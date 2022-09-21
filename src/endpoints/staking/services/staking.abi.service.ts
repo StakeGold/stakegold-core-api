@@ -53,7 +53,7 @@ export class AbiStakingService {
     farmAddress: string,
     amount: string,
     attributes: string,
-  ): Promise<BigNumber> {
+  ): Promise<string> {
     const contract = await this.elrondProxy.getFarmSmartContract(farmAddress);
     const interaction: Interaction = contract.methodsExplicit.calculateRewardsForGivenPosition([
       new BigUIntValue(new BigNumber(amount)),

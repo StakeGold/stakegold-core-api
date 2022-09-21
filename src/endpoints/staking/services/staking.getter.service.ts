@@ -52,7 +52,16 @@ export class StakingGetterService {
     amount: string,
     attributes: string,
   ): Promise<BigNumber> {
-    return await this.abiService.calculateRewardsForGivenPosition(farmAddress, amount, attributes);
+    try {
+      const result = await this.abiService.calculateRewardsForGivenPosition(
+        farmAddress,
+        amount,
+        attributes,
+      );
+      return new BigNumber(result);
+    } catch {
+      return new BigNumber(0);
+    }
   }
 
   async getFarmTokenSupply(farmAddress: string): Promise<string> {

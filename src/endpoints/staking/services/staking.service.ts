@@ -193,9 +193,9 @@ export class StakingService {
 
   private async getAnnualPercentageRewards(farmStaking: FarmStaking) {
     let lockedApr = undefined;
-    if (farmStaking.addressWithUnlockedRewards) {
+    if (farmStaking.addressWithLockedRewards) {
       lockedApr = await this.stakingComputeService.computeAnnualPercentageReward(
-        farmStaking.addressWithUnlockedRewards,
+        farmStaking.addressWithLockedRewards,
       );
     }
 
