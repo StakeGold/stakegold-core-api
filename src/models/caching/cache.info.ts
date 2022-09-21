@@ -14,21 +14,21 @@ export class CacheInfo {
   static FarmTokenSupply(address: string): CacheInfo {
     return {
       key: `farmTokenSupply:${address}`,
-      ttl: Constants.oneMinute(),
+      ttl: Constants.oneSecond() * 6,
     };
   }
 
   static AnnualPercentageRewards(address: string): CacheInfo {
     return {
       key: `annualPercentageRewards:${address}`,
-      ttl: Constants.oneHour(),
+      ttl: Constants.oneSecond() * 6,
     };
   }
 
   static PerBlockRewardAmount(address: string): CacheInfo {
     return {
       key: `perBlockRewardAmount:${address}`,
-      ttl: Constants.oneHour(),
+      ttl: Constants.oneSecond() * 6,
     };
   }
 
@@ -47,119 +47,119 @@ export class CacheInfo {
   static getLastRewardBlockNonce(farmAddress: string): CacheInfo {
     return {
       key: `lastRewardBlockNonce:${farmAddress}`,
-      ttl: Constants.oneMinute(),
+      ttl: Constants.oneSecond() * 6,
     };
   }
 
   static getRewardsPerBlock(farmAddress: string): CacheInfo {
     return {
       key: `rewardsPerBlock:${farmAddress}`,
-      ttl: Constants.oneMinute() * 2,
+      ttl: Constants.oneSecond() * 6,
     };
   }
 
   static getUndistributedFees(farmAddress: string): CacheInfo {
     return {
       key: `undistributedFees:${farmAddress}`,
-      ttl: Constants.oneMinute(),
+      ttl: Constants.oneSecond() * 6,
     };
   }
 
   static getCurrentBlockFee(farmAddress: string): CacheInfo {
     return {
       key: `currentBlockFee:${farmAddress}`,
-      ttl: Constants.oneMinute(),
+      ttl: Constants.oneSecond() * 6,
     };
   }
 
   static getDivisionSafetyConstant(farmAddress: string): CacheInfo {
     return {
       key: `divisionSafetyConstant:${farmAddress}`,
-      ttl: Constants.oneHour(),
+      ttl: Constants.oneSecond() * 6,
     };
   }
 
   static getProduceRewardsEnabled(farmAddress: string): CacheInfo {
     return {
       key: `produceRewardsEnabled:${farmAddress}`,
-      ttl: Constants.oneMinute() * 2,
+      ttl: Constants.oneSecond() * 6,
     };
   }
 
   static getRewardPerShare(farmAddress: string): CacheInfo {
     return {
       key: `rewardPerShare:${farmAddress}`,
-      ttl: Constants.oneMinute(),
+      ttl: Constants.oneSecond() * 6,
     };
   }
 
   static getGroupIdentifiers(): CacheInfo {
     return {
       key: `groupIdentifiers`,
-      ttl: Constants.oneMinute(),
+      ttl: Constants.oneSecond() * 6,
     };
   }
 
   static getAddressesByGroupId(groupId: string): CacheInfo {
     return {
       key: `groupAddresses:${groupId}`,
-      ttl: Constants.oneMinute(),
+      ttl: Constants.oneSecond() * 6,
     };
   }
 
   static getFarmTokenId(childContractAddress: string): CacheInfo {
     return {
       key: `farmTokenId:${childContractAddress}`,
-      ttl: Constants.oneWeek(),
+      ttl: Constants.oneSecond() * 6,
     };
   }
 
   static getFarmingTokenId(childContractAddress: string): CacheInfo {
     return {
       key: `farmingTokenId:${childContractAddress}`,
-      ttl: Constants.oneWeek(),
+      ttl: Constants.oneSecond() * 6,
     };
   }
 
   static getRewardTokenId(childContractAddress: string): CacheInfo {
     return {
       key: `rewardTokenId:${childContractAddress}`,
-      ttl: Constants.oneWeek(),
+      ttl: Constants.oneSecond() * 6,
     };
   }
 
   static areRewardsLocked(childContractAddress: string): CacheInfo {
     return {
       key: `areRewardsLocked:${childContractAddress}`,
-      ttl: Constants.oneWeek(),
+      ttl: Constants.oneSecond() * 6,
     };
   }
 
   static stakeToken(identifier: string): CacheInfo {
     return {
       key: `stakeToken:${identifier}`,
-      ttl: Constants.oneWeek(),
+      ttl: Constants.oneSecond() * 6,
     };
   }
 
   static vestingAddressByGroupId(groupId: string): CacheInfo {
     return {
       key: `vestingAddressByGroupId:${groupId}`,
-      ttl: Constants.oneWeek(),
+      ttl: Constants.oneSecond() * 6,
     };
   }
 
   static groupByOwner(address: string): CacheInfo {
     return {
       key: `groupByOwner:${address}`,
-      ttl: Constants.oneWeek(),
+      ttl: Constants.oneSecond() * 6,
     };
   }
 
   static lockedTokenId(groupId: string): CacheInfo {
     return {
       key: `lockedTokenId:${groupId}`,
-      ttl: Constants.oneMinute() * 10,
+      ttl: Constants.oneSecond() * 6,
     };
   }
 }
