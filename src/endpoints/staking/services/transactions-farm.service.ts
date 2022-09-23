@@ -22,8 +22,7 @@ export class TransactionsFarmService {
   ) {}
 
   async stake(sender: string, args: StakingArgs): Promise<Transaction> {
-    const senderShard = AddressUtils.computeShard(AddressUtils.bech32Decode(sender));
-    const contract = await this.elrondProxy.getForwarderSmartContract(senderShard);
+    const contract = await this.elrondProxy.getRouterSmartContract();
 
     if (!AddressUtils.isAddressValid(sender)) {
       throw new BadRequestException('Provided address is not a valid bech32 address');
@@ -98,8 +97,7 @@ export class TransactionsFarmService {
     gasLimit: number,
     args: TypedValue[],
   ): Promise<Transaction> {
-    const senderShard = AddressUtils.computeShard(AddressUtils.bech32Decode(sender));
-    const contract = await this.elrondProxy.getForwarderSmartContract(senderShard);
+    const contract = await this.elrondProxy.getRouterSmartContract();
 
     if (!AddressUtils.isAddressValid(sender)) {
       throw new BadRequestException('Provided address is not a valid bech32 address');
