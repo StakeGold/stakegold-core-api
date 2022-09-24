@@ -62,7 +62,7 @@ export class TransactionsFarmService {
 
   async unstake(sender: string, args: UnstakingArgs): Promise<Transaction> {
     const method = 'unstakeFarm';
-    const gasLimit = 20000000;
+    const gasLimit = 35000000;
 
     return await this.SftFarmInteraction(sender, args, method, gasLimit, [
       new U32Value(args.value),
