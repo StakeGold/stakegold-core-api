@@ -11,6 +11,13 @@ export class CacheInfo {
     };
   }
 
+  static FarmContractState(address: string): CacheInfo {
+    return {
+      key: `farmContractState:${address}`,
+      ttl: Constants.oneMinute(),
+    };
+  }
+
   static FarmTokenSupply(address: string): CacheInfo {
     return {
       key: `farmTokenSupply:${address}`,
