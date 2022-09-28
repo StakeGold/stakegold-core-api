@@ -67,7 +67,7 @@ export class AbiStakingService {
     const contract = await this.elrondProxy.getFarmSmartContract(farmAddress);
     const interaction: Interaction = contract.methods.getState([]);
     const response = await this.getGenericData(contract, interaction);
-    return response.firstValue?.valueOf();
+    return response.firstValue?.valueOf().name;
   }
 
   async getFarmTokenSupply(farmAddress: string): Promise<string> {
