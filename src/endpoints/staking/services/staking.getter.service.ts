@@ -68,6 +68,14 @@ export class StakingGetterService {
     }
   }
 
+  async getContractState(farmAddress: string): Promise<string> {
+    return await this.getData(
+      CacheInfo.FarmContractState(farmAddress).key,
+      () => this.abiService.getFarmTokenSupply(farmAddress),
+      CacheInfo.FarmContractState(farmAddress).ttl,
+    );
+  }
+
   async getFarmTokenSupply(farmAddress: string): Promise<string> {
     return await this.getData(
       CacheInfo.FarmTokenSupply(farmAddress).key,
