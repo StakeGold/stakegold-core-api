@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js';
 import { CacheInfo } from '../../../models/caching/cache.info';
 import { STAKEGOLD_ELROND_API_SERVICE, STAKEGOLD_PROXY_SERVICE } from '../../utils/constants';
 import { AbiStakingService } from './staking.abi.service';
-import { CachingService, Constants } from '@elrondnetwork/erdnest';
+import { CachingService, Constants, ContextTracker } from '@elrondnetwork/erdnest';
 import { generateGetLogMessage } from '../../utils/generate-log-message';
 import { StakeGoldProxyService } from '../../proxy/proxy.service';
 import { StakeGoldElrondApiService } from 'src/endpoints/elrond-communication/elrond-api.service';
@@ -34,6 +34,10 @@ export class StakingGetterService {
     ttl: number = Constants.oneHour(),
   ): Promise<any> {
     try {
+      const noCache = ContextTracker.get()?.noCache ?? false;
+      if (noCache) {
+        return await createValueFunc();
+      }
       return await this.cachingService.getOrSetCache(cacheKey, createValueFunc, ttl);
     } catch (error) {
       const logMessage = generateGetLogMessage(
