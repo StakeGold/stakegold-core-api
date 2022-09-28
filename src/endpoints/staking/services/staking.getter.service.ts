@@ -71,7 +71,7 @@ export class StakingGetterService {
   async getContractState(farmAddress: string): Promise<string> {
     return await this.getData(
       CacheInfo.FarmContractState(farmAddress).key,
-      () => this.abiService.getFarmTokenSupply(farmAddress),
+      () => this.abiService.getContractState(farmAddress),
       CacheInfo.FarmContractState(farmAddress).ttl,
     );
   }
