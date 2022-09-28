@@ -143,6 +143,13 @@ export class AbiStakingService {
     return response.firstValue?.valueOf().toFixed();
   }
 
+  async getRewardsLeft(farmAddress: string): Promise<string> {
+    const contract = await this.elrondProxy.getFarmSmartContract(farmAddress);
+    const interaction: Interaction = contract.methods.getRewardsLeft([]);
+    const response = await this.getGenericData(contract, interaction);
+    return response.firstValue?.valueOf().toFixed();
+  }
+
   async getGroupIdentifiers(): Promise<string[]> {
     const contract = await this.elrondProxy.getRouterSmartContract();
     const interaction: Interaction = contract.methods.getGroupIdentifiers([]);
@@ -210,5 +217,15 @@ export class AbiStakingService {
     const interaction: Interaction = contract.methods.areRewardsLocked([]);
     const response = await this.getGenericData(contract, interaction);
     return response.firstValue?.valueOf();
+  }
+
+  // TODO
+  public async getVestingScAddress(farmAddress: string): Promise<string | undefined> {
+    const contract = await this.elrondProxy.getFarmSmartContract(farmAddress);
+    const interaction: Interaction = contract.methods.vestingScAddress([]);
+    const response = await this.getGenericData(contract, interaction);
+    const firstValue = response.firstValue?.valueOf();
+
+    return firstValue ?? '';
   }
 }

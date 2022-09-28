@@ -100,6 +100,13 @@ export class CacheInfo {
     };
   }
 
+  static RewardsLeft(farmAddress: string): CacheInfo {
+    return {
+      key: `rewardsLeft:${farmAddress}`,
+      ttl: Constants.oneMinute(),
+    };
+  }
+
   static getGroupIdentifiers(): CacheInfo {
     return {
       key: `groupIdentifiers`,
@@ -152,6 +159,13 @@ export class CacheInfo {
   static vestingAddressByGroupId(groupId: string): CacheInfo {
     return {
       key: `vestingAddressByGroupId:${groupId}`,
+      ttl: Constants.oneWeek(),
+    };
+  }
+
+  static FarmVestingAddress(farmAddress: string): CacheInfo {
+    return {
+      key: `farmVestingAddress:${farmAddress}`,
       ttl: Constants.oneWeek(),
     };
   }
