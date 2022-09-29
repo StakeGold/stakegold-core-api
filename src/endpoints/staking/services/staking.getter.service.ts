@@ -52,7 +52,6 @@ export class StakingGetterService {
 
       return undefined;
     } catch (error) {
-      console.log('Error', error);
       const logMessage = generateGetLogMessage(
         StakingGetterService.name,
         createValueFunc.name,

@@ -176,16 +176,11 @@ export class AbiStakingService {
   }
 
   async getVestingAddressByGroupIdentifier(groupId: string): Promise<string> {
-    console.log('getVestingAddressByGroupIdentifier for group ', groupId);
     const contract = await this.elrondProxy.getRouterSmartContract();
     const interaction: Interaction = contract.methodsExplicit.getVestingAddressByGroupIdentifier([
       new BytesValue(Buffer.from(groupId)),
     ]);
     const response = await this.getGenericData(contract, interaction);
-    console.log(
-      'getVestingAddressByGroupIdentifier value = ',
-      response.firstValue?.valueOf()?.toString(),
-    );
     return response.firstValue?.valueOf()?.toString();
   }
 
