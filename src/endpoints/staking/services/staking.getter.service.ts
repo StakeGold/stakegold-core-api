@@ -40,6 +40,7 @@ export class StakingGetterService {
       }
       return await this.cachingService.getOrSetCache(cacheKey, createValueFunc, ttl);
     } catch (error) {
+      console.log('Error', error);
       const logMessage = generateGetLogMessage(
         StakingGetterService.name,
         createValueFunc.name,
