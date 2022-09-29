@@ -8,6 +8,7 @@ export declare class AbiStakingService {
     constructor(elrondProxy: StakeGoldElrondProxyService);
     getGenericData(contract: SmartContractProfiler, interaction: Interaction): Promise<TypedOutcomeBundle>;
     calculateRewardsForGivenPosition(farmAddress: string, amount: string, attributes: string): Promise<string>;
+    getContractState(farmAddress: string): Promise<string>;
     getFarmTokenSupply(farmAddress: string): Promise<string>;
     getAnnualPercentageRewards(farmAddress: string): Promise<string>;
     getPerBlockRewardAmount(farmAddress: string): Promise<string>;
@@ -18,6 +19,7 @@ export declare class AbiStakingService {
     getDivisionSafetyConstant(farmAddress: string): Promise<string>;
     getProduceRewardsEnabled(farmAddress: string): Promise<boolean>;
     getRewardPerShare(farmAddress: string): Promise<string>;
+    getRewardsLeft(farmAddress: string): Promise<string>;
     getGroupIdentifiers(): Promise<string[]>;
     getAddressesByGroupId(groupId: string): Promise<string[]>;
     getGroupByOwner(address: string): Promise<string | undefined>;
@@ -27,4 +29,5 @@ export declare class AbiStakingService {
     getFarmingTokenId(childContractAddress: string): Promise<string>;
     getRewardTokenId(childContractAddress: string): Promise<string>;
     areRewardsLocked(childContractAddress: string): Promise<boolean>;
+    getVestingScAddress(farmAddress: string): Promise<string | undefined>;
 }

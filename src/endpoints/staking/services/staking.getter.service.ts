@@ -38,7 +38,19 @@ export class StakingGetterService {
       if (noCache) {
         return await createValueFunc();
       }
-      return await this.cachingService.getOrSetCache(cacheKey, createValueFunc, ttl);
+
+      const cachedValue = await this.cachingService.getCache(cacheKey);
+      if (cachedValue) {
+        return cachedValue;
+      }
+
+      const funcValue = await createValueFunc();
+      if (funcValue) {
+        await this.cachingService.setCache(cacheKey, funcValue, ttl);
+        return funcValue;
+      }
+
+      return undefined;
     } catch (error) {
       console.log('Error', error);
       const logMessage = generateGetLogMessage(
@@ -229,7 +241,7 @@ export class StakingGetterService {
     );
   }
 
-  async getVestingAddressByGroupIdentifier(groupId: string): Promise<string> {
+  async getVestingAddressByGroupIdentifier(groupId: string): Promise<string | undefined> {
     return await this.getData(
       CacheInfo.vestingAddressByGroupId(groupId).key,
       () => this.abiService.getVestingAddressByGroupIdentifier(groupId),
@@ -277,8 +289,11 @@ export class StakingGetterService {
     }
   }
 
-  async getLockedAssetTokenId(groupId: string): Promise<string> {
+  async getLockedAssetTokenId(groupId: string): Promise<string | undefined> {
     const vestingAddress = await this.getVestingAddressByGroupIdentifier(groupId);
+    if (!vestingAddress) {
+      return undefined;
+    }
     return await this.getData(
       CacheInfo.lockedTokenId(groupId).key,
       async () => await this.abiService.getLockedAssetTokenId(vestingAddress),
@@ -301,7 +316,7 @@ export class StakingGetterService {
               await this.areRewardsLocked(farmAddress),
             ]);
 
-            let rewardTokenId: string;
+            let rewardTokenId: string | undefined;
             if (areRewardsLocked) {
               rewardTokenId = await this.getLockedAssetTokenId(groupId);
             } else {

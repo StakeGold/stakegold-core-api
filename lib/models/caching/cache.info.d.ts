@@ -2,6 +2,7 @@ export declare class CacheInfo {
     key: string;
     ttl: number;
     static Transactions(hash: string): CacheInfo;
+    static FarmContractState(address: string): CacheInfo;
     static FarmTokenSupply(address: string): CacheInfo;
     static AnnualPercentageRewards(address: string): CacheInfo;
     static PerBlockRewardAmount(address: string): CacheInfo;
@@ -14,6 +15,7 @@ export declare class CacheInfo {
     static getDivisionSafetyConstant(farmAddress: string): CacheInfo;
     static getProduceRewardsEnabled(farmAddress: string): CacheInfo;
     static getRewardPerShare(farmAddress: string): CacheInfo;
+    static RewardsLeft(farmAddress: string): CacheInfo;
     static getGroupIdentifiers(): CacheInfo;
     static getAddressesByGroupId(groupId: string): CacheInfo;
     static getFarmTokenId(childContractAddress: string): CacheInfo;
@@ -22,6 +24,7 @@ export declare class CacheInfo {
     static areRewardsLocked(childContractAddress: string): CacheInfo;
     static stakeToken(identifier: string): CacheInfo;
     static vestingAddressByGroupId(groupId: string): CacheInfo;
+    static FarmVestingAddress(farmAddress: string): CacheInfo;
     static groupByOwner(address: string): CacheInfo;
     static lockedTokenId(groupId: string): CacheInfo;
 }

@@ -14,6 +14,7 @@ export declare class StakingGetterService {
     constructor(abiService: AbiStakingService, cachingService: CachingService, elrondApiService: StakeGoldElrondApiService, proxyService: StakeGoldProxyService);
     private getData;
     calculateRewardsForGivenPosition(farmAddress: string, amount: string, attributes: string): Promise<BigNumber>;
+    getContractState(farmAddress: string): Promise<string>;
     getFarmTokenSupply(farmAddress: string): Promise<string>;
     getAnnualPercentageRewards(farmAddress: string): Promise<string>;
     getCurrentEpoch(): Promise<number>;
@@ -26,15 +27,17 @@ export declare class StakingGetterService {
     getDivisionSafetyConstant(farmAddress: string): Promise<string>;
     getProduceRewardsEnabled(farmAddress: string): Promise<boolean>;
     getRewardPerShare(farmAddress: string): Promise<string>;
+    getRewardsLeft(farmAddress: string): Promise<string>;
     getGroupIdentifiers(): Promise<string[]>;
     getAddressesByGroupId(groupId: string): Promise<string[]>;
     getFarmTokenId(childContractAddress: string): Promise<string>;
     getFarmingTokenId(childContractAddress: string): Promise<string>;
     getRewardTokenId(childContractAddress: string): Promise<string>;
     areRewardsLocked(childContractAddress: string): Promise<boolean>;
-    getVestingAddressByGroupIdentifier(groupId: string): Promise<string>;
+    getVestingAddressByGroupIdentifier(groupId: string): Promise<string | undefined>;
+    getVestingAdressOfFarm(farmAddress: string): Promise<string>;
     getGroupByOwner(address: string): Promise<string | undefined>;
     getEsdtOrNft(identifier: string): Promise<EsdtToken | NftCollection | undefined>;
-    getLockedAssetTokenId(groupId: string): Promise<string>;
+    getLockedAssetTokenId(groupId: string): Promise<string | undefined>;
     getFarmStakingGroups(): Promise<FarmStakingGroupContract[]>;
 }
