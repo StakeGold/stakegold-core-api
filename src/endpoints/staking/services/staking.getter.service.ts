@@ -69,6 +69,14 @@ export class StakingGetterService {
     }
   }
 
+  async getContractState(farmAddress: string): Promise<string> {
+    return await this.getData(
+      CacheInfo.FarmContractState(farmAddress).key,
+      () => this.abiService.getContractState(farmAddress),
+      CacheInfo.FarmContractState(farmAddress).ttl,
+    );
+  }
+
   async getFarmTokenSupply(farmAddress: string): Promise<string> {
     return await this.getData(
       CacheInfo.FarmTokenSupply(farmAddress).key,
@@ -165,6 +173,14 @@ export class StakingGetterService {
     );
   }
 
+  async getRewardsLeft(farmAddress: string): Promise<string> {
+    return await this.getData(
+      CacheInfo.RewardsLeft(farmAddress).key,
+      () => this.abiService.getRewardsLeft(farmAddress),
+      CacheInfo.RewardsLeft(farmAddress).ttl,
+    );
+  }
+
   async getGroupIdentifiers(): Promise<string[]> {
     return await this.getData(
       CacheInfo.getGroupIdentifiers().key,
@@ -218,6 +234,14 @@ export class StakingGetterService {
       CacheInfo.vestingAddressByGroupId(groupId).key,
       () => this.abiService.getVestingAddressByGroupIdentifier(groupId),
       CacheInfo.vestingAddressByGroupId(groupId).ttl,
+    );
+  }
+
+  async getVestingAdressOfFarm(farmAddress: string): Promise<string> {
+    return await this.getData(
+      CacheInfo.FarmVestingAddress(farmAddress).key,
+      () => this.abiService.getVestingScAddress(farmAddress),
+      CacheInfo.FarmVestingAddress(farmAddress).ttl,
     );
   }
 
