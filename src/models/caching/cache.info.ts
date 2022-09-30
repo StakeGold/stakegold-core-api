@@ -183,4 +183,11 @@ export class CacheInfo {
       ttl: Constants.oneMinute() * 10,
     };
   }
+
+  static FarmState(address: string): CacheInfo {
+    return {
+      key: `farm-state:${address}`,
+      ttl: Constants.oneMinute() * 6,
+    };
+  }
 }

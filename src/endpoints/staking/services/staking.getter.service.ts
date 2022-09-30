@@ -7,7 +7,7 @@ import { CachingService, Constants, ContextTracker } from '@elrondnetwork/erdnes
 import { generateGetLogMessage } from '../../utils/generate-log-message';
 import { StakeGoldProxyService } from '../../proxy/proxy.service';
 import { StakeGoldElrondApiService } from 'src/endpoints/elrond-communication/elrond-api.service';
-import { EsdtToken, NftCollection } from 'src/models';
+import { EsdtToken, FarmState, NftCollection } from 'src/models';
 import {
   ChildFarmStakingContract,
   FarmStakingGroupContract,
@@ -261,6 +261,14 @@ export class StakingGetterService {
       CacheInfo.groupByOwner(address).key,
       () => this.abiService.getGroupByOwner(address),
       CacheInfo.groupByOwner(address).ttl,
+    );
+  }
+
+  async getFarmState(address: string): Promise<FarmState> {
+    return await this.getData(
+      CacheInfo.FarmState(address).key,
+      () => this.abiService.getFarmState(address),
+      CacheInfo.FarmState(address).ttl,
     );
   }
 

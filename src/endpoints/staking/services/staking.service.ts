@@ -20,7 +20,7 @@ import { StakingComputeService } from './staking.compute.service';
 import { StakingGetterService } from './staking.getter.service';
 import { TransactionsFarmService } from './transactions-farm.service';
 import { isNftCollection } from '../../../models/meta-esdt';
-import { FarmStaking } from '../../../models/staking';
+import { FarmStaking, FarmState } from '../../../models/staking';
 
 @Injectable()
 export class StakingService {
@@ -75,6 +75,11 @@ export class StakingService {
     const addressesByGroupId = farmStakingGroup.childContracts;
 
     for (const childContract of addressesByGroupId) {
+      const farmConfigured = await this.isFarmConfigured(childContract.farmAddress);
+      if (!farmConfigured) {
+        continue;
+      }
+
       const { farmingTokenId, areRewardsLocked, rewardToken, farmingToken, positions } =
         await this.getFarmInfo(childContract, metaEsdtsDetails, vmQuery);
 
@@ -111,6 +116,12 @@ export class StakingService {
     }
 
     return Array.from(knownFarms.values());
+  }
+
+  private async isFarmConfigured(contractAddress: string): Promise<boolean> {
+    const farmState = await this.stakingGetterService.getFarmState(contractAddress);
+    console.log(`farmState for address ${contractAddress} is ${farmState}`);
+    return farmState === FarmState.SETUP_COMPLETE;
   }
 
   private async getFarmInfo(

@@ -3,7 +3,7 @@ import { AbiStakingService } from './staking.abi.service';
 import { CachingService } from '@elrondnetwork/erdnest';
 import { StakeGoldProxyService } from '../../proxy/proxy.service';
 import { StakeGoldElrondApiService } from 'src/endpoints/elrond-communication/elrond-api.service';
-import { EsdtToken, NftCollection } from 'src/models';
+import { EsdtToken, FarmState, NftCollection } from 'src/models';
 import { FarmStakingGroupContract } from 'src/models/staking/farm.staking.contract';
 export declare class StakingGetterService {
     private readonly abiService;
@@ -37,6 +37,7 @@ export declare class StakingGetterService {
     getVestingAddressByGroupIdentifier(groupId: string): Promise<string | undefined>;
     getVestingAdressOfFarm(farmAddress: string): Promise<string>;
     getGroupByOwner(address: string): Promise<string | undefined>;
+    getFarmState(address: string): Promise<FarmState>;
     getEsdtOrNft(identifier: string): Promise<EsdtToken | NftCollection | undefined>;
     getLockedAssetTokenId(groupId: string): Promise<string | undefined>;
     getFarmStakingGroups(): Promise<FarmStakingGroupContract[]>;

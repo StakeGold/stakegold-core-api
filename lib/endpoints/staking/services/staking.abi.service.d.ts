@@ -1,4 +1,5 @@
 import { Interaction, TypedOutcomeBundle } from '@elrondnetwork/erdjs/out';
+import { FarmState } from 'src/models/staking/farm.state';
 import { StakeGoldElrondProxyService } from '../../elrond-communication/elrond-proxy.service';
 import { SmartContractProfiler } from '../../utils/smartcontract.profiler';
 export declare class AbiStakingService {
@@ -30,4 +31,5 @@ export declare class AbiStakingService {
     getRewardTokenId(childContractAddress: string): Promise<string>;
     areRewardsLocked(childContractAddress: string): Promise<boolean>;
     getVestingScAddress(farmAddress: string): Promise<string | undefined>;
+    getFarmState(address: string): Promise<FarmState>;
 }

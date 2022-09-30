@@ -9,6 +9,7 @@ import {
 } from '@elrondnetwork/erdjs/out';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import BigNumber from 'bignumber.js';
+import { FarmState } from 'src/models/staking/farm.state';
 import { StakeGoldElrondProxyService } from '../../elrond-communication/elrond-proxy.service';
 import { STAKEGOLD_ELROND_PROXY_SERVICE } from '../../utils/constants';
 import { generateRunQueryLogMessage } from '../../utils/generate-log-message';
@@ -227,5 +228,13 @@ export class AbiStakingService {
     const firstValue = response.firstValue?.valueOf();
 
     return firstValue ?? '';
+  }
+
+  public async getFarmState(address: string): Promise<FarmState> {
+    const contract = await this.elrondProxy.getRouterSmartContract();
+    const interaction: Interaction = contract.methods.getFarmState([address]);
+    const response = await this.getGenericData(contract, interaction);
+    const firstValue = response.firstValue?.valueOf().name;
+    return firstValue as FarmState;
   }
 }
