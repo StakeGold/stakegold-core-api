@@ -11,7 +11,7 @@ import { ElrondApiAsyncOptions, ElrondProxyAsyncOptions } from '../elrond-commun
 import { ProxyAsyncOptions } from '../proxy';
 import { ApiConfigAsyncOptions } from '../api-config';
 import { StakingModule } from '../staking';
-import { CachingModuleAsyncOptions } from '@elrondnetwork/erdnest';
+import { CachingModuleAsyncOptions } from 'serdnest';
 
 @Module({})
 export class AccountsModule {
