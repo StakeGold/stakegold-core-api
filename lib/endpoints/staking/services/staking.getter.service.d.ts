@@ -1,15 +1,17 @@
 import BigNumber from 'bignumber.js';
 import { AbiStakingService } from './staking.abi.service';
+import { CachingService } from 'serdnest';
 import { StakeGoldProxyService } from '../../proxy/proxy.service';
 import { StakeGoldElrondApiService } from 'src/endpoints/elrond-communication/elrond-api.service';
 import { EsdtToken, FarmState, NftCollection } from 'src/models';
 import { FarmStakingGroupContract } from 'src/models/staking/farm.staking.contract';
 export declare class StakingGetterService {
     private readonly abiService;
+    private readonly cachingService;
     private readonly elrondApiService;
     private readonly proxyService;
     private readonly logger;
-    constructor(abiService: AbiStakingService, elrondApiService: StakeGoldElrondApiService, proxyService: StakeGoldProxyService);
+    constructor(abiService: AbiStakingService, cachingService: CachingService, elrondApiService: StakeGoldElrondApiService, proxyService: StakeGoldProxyService);
     private getData;
     calculateRewardsForGivenPosition(farmAddress: string, amount: string, attributes: string): Promise<BigNumber>;
     getContractState(farmAddress: string): Promise<string>;

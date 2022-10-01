@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js';
 import { CacheInfo } from '../../../models/caching/cache.info';
 import { STAKEGOLD_ELROND_API_SERVICE, STAKEGOLD_PROXY_SERVICE } from '../../utils/constants';
 import { AbiStakingService } from './staking.abi.service';
-import { Constants, ContextTracker } from 'serdnest';
+import { CachingService, Constants, ContextTracker } from 'serdnest';
 import { generateGetLogMessage } from '../../utils/generate-log-message';
 import { StakeGoldProxyService } from '../../proxy/proxy.service';
 import { StakeGoldElrondApiService } from 'src/endpoints/elrond-communication/elrond-api.service';
@@ -19,7 +19,7 @@ export class StakingGetterService {
 
   constructor(
     private readonly abiService: AbiStakingService,
-    // private readonly cachingService: CachingService,
+    private readonly cachingService: CachingService,
     @Inject(STAKEGOLD_ELROND_API_SERVICE)
     private readonly elrondApiService: StakeGoldElrondApiService,
     @Inject(STAKEGOLD_PROXY_SERVICE)
@@ -31,7 +31,7 @@ export class StakingGetterService {
   private async getData(
     cacheKey: string,
     createValueFunc: () => any,
-    _ttl: number = Constants.oneHour(),
+    ttl: number = Constants.oneHour(),
   ): Promise<any> {
     try {
       const noCache = ContextTracker.get()?.noCache ?? false;
@@ -39,14 +39,14 @@ export class StakingGetterService {
         return await createValueFunc();
       }
 
-      // const cachedValue = await this.cachingService.getCache(cacheKey);
-      // if (cachedValue) {
-      //   return cachedValue;
-      // }
+      const cachedValue = await this.cachingService.getCache(cacheKey);
+      if (cachedValue) {
+        return cachedValue;
+      }
 
       const funcValue = await createValueFunc();
       if (funcValue) {
-        // await this.cachingService.setCache(cacheKey, funcValue, ttl);
+        await this.cachingService.setCache(cacheKey, funcValue, ttl);
         return funcValue;
       }
 
