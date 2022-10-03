@@ -7,7 +7,8 @@ import { CachingService, Constants, ContextTracker } from 'serdnest';
 import { generateGetLogMessage } from '../../utils/generate-log-message';
 import { StakeGoldProxyService } from '../../proxy/proxy.service';
 import { StakeGoldElrondApiService } from 'src/endpoints/elrond-communication/elrond-api.service';
-import { EsdtToken, FarmState, NftCollection } from 'src/models';
+import { EsdtToken, NftCollection } from 'src/models';
+import { FarmState } from '../../../models/staking';
 import {
   ChildFarmStakingContract,
   FarmStakingGroupContract,

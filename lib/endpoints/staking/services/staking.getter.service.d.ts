@@ -3,7 +3,8 @@ import { AbiStakingService } from './staking.abi.service';
 import { CachingService } from 'serdnest';
 import { StakeGoldProxyService } from '../../proxy/proxy.service';
 import { StakeGoldElrondApiService } from 'src/endpoints/elrond-communication/elrond-api.service';
-import { EsdtToken, FarmState, NftCollection } from 'src/models';
+import { EsdtToken, NftCollection } from 'src/models';
+import { FarmState } from '../../../models/staking';
 import { FarmStakingGroupContract } from 'src/models/staking/farm.staking.contract';
 export declare class StakingGetterService {
     private readonly abiService;
