@@ -17,7 +17,6 @@ export declare class StakingService {
     constructor(stakingGetterService: StakingGetterService, stakingComputeService: StakingComputeService, metaEsdtService: MetaEsdtService, transactionService: TransactionsFarmService);
     getFarms(address?: string, vmQuery?: boolean): Promise<FarmGroup[]>;
     private handleAddressesByGroupId;
-    private isFarmConfigured;
     private getFarmInfo;
     getMetaEsdtsDetails(farmTokens: string[], address?: string): Promise<(StakeFarmToken | UnbondFarmToken)[]>;
     private getAnnualPercentageRewards;

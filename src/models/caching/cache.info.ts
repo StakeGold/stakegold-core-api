@@ -187,7 +187,7 @@ export class CacheInfo {
   static FarmState(address: string): CacheInfo {
     return {
       key: `farm-state:${address}`,
-      ttl: Constants.oneMinute() * 6,
+      ttl: Constants.oneSecond() * 6,
     };
   }
 }

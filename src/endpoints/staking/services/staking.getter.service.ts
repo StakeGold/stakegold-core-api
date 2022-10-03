@@ -316,28 +316,33 @@ export class StakingGetterService {
         const farmAddresses = await this.getAddressesByGroupId(groupId);
 
         const childContracts = await Promise.all(
-          farmAddresses.map(async (farmAddress) => {
-            const [farmTokenId, farmingTokenId, areRewardsLocked] = await Promise.all([
-              await this.getFarmTokenId(farmAddress),
-              await this.getFarmingTokenId(farmAddress),
-              await this.areRewardsLocked(farmAddress),
-            ]);
+          farmAddresses
+            .filter(async (farmAddress) => {
+              const farmState = await this.getFarmState(farmAddress);
+              return farmState === FarmState.SETUP_COMPLETE;
+            })
+            .map(async (farmAddress) => {
+              const [farmTokenId, farmingTokenId, areRewardsLocked] = await Promise.all([
+                await this.getFarmTokenId(farmAddress),
+                await this.getFarmingTokenId(farmAddress),
+                await this.areRewardsLocked(farmAddress),
+              ]);
 
-            let rewardTokenId: string | undefined;
-            if (areRewardsLocked) {
-              rewardTokenId = await this.getLockedAssetTokenId(groupId);
-            } else {
-              rewardTokenId = await this.getRewardTokenId(farmAddress);
-            }
+              let rewardTokenId: string | undefined;
+              if (areRewardsLocked) {
+                rewardTokenId = await this.getLockedAssetTokenId(groupId);
+              } else {
+                rewardTokenId = await this.getRewardTokenId(farmAddress);
+              }
 
-            return {
-              farmAddress,
-              farmTokenId,
-              farmingTokenId,
-              rewardTokenId,
-              areRewardsLocked,
-            } as ChildFarmStakingContract;
-          }),
+              return {
+                farmAddress,
+                farmTokenId,
+                farmingTokenId,
+                rewardTokenId,
+                areRewardsLocked,
+              } as ChildFarmStakingContract;
+            }),
         );
 
         return { groupId, childContracts } as FarmStakingGroupContract;
