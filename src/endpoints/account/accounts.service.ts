@@ -53,6 +53,9 @@ export class AccountsService {
     const farmStakingGroups = await this.stakingGetterService.getFarmStakingGroups();
 
     const uniqueLockedTokenIds = await this.getLockedTokenUniqueIds(farmStakingGroups);
+    if (uniqueLockedTokenIds.length === 0) {
+      return [];
+    }
 
     const metaEsdts = await this.metaEsdtService.getMetaEsdts(address, uniqueLockedTokenIds);
 
@@ -82,7 +85,6 @@ export class AccountsService {
 
       lockedTokensMap.set(token.collection, lockedTokenCollection);
     }
-
     return Array.from(lockedTokensMap.values());
   }
 
