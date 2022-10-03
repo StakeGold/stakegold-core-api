@@ -1,4 +1,4 @@
-import { Constants } from '@elrondnetwork/erdnest';
+import { Constants } from 'serdnest';
 
 export class CacheInfo {
   key: string = '';

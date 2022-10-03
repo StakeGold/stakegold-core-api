@@ -5,18 +5,18 @@ import {
   SmartContract,
   SmartContractAbi,
   TypedValue,
-} from "@elrondnetwork/erdjs/out";
-import { Injectable } from "@nestjs/common";
-import { INetworkProvider } from "@elrondnetwork/erdjs-network-providers/out/interface";
-import { ContractQueryResponse } from "@elrondnetwork/erdjs-network-providers/out";
-import { PerformanceProfiler } from "./performance.profiler";
-import { MetricsService } from "@elrondnetwork/erdnest";
+} from '@elrondnetwork/erdjs/out';
+import { Injectable } from '@nestjs/common';
+import { INetworkProvider } from '@elrondnetwork/erdjs-network-providers/out/interface';
+import { ContractQueryResponse } from '@elrondnetwork/erdjs-network-providers/out';
+import { PerformanceProfiler } from './performance.profiler';
+import { MetricsService } from 'serdnest';
 
 @Injectable()
 export class SmartContractProfiler extends SmartContract {
   constructor(
     private readonly metricsService: MetricsService,
-    scData: { address: IAddress; abi: SmartContractAbi }
+    scData: { address: IAddress; abi: SmartContractAbi },
   ) {
     super(scData);
   }
@@ -34,7 +34,7 @@ export class SmartContractProfiler extends SmartContract {
       value?: ITransactionValue;
       caller?: IAddress;
       address: IAddress;
-    }
+    },
   ): Promise<ContractQueryResponse> {
     const profiler = new PerformanceProfiler();
 

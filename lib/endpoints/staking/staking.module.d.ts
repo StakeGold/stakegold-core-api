@@ -1,4 +1,4 @@
-import { CachingModuleAsyncOptions } from '@elrondnetwork/erdnest';
+import { CachingModuleAsyncOptions } from 'serdnest';
 import { DynamicModule } from '@nestjs/common';
 import { ApiConfigAsyncOptions } from '../api-config';
 import { ElrondApiAsyncOptions, ElrondProxyAsyncOptions } from '../elrond-communication';

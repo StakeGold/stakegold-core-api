@@ -1,4 +1,4 @@
-import { CachingModule, CachingModuleAsyncOptions } from '@elrondnetwork/erdnest';
+import { CachingModule, CachingModuleAsyncOptions } from 'serdnest';
 import { DynamicModule } from '@nestjs/common';
 
 export class DynamicModuleUtils {
