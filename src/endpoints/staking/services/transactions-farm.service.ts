@@ -1,4 +1,4 @@
-import { Address, BooleanValue, TypedValue, U32Value } from '@elrondnetwork/erdjs/out';
+import { Address, BooleanValue, BytesValue, TypedValue, U32Value } from '@elrondnetwork/erdjs/out';
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { StakingArgs, TransactionArgs, UnstakingArgs } from '../../../models/staking/staking.args';
 import { Transaction } from '../../../models/staking/transaction.model';
@@ -57,6 +57,46 @@ export class TransactionsFarmService {
 
     return this.SftFarmInteraction(sender, args, method, gasLimit, [
       new BooleanValue(args.lockRewards),
+    ]);
+  }
+
+  async lockAndStake(sender: string, groupId: string, args: StakingArgs): Promise<Transaction> {
+    const contract = await this.elrondProxy.getRouterSmartContract();
+
+    if (!AddressUtils.isAddressValid(sender)) {
+      throw new BadRequestException('Provided address is not a valid bech32 address');
+    }
+
+    const method = 'lockAssetsAndStakeFarm';
+    const gasLimit = 40000000;
+
+    if (args.tokens.length > 1) {
+      return this.contextTransactions.multiESDTNFTTransfer(
+        new Address(sender),
+        contract,
+        args.tokens,
+        method,
+        [new BooleanValue(args.lockRewards), BytesValue.fromUTF8(groupId)],
+        gasLimit,
+        this.apiConfigService.getChainId(),
+      );
+    }
+
+    const collection = args.tokens[0].collection;
+    if (collection === undefined || collection === '') {
+      return this.contextTransactions.esdtTransfer(
+        contract,
+        args.tokens[0],
+        method,
+        [new BooleanValue(args.lockRewards), BytesValue.fromUTF8(groupId)],
+        gasLimit,
+        this.apiConfigService.getChainId(),
+      );
+    }
+
+    return this.SftFarmInteraction(sender, args, method, gasLimit, [
+      new BooleanValue(args.lockRewards),
+      BytesValue.fromUTF8(groupId),
     ]);
   }
 

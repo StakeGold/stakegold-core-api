@@ -9,6 +9,7 @@ export declare class TransactionsFarmService {
     private readonly apiConfigService;
     constructor(elrondProxy: StakeGoldElrondProxyService, contextTransactions: ContextTransactionsService, apiConfigService: StakeGoldApiConfigService);
     stake(sender: string, args: StakingArgs): Promise<Transaction>;
+    lockAndStake(sender: string, groupId: string, args: StakingArgs): Promise<Transaction>;
     unstake(sender: string, args: UnstakingArgs): Promise<Transaction>;
     unbond(sender: string, args: StakingArgs): Promise<Transaction>;
     harvest(sender: string, args: StakingArgs): Promise<Transaction>;

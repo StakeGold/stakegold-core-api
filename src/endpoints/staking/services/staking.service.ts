@@ -1,5 +1,5 @@
 import { BinaryCodec } from '@elrondnetwork/erdjs/out';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import BigNumber from 'bignumber.js';
 import {
   ChildFarmStakingContract,
@@ -309,6 +309,19 @@ export class StakingService {
 
   async stake(sender: string, args: StakingArgs): Promise<Transaction> {
     return await this.transactionService.stake(sender, args);
+  }
+
+  async lockAndStake(
+    sender: string,
+    groupId: string,
+    stakingArgs: StakingArgs,
+  ): Promise<Transaction> {
+    const groupIdentifiers = await this.stakingGetterService.getGroupIdentifiers();
+    if (!groupIdentifiers.includes(groupId)) {
+      throw new BadRequestException('The given group does not exist');
+    }
+
+    return await this.transactionService.lockAndStake(sender, groupId, stakingArgs);
   }
 
   async unstake(sender: string, args: UnstakingArgs): Promise<Transaction> {

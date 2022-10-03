@@ -27,6 +27,7 @@ export declare class StakingService {
     decodeUnboundTokenAttributes(args: DecodeAttributesArgs): Promise<UnbondTokenAttributesModel[]>;
     private getUnbondigRemaingEpochs;
     stake(sender: string, args: StakingArgs): Promise<Transaction>;
+    lockAndStake(sender: string, groupId: string, stakingArgs: StakingArgs): Promise<Transaction>;
     unstake(sender: string, args: UnstakingArgs): Promise<Transaction>;
     unbond(sender: string, args: StakingArgs): Promise<Transaction>;
     reinvest(sender: string, args: StakingArgs): Promise<Transaction>;
