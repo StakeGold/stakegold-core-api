@@ -1,6 +1,6 @@
 {
   "name": "stakegold-core-api",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "",
   "main": "lib/src/index.js",
   "types": "lib/src/index.d.ts",
