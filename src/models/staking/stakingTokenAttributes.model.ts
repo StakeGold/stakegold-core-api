@@ -47,6 +47,7 @@ export class UnbondTokenAttributesModel {
   attributes?: string;
   type = StakingTokenType.UNBOND_FARM_TOKEN;
   remainingEpochs?: number;
+  unlockDate?: string;
 
   constructor(init?: Partial<UnbondTokenAttributesModel>) {
     Object.assign(this, init);

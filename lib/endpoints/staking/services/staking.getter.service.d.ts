@@ -18,7 +18,7 @@ export declare class StakingGetterService {
     getContractState(farmAddress: string): Promise<string>;
     getFarmTokenSupply(farmAddress: string): Promise<string>;
     getAnnualPercentageRewards(farmAddress: string): Promise<string>;
-    getCurrentEpoch(): Promise<number>;
+    getStats(): Promise<any>;
     getPerBlockRewardAmount(farmAddress: string): Promise<string>;
     getShardCurrentBlockNonce(shardID: number): Promise<number>;
     getLastRewardBlockNonce(farmAddress: string): Promise<number>;

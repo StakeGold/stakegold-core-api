@@ -6,7 +6,7 @@ export declare class CacheInfo {
     static FarmTokenSupply(address: string): CacheInfo;
     static AnnualPercentageRewards(address: string): CacheInfo;
     static PerBlockRewardAmount(address: string): CacheInfo;
-    static CurrentEpoch: CacheInfo;
+    static Stats: CacheInfo;
     static ShardCurrentBlockNonce(shardID: string): CacheInfo;
     static getLastRewardBlockNonce(farmAddress: string): CacheInfo;
     static getRewardsPerBlock(farmAddress: string): CacheInfo;

@@ -21,6 +21,7 @@ import { StakingGetterService } from './staking.getter.service';
 import { TransactionsFarmService } from './transactions-farm.service';
 import { isNftCollection } from '../../../models/meta-esdt';
 import { FarmStaking } from '../../../models/staking';
+import { calcUnlockDateText } from '../../utils';
 
 @Injectable()
 export class StakingService {
@@ -286,10 +287,12 @@ export class StakingService {
         const remainingEpochs = await this.getUnbondigRemaingEpochs(
           decodedAttributes.unlockEpoch.toNumber(),
         );
+        const unlockDate = await this.getUnlockDate(remainingEpochs);
         const unboundFarmTokenAttributes = new UnbondTokenAttributesModel({
           identifier: arg.identifier,
           attributes: arg.attributes,
           remainingEpochs,
+          unlockDate,
         });
 
         decodedAttributesBatch.push(unboundFarmTokenAttributes);
@@ -301,8 +304,24 @@ export class StakingService {
     return decodedAttributesBatch;
   }
 
+  private async getUnlockDate(remainingEpochs?: number): Promise<string | undefined> {
+    if (!remainingEpochs) {
+      return undefined;
+    }
+
+    const stats = await this.stakingGetterService.getStats();
+
+    const { unlocksAtDate, unlocksAtText } = calcUnlockDateText({
+      epochs: remainingEpochs,
+      stats,
+      hasSteps: false,
+    });
+
+    return `${unlocksAtText} ${unlocksAtDate}`?.trim();
+  }
+
   private async getUnbondigRemaingEpochs(unlockEpoch: number): Promise<number> {
-    const currentEpoch = await this.stakingGetterService.getCurrentEpoch();
+    const currentEpoch = (await this.stakingGetterService.getStats())?.epoch;
 
     return unlockEpoch - currentEpoch > 0 ? unlockEpoch - currentEpoch : 0;
   }

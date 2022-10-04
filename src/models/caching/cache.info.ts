@@ -39,9 +39,9 @@ export class CacheInfo {
     };
   }
 
-  static CurrentEpoch: CacheInfo = {
-    key: 'currentEpoch',
-    ttl: Constants.oneSecond() * 6,
+  static Stats: CacheInfo = {
+    key: 'stats',
+    ttl: Constants.oneMinute(),
   };
 
   static ShardCurrentBlockNonce(shardID: string): CacheInfo {

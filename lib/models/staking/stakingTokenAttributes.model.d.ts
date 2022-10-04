@@ -24,6 +24,7 @@ export declare class UnbondTokenAttributesModel {
     attributes?: string;
     type: StakingTokenType;
     remainingEpochs?: number;
+    unlockDate?: string;
     constructor(init?: Partial<UnbondTokenAttributesModel>);
     toJSON(): {
         type: StakingTokenType;

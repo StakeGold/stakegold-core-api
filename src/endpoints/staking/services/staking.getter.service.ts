@@ -105,11 +105,11 @@ export class StakingGetterService {
     );
   }
 
-  async getCurrentEpoch(): Promise<number> {
+  async getStats(): Promise<any> {
     return await this.getData(
-      CacheInfo.CurrentEpoch.key,
-      async () => (await this.proxyService.getStats()).epoch,
-      CacheInfo.CurrentEpoch.ttl,
+      CacheInfo.Stats.key,
+      async () => await this.proxyService.getStats(),
+      CacheInfo.Stats.ttl,
     );
   }
 

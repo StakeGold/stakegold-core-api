@@ -12,6 +12,7 @@ import { StakeGoldElrondApiService } from '../elrond-communication/elrond-api.se
 import { MetaEsdtService } from '../meta-esdt/meta.esdt.service';
 import { StakingGetterService } from '../staking';
 import { STAKEGOLD_ELROND_API_SERVICE } from '../utils/constants';
+import { calcUnlockDateText } from '../utils';
 
 @Injectable()
 export class AccountsService {
@@ -66,6 +67,20 @@ export class AccountsService {
       if (!unlockSchedule || !token.balance) {
         continue;
       }
+
+      const currentStats = await this.stakingGetterService.getStats();
+
+      unlockSchedule?.map((milestone) => {
+        const remainingEpochs = milestone.epoch ? milestone.epoch - currentStats.epoch : 0;
+
+        const { unlocksAtDate, unlocksAtText } = calcUnlockDateText({
+          epochs: remainingEpochs,
+          stats: currentStats,
+          hasSteps: false,
+        });
+
+        milestone.unlockDate = `${unlocksAtText} ${unlocksAtDate}`?.trim();
+      });
 
       const lockedTokenCollection =
         lockedTokensMap.get(token.collection) ??

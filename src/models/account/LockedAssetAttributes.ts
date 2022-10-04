@@ -20,6 +20,7 @@ export type LockedAssetAttributesType = {
 export interface UnlockMilestone {
   epoch: number;
   percent: number;
+  unlockDate?: string;
 }
 
 export class LockedAssetAttributes {

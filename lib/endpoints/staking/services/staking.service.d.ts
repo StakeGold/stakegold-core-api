@@ -25,6 +25,7 @@ export declare class StakingService {
     getFarmTotalSupply(farmAddress?: string): Promise<string>;
     decodeStakingTokenAttributes(args: DecodeAttributesArgs): StakingTokenAttributesModel[];
     decodeUnboundTokenAttributes(args: DecodeAttributesArgs): Promise<UnbondTokenAttributesModel[]>;
+    private getUnlockDate;
     private getUnbondigRemaingEpochs;
     stake(sender: string, args: StakingArgs): Promise<Transaction>;
     lockAndStake(sender: string, groupId: string, stakingArgs: StakingArgs): Promise<Transaction>;
