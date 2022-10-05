@@ -352,4 +352,15 @@ export class StakingGetterService {
 
     return results.flat();
   }
+
+  async getGroupIdFromLockedAssetId(assetTokenId: string): Promise<string | undefined> {
+    const groupIds = await this.getGroupIdentifiers();
+    for (const groupId of groupIds) {
+      const lockedAssetTokenId = await this.getLockedAssetTokenId(groupId);
+      if (lockedAssetTokenId === assetTokenId) {
+        return await this.getVestingAddressByGroupIdentifier(groupId);
+      }
+    }
+    return undefined;
+  }
 }

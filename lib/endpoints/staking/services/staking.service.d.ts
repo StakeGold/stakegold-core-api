@@ -9,6 +9,7 @@ import { MetaEsdtService } from '../../meta-esdt/meta.esdt.service';
 import { StakingComputeService } from './staking.compute.service';
 import { StakingGetterService } from './staking.getter.service';
 import { TransactionsFarmService } from './transactions-farm.service';
+import { InputToken } from '../../../models/staking';
 export declare class StakingService {
     private readonly stakingGetterService;
     private readonly stakingComputeService;
@@ -29,6 +30,8 @@ export declare class StakingService {
     private getUnbondigRemaingEpochs;
     stake(sender: string, args: StakingArgs): Promise<Transaction>;
     lockAndStake(sender: string, groupId: string, stakingArgs: StakingArgs): Promise<Transaction>;
+    mergeTokens(sender: string, tokens: InputToken[]): Promise<Transaction>;
+    unlockToken(sender: string, token: InputToken): Promise<Transaction>;
     unstake(sender: string, args: UnstakingArgs): Promise<Transaction>;
     unbond(sender: string, args: StakingArgs): Promise<Transaction>;
     reinvest(sender: string, args: StakingArgs): Promise<Transaction>;

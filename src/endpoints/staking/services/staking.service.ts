@@ -20,7 +20,7 @@ import { StakingComputeService } from './staking.compute.service';
 import { StakingGetterService } from './staking.getter.service';
 import { TransactionsFarmService } from './transactions-farm.service';
 import { isNftCollection } from '../../../models/meta-esdt';
-import { FarmStaking } from '../../../models/staking';
+import { FarmStaking, InputToken } from '../../../models/staking';
 import { calcUnlockDateText } from '../../utils';
 
 @Injectable()
@@ -341,6 +341,14 @@ export class StakingService {
     }
 
     return await this.transactionService.lockAndStake(sender, groupId, stakingArgs);
+  }
+
+  async mergeTokens(sender: string, tokens: InputToken[]): Promise<Transaction> {
+    return await this.transactionService.mergeTokens(sender, tokens);
+  }
+
+  async unlockToken(sender: string, token: InputToken): Promise<Transaction> {
+    return await this.transactionService.unlockToken(sender, token);
   }
 
   async unstake(sender: string, args: UnstakingArgs): Promise<Transaction> {

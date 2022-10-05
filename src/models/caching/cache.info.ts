@@ -180,7 +180,7 @@ export class CacheInfo {
   static lockedTokenId(groupId: string): CacheInfo {
     return {
       key: `lockedTokenId:${groupId}`,
-      ttl: Constants.oneMinute() * 10,
+      ttl: Constants.oneWeek(),
     };
   }
 
