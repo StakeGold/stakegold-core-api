@@ -190,4 +190,11 @@ export class CacheInfo {
       ttl: Constants.oneSecond() * 6,
     };
   }
+
+  static RewardTokenIdByGroupId(groupId: string): CacheInfo {
+    return {
+      key: `rewardTokenIdByGroupId:${groupId}`,
+      ttl: Constants.oneWeek(),
+    };
+  }
 }

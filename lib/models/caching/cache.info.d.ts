@@ -28,4 +28,5 @@ export declare class CacheInfo {
     static groupByOwner(address: string): CacheInfo;
     static lockedTokenId(groupId: string): CacheInfo;
     static FarmState(address: string): CacheInfo;
+    static RewardTokenIdByGroupId(groupId: string): CacheInfo;
 }

@@ -13,7 +13,7 @@ export interface FarmGroup {
   groupName?: string;
   groupDecimals: number;
   groupIcon?: string;
-  farmingToken?: NftCollection | EsdtToken;
+  farmingTokens: (NftCollection | EsdtToken)[];
   farms: Farm[];
 }
 

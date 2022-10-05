@@ -19,9 +19,10 @@ import { MetaEsdtService } from '../../meta-esdt/meta.esdt.service';
 import { StakingComputeService } from './staking.compute.service';
 import { StakingGetterService } from './staking.getter.service';
 import { TransactionsFarmService } from './transactions-farm.service';
-import { isNftCollection } from '../../../models/meta-esdt';
+import { isNftCollection, NftCollection } from '../../../models/meta-esdt';
 import { FarmStaking, InputToken } from '../../../models/staking';
 import { calcUnlockDateText } from '../../utils';
+import { EsdtToken } from 'src/models';
 
 @Injectable()
 export class StakingService {
@@ -45,6 +46,8 @@ export class StakingService {
       farmStakingGroups.map(async (group) => {
         const farms = (await this.handleAddressesByGroupId(group, metaEsdtsDetails, vmQuery)) ?? [];
 
+        const farmingTokens = await this.getGroupFarmingTokens(group.groupId, farms);
+
         const farmingToken =
           farms.find((farm) => !isNftCollection(farm.farmingToken))?.farmingToken ??
           farms.firstOrUndefined()?.farmingToken;
@@ -57,12 +60,56 @@ export class StakingService {
           groupName: this.getGroupName(farms),
           groupDecimals: decimals,
           groupIcon: icon,
-          farmingToken,
+          farmingTokens,
         } as FarmGroup);
       }),
     );
 
     return groups;
+  }
+
+  private async getGroupFarmingTokens(
+    groupId: string,
+    farms: Farm[],
+  ): Promise<(NftCollection | EsdtToken)[]> {
+    const farmingTokens: (NftCollection | EsdtToken)[] = [];
+    const lockedFarmingToken = await this.getGroupUnlockedFarmingToken(groupId, farms);
+    const unlockedFarmingToken = this.getGroupLockedFarmingToken(farms);
+
+    if (lockedFarmingToken) {
+      farmingTokens.push(lockedFarmingToken);
+    }
+
+    if (unlockedFarmingToken) {
+      farmingTokens.push(unlockedFarmingToken);
+    }
+
+    return farmingTokens;
+  }
+
+  private async getGroupUnlockedFarmingToken(
+    groupId: string,
+    farms: Farm[],
+  ): Promise<EsdtToken | NftCollection | undefined> {
+    const unlockedFarmingToken = farms.find(
+      (farm) => !isNftCollection(farm.farmingToken),
+    )?.farmingToken;
+
+    if (unlockedFarmingToken) {
+      return unlockedFarmingToken;
+    }
+
+    const rewardTokenId = await this.stakingGetterService.getRewardTokenIdByGroupIdentifier(
+      groupId,
+    );
+    return this.stakingGetterService.getEsdtOrNft(rewardTokenId);
+  }
+
+  private getGroupLockedFarmingToken(farms: Farm[]): EsdtToken | NftCollection | undefined {
+    const lockedFarmingToken = farms.find((farm) =>
+      isNftCollection(farm.farmingToken),
+    )?.farmingToken;
+    return lockedFarmingToken;
   }
 
   private async handleAddressesByGroupId(

@@ -43,4 +43,5 @@ export declare class StakingGetterService {
     getLockedAssetTokenId(groupId: string): Promise<string | undefined>;
     getFarmStakingGroups(): Promise<FarmStakingGroupContract[]>;
     getGroupIdFromLockedAssetId(assetTokenId: string): Promise<string | undefined>;
+    getRewardTokenIdByGroupIdentifier(groupId: string): Promise<string>;
 }

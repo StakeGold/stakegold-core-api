@@ -363,4 +363,12 @@ export class StakingGetterService {
     }
     return undefined;
   }
+
+  async getRewardTokenIdByGroupIdentifier(groupId: string): Promise<string> {
+    return await this.getData(
+      CacheInfo.RewardTokenIdByGroupId(groupId).key,
+      () => this.abiService.getRewardTokenIdByGroupId(groupId),
+      CacheInfo.RewardTokenIdByGroupId(groupId).ttl,
+    );
+  }
 }

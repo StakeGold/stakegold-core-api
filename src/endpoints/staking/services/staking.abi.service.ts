@@ -213,6 +213,17 @@ export class AbiStakingService {
     return response.firstValue?.valueOf();
   }
 
+  public async getRewardTokenIdByGroupId(groupId: string): Promise<string> {
+    const contract = await this.elrondProxy.getRouterSmartContract();
+    const interaction: Interaction = contract.methodsExplicit.getRewardTokenIdByGroupIdentifier([
+      new BytesValue(Buffer.from(groupId)),
+    ]);
+    const response = await this.getGenericData(contract, interaction);
+    const firstValue = response.firstValue?.valueOf();
+
+    return firstValue;
+  }
+
   async areRewardsLocked(childContractAddress: string): Promise<boolean> {
     const contract = await this.elrondProxy.getFarmSmartContract(childContractAddress);
     const interaction: Interaction = contract.methods.areRewardsLocked([]);

@@ -29,6 +29,7 @@ export declare class AbiStakingService {
     getFarmTokenId(childContractAddress: string): Promise<string>;
     getFarmingTokenId(childContractAddress: string): Promise<string>;
     getRewardTokenId(childContractAddress: string): Promise<string>;
+    getRewardTokenIdByGroupId(groupId: string): Promise<string>;
     areRewardsLocked(childContractAddress: string): Promise<boolean>;
     getVestingScAddress(farmAddress: string): Promise<string | undefined>;
     getFarmState(address: string): Promise<FarmState>;
