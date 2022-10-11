@@ -170,9 +170,9 @@ export class CacheInfo {
     };
   }
 
-  static groupByOwner(address: string): CacheInfo {
+  static groupsByOwner(address: string): CacheInfo {
     return {
-      key: `groupByOwner:${address}`,
+      key: `groupsByOwner:${address}`,
       ttl: Constants.oneWeek(),
     };
   }

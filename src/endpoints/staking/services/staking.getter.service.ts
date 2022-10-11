@@ -257,11 +257,11 @@ export class StakingGetterService {
     );
   }
 
-  async getGroupByOwner(address: string): Promise<string | undefined> {
+  async getGroupsByOwner(address: string): Promise<string[]> {
     return await this.getData(
-      CacheInfo.groupByOwner(address).key,
-      () => this.abiService.getGroupByOwner(address),
-      CacheInfo.groupByOwner(address).ttl,
+      CacheInfo.groupsByOwner(address).key,
+      () => this.abiService.getGroupsByOwner(address),
+      CacheInfo.groupsByOwner(address).ttl,
     );
   }
 

@@ -25,7 +25,7 @@ export declare class CacheInfo {
     static stakeToken(identifier: string): CacheInfo;
     static vestingAddressByGroupId(groupId: string): CacheInfo;
     static FarmVestingAddress(farmAddress: string): CacheInfo;
-    static groupByOwner(address: string): CacheInfo;
+    static groupsByOwner(address: string): CacheInfo;
     static lockedTokenId(groupId: string): CacheInfo;
     static FarmState(address: string): CacheInfo;
     static RewardTokenIdByGroupId(groupId: string): CacheInfo;

@@ -23,7 +23,7 @@ export declare class AbiStakingService {
     getRewardsLeft(farmAddress: string): Promise<string>;
     getGroupIdentifiers(): Promise<string[]>;
     getAddressesByGroupId(groupId: string): Promise<string[]>;
-    getGroupByOwner(address: string): Promise<string | undefined>;
+    getGroupsByOwner(address: string): Promise<string[]>;
     getVestingAddressByGroupIdentifier(groupId: string): Promise<string>;
     getLockedAssetTokenId(vestingAddress: string): Promise<string>;
     getFarmTokenId(childContractAddress: string): Promise<string>;
