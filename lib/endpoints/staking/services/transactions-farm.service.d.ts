@@ -11,7 +11,7 @@ export declare class TransactionsFarmService {
     private readonly apiConfigService;
     private readonly stakingGetterService;
     constructor(elrondProxy: StakeGoldElrondProxyService, contextTransactions: ContextTransactionsService, apiConfigService: StakeGoldApiConfigService, stakingGetterService: StakingGetterService);
-    stake(sender: string, args: StakingArgs): Promise<Transaction>;
+    stake(sender: string, groupId: string, args: StakingArgs): Promise<Transaction>;
     lockAndStake(sender: string, groupId: string, args: StakingArgs): Promise<Transaction>;
     mergeTokens(sender: string, tokens: InputToken[]): Promise<Transaction>;
     unlockToken(sender: string, token: InputToken): Promise<Transaction>;
