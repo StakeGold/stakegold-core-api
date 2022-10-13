@@ -173,7 +173,7 @@ export class AbiStakingService {
       new AddressValue(new Address(address)),
     ]);
     const response = await this.getGenericData(contract, interaction);
-    return response.firstValue?.valueOf().toString() ?? [];
+    return (response.firstValue?.valueOf() as string[]) ?? [];
   }
 
   async getVestingAddressByGroupIdentifier(groupId: string): Promise<string> {
