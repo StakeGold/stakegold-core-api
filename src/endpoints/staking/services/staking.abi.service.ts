@@ -228,7 +228,7 @@ export class AbiStakingService {
     const contract = await this.elrondProxy.getFarmSmartContract(childContractAddress);
     const interaction: Interaction = contract.methods.areRewardsLocked([]);
     const response = await this.getGenericData(contract, interaction);
-    return response.firstValue?.valueOf();
+    return response.firstValue?.valueOf() ?? false;
   }
 
   // TODO
