@@ -35,7 +35,7 @@ export class CacheInfo {
   static PerBlockRewardAmount(address: string): CacheInfo {
     return {
       key: `perBlockRewardAmount:${address}`,
-      ttl: Constants.oneHour(),
+      ttl: Constants.oneMinute(),
     };
   }
 
