@@ -273,6 +273,25 @@ export class StakingGetterService {
     );
   }
 
+  async getEsdtToken(identifier: string, address?: string): Promise<EsdtToken | undefined> {
+    try {
+      return await this.getData(
+        CacheInfo.stakeToken(identifier).key,
+        async () => {
+          if (!identifier || identifier.length === 0) {
+            return undefined;
+          }
+
+          const esdtToken = await this.elrondApiService.getEsdtToken(identifier, address);
+          return esdtToken;
+        },
+        CacheInfo.stakeToken(identifier).ttl,
+      );
+    } catch {
+      return undefined;
+    }
+  }
+
   async getEsdtOrNft(
     identifier: string,
     address?: string,

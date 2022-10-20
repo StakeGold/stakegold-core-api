@@ -39,6 +39,7 @@ export declare class StakingGetterService {
     getVestingAdressOfFarm(farmAddress: string): Promise<string>;
     getGroupsByOwner(address: string): Promise<string[]>;
     getFarmState(address: string): Promise<FarmState>;
+    getEsdtToken(identifier: string, address?: string): Promise<EsdtToken | undefined>;
     getEsdtOrNft(identifier: string, address?: string): Promise<EsdtToken | NftCollection | undefined>;
     getLockedAssetTokenId(groupId: string): Promise<string | undefined>;
     getFarmStakingGroups(): Promise<FarmStakingGroupContract[]>;
