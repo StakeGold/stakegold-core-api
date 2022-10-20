@@ -13,5 +13,5 @@ export interface StakeGoldElrondApiService {
 
   getCurrentBlockNonce(shardId: number): Promise<number>;
 
-  getNftCollection(identifier: string): Promise<NftCollection | undefined>;
+  getNftCollection(identifier: string, address?: string): Promise<NftCollection | undefined>;
 }

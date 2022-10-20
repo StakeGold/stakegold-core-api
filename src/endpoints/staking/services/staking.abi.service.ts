@@ -167,13 +167,13 @@ export class AbiStakingService {
     return (response.firstValue?.valueOf() as Address[]).map((address) => address.toString());
   }
 
-  async getGroupByOwner(address: string): Promise<string | undefined> {
+  async getGroupsByOwner(address: string): Promise<string[]> {
     const contract = await this.elrondProxy.getRouterSmartContract();
-    const interaction: Interaction = contract.methodsExplicit.getGroupByOwner([
+    const interaction: Interaction = contract.methodsExplicit.getGroupsByOwner([
       new AddressValue(new Address(address)),
     ]);
     const response = await this.getGenericData(contract, interaction);
-    return response.firstValue?.valueOf().toString();
+    return (response.firstValue?.valueOf() as any[]).map((group) => group.toString()) ?? [];
   }
 
   async getVestingAddressByGroupIdentifier(groupId: string): Promise<string> {
@@ -228,7 +228,7 @@ export class AbiStakingService {
     const contract = await this.elrondProxy.getFarmSmartContract(childContractAddress);
     const interaction: Interaction = contract.methods.areRewardsLocked([]);
     const response = await this.getGenericData(contract, interaction);
-    return response.firstValue?.valueOf();
+    return response.firstValue?.valueOf() ?? false;
   }
 
   // TODO

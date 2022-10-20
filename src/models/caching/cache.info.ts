@@ -35,7 +35,7 @@ export class CacheInfo {
   static PerBlockRewardAmount(address: string): CacheInfo {
     return {
       key: `perBlockRewardAmount:${address}`,
-      ttl: Constants.oneHour(),
+      ttl: Constants.oneMinute(),
     };
   }
 
@@ -170,9 +170,9 @@ export class CacheInfo {
     };
   }
 
-  static groupByOwner(address: string): CacheInfo {
+  static groupsByOwner(address: string): CacheInfo {
     return {
-      key: `groupByOwner:${address}`,
+      key: `groupsByOwner:${address}`,
       ttl: Constants.oneWeek(),
     };
   }

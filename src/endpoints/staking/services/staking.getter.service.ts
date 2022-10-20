@@ -257,11 +257,11 @@ export class StakingGetterService {
     );
   }
 
-  async getGroupByOwner(address: string): Promise<string | undefined> {
+  async getGroupsByOwner(address: string): Promise<string[]> {
     return await this.getData(
-      CacheInfo.groupByOwner(address).key,
-      () => this.abiService.getGroupByOwner(address),
-      CacheInfo.groupByOwner(address).ttl,
+      CacheInfo.groupsByOwner(address).key,
+      () => this.abiService.getGroupsByOwner(address),
+      CacheInfo.groupsByOwner(address).ttl,
     );
   }
 
@@ -273,7 +273,7 @@ export class StakingGetterService {
     );
   }
 
-  async getEsdtOrNft(identifier: string): Promise<EsdtToken | NftCollection | undefined> {
+  async getEsdtToken(identifier: string, address?: string): Promise<EsdtToken | undefined> {
     try {
       return await this.getData(
         CacheInfo.stakeToken(identifier).key,
@@ -282,12 +282,34 @@ export class StakingGetterService {
             return undefined;
           }
 
-          const esdtToken = await this.elrondApiService.getEsdtToken(identifier);
+          const esdtToken = await this.elrondApiService.getEsdtToken(identifier, address);
+          return esdtToken;
+        },
+        CacheInfo.stakeToken(identifier).ttl,
+      );
+    } catch {
+      return undefined;
+    }
+  }
+
+  async getEsdtOrNft(
+    identifier: string,
+    address?: string,
+  ): Promise<EsdtToken | NftCollection | undefined> {
+    try {
+      return await this.getData(
+        CacheInfo.stakeToken(identifier).key,
+        async () => {
+          if (!identifier || identifier.length === 0) {
+            return undefined;
+          }
+
+          const esdtToken = await this.elrondApiService.getEsdtToken(identifier, address);
           if (esdtToken) {
             return esdtToken;
           }
 
-          const nftCollection = await this.elrondApiService.getNftCollection(identifier);
+          const nftCollection = await this.elrondApiService.getNftCollection(identifier, address);
           return nftCollection;
         },
         CacheInfo.stakeToken(identifier).ttl,

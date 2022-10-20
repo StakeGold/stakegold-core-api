@@ -25,7 +25,7 @@ export class TransactionsFarmService {
     private readonly stakingGetterService: StakingGetterService,
   ) {}
 
-  async stake(sender: string, args: StakingArgs): Promise<Transaction> {
+  async stake(sender: string, groupId: string, args: StakingArgs): Promise<Transaction> {
     const contract = await this.elrondProxy.getRouterSmartContract();
 
     if (!AddressUtils.isAddressValid(sender)) {
@@ -41,7 +41,7 @@ export class TransactionsFarmService {
         contract,
         args.tokens,
         method,
-        [new BooleanValue(args.lockRewards)],
+        [BytesValue.fromUTF8(groupId), new BooleanValue(args.lockRewards)],
         gasLimit,
         this.apiConfigService.getChainId(),
       );

@@ -373,8 +373,8 @@ export class StakingService {
     return unlockEpoch - currentEpoch > 0 ? unlockEpoch - currentEpoch : 0;
   }
 
-  async stake(sender: string, args: StakingArgs): Promise<Transaction> {
-    return await this.transactionService.stake(sender, args);
+  async stake(sender: string, groupId: string, args: StakingArgs): Promise<Transaction> {
+    return await this.transactionService.stake(sender, groupId, args);
   }
 
   async lockAndStake(
