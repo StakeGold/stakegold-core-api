@@ -53,7 +53,7 @@ export class TransactionsFarmService {
         contract,
         args.tokens[0],
         method,
-        [new BooleanValue(args.lockRewards)],
+        [BytesValue.fromUTF8(groupId), new BooleanValue(args.lockRewards)],
         gasLimit,
         this.apiConfigService.getChainId(),
       );
