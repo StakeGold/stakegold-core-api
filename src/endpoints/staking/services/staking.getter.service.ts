@@ -332,7 +332,6 @@ export class StakingGetterService {
   }
 
   async getFarmStakingGroups(): Promise<FarmStakingGroupContract[]> {
-    console.log('getFarmStakingGroups');
     const groupIds = await this.getGroupIdentifiers();
 
     const results = await Promise.all(
