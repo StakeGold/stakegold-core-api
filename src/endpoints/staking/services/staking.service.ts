@@ -34,6 +34,7 @@ export class StakingService {
   ) {}
 
   async getFarms(address?: string, vmQuery?: boolean): Promise<FarmGroup[]> {
+    console.log('getFarms');
     const groups: FarmGroup[] = [];
     const farmStakingGroups = await this.stakingGetterService.getFarmStakingGroups();
     const farmTokenIds = farmStakingGroups

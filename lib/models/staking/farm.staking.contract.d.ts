@@ -1,3 +1,4 @@
+import { FarmState } from './farm.state';
 export interface FarmStakingGroupContract {
     groupId: string;
     childContracts: ChildFarmStakingContract[];
@@ -8,4 +9,5 @@ export interface ChildFarmStakingContract {
     farmingTokenId: string;
     rewardTokenId: string;
     areRewardsLocked: boolean;
+    state?: FarmState;
 }

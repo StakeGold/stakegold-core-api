@@ -17,6 +17,7 @@ export interface EsdtToken {
     type: string;
     balance?: string;
     assets?: Assets;
+    roles?: any[];
 }
 export interface Assets {
     svgUrl?: string;
