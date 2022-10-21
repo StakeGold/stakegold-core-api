@@ -372,7 +372,7 @@ export class StakingGetterService {
       }),
     );
 
-    return results.flat();
+    return results.filter((group) => group.childContracts.length > 0).flat();
   }
 
   async getGroupIdFromLockedAssetId(assetTokenId: string): Promise<string | undefined> {
