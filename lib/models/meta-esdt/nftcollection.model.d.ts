@@ -18,5 +18,6 @@ export interface NftCollection {
     NFTCreateStopped?: boolean;
     assets?: Assets;
     balance?: string;
+    roles?: any[];
 }
 export declare function isNftCollection(object: any): object is NftCollection;
