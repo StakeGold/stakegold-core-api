@@ -46,7 +46,7 @@ export class StakingComputeService {
   private getAllAprs(group: FarmGroup): number[] {
     const apr = group.farms.map((farm) => farm.apr).filter((apr) => apr) as number[];
     const lockedApr = group.farms.map((farm) => farm.lockedApr).filter((apr) => apr) as number[];
-    return [...apr, ...lockedApr];
+    return [...apr.map((a) => Math.floor(a)), ...lockedApr.map((a) => Math.floor(a))];
   }
 
   computeLowestApr(group: FarmGroup): number | undefined {

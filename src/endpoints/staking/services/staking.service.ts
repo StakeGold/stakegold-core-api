@@ -150,8 +150,8 @@ export class StakingService {
       farm.unlockedRewardToken = !areRewardsLocked ? rewardToken : farm.unlockedRewardToken;
 
       const { apr, lockedApr } = await this.getAnnualPercentageRewards(farm.farmStaking);
-      farm.apr = apr;
-      farm.lockedApr = lockedApr;
+      farm.apr = apr ? Math.floor(apr) : undefined;
+      farm.lockedApr = lockedApr ? Math.floor(lockedApr) : undefined;
 
       farm.positions.push(...positions);
 
