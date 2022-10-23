@@ -133,6 +133,9 @@ export class AccountsService {
       .flat();
 
     const uniqueFarmTokenIds = [...new Set(farmTokenIds.map((id) => id))];
+    if (uniqueFarmTokenIds.length === 0) {
+      return [];
+    }
 
     const metaEsdts = await this.metaEsdtService.getMetaEsdts(address, uniqueFarmTokenIds);
 
