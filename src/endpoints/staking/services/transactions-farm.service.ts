@@ -211,6 +211,18 @@ export class TransactionsFarmService {
       throw new BadRequestException('No tokens sent');
     }
 
+    if (stakingArgs.tokens.length > 1) {
+      return this.contextTransactions.multiESDTNFTTransfer(
+        new Address(sender),
+        contract,
+        stakingArgs.tokens,
+        method,
+        [],
+        gasLimit,
+        this.apiConfigService.getChainId(),
+      );
+    }
+
     return this.contextTransactions.nftTransfer(
       new Address(sender),
       contract,
