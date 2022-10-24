@@ -406,11 +406,11 @@ export class StakingService {
     return await this.transactionService.unbond(sender, args);
   }
 
-  async reinvest(sender: string, args: StakingArgs): Promise<Transaction> {
+  async reinvest(sender: string, args: StakingArgs): Promise<Transaction[]> {
     return await this.transactionService.reinvest(sender, args);
   }
 
-  async harvest(sender: string, args: StakingArgs): Promise<Transaction> {
+  async harvest(sender: string, args: StakingArgs): Promise<Transaction[]> {
     return await this.transactionService.harvest(sender, args);
   }
 }
