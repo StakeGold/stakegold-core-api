@@ -335,8 +335,6 @@ export class StakingService {
         const remainingEpochs = await this.getUnbondigRemaingEpochs(
           decodedAttributes.unlockEpoch.toNumber(),
         );
-        console.log('decodedAttributes.unlockEpoch', decodedAttributes.unlockEpoch);
-        console.log('remainingEpochs', remainingEpochs);
         const unlockDate = await this.getUnlockDate(remainingEpochs);
         const unboundFarmTokenAttributes = new UnbondTokenAttributesModel({
           identifier: arg.identifier,
@@ -344,6 +342,7 @@ export class StakingService {
           remainingEpochs,
           unlockDate,
         });
+        console.log('decodeUnboundTokenAttributes unlockDate', unlockDate);
 
         decodedAttributesBatch.push(unboundFarmTokenAttributes);
       }
@@ -356,21 +355,23 @@ export class StakingService {
 
   private async getUnlockDate(remainingEpochs?: number): Promise<string | undefined> {
     console.log('getUnlockDate epochs', remainingEpochs);
-    if (!remainingEpochs) {
+    if (remainingEpochs === undefined) {
+      console.log('getUnlockDate return');
       return undefined;
     }
 
     const stats = await this.stakingGetterService.getStats();
-    console.log('getUnlockDate stats', stats);
     const { unlocksAtDate, unlocksAtText } = calcUnlockDateText({
       epochs: remainingEpochs,
       stats,
       hasSteps: false,
     });
-    console.log('unlocksAtDate', unlocksAtDate);
-    console.log('unlocksAtText', unlocksAtText);
-
-    return `${unlocksAtText} ${unlocksAtDate}`?.trim();
+    console.log('getUnlockDate unlocksAtDate', unlocksAtDate);
+    console.log('getUnlockDate unlocksAtText', unlocksAtText);
+    console.log('getUnlockDate without trim', `${unlocksAtText} ${unlocksAtDate}`);
+    const returndata = `${unlocksAtText} ${unlocksAtDate}`?.trim();
+    console.log('getUnlockDate returndata', returndata);
+    return returndata;
   }
 
   private async getUnbondigRemaingEpochs(unlockEpoch: number): Promise<number> {
@@ -412,11 +413,11 @@ export class StakingService {
     return await this.transactionService.unbond(sender, args);
   }
 
-  async reinvest(sender: string, args: StakingArgs): Promise<Transaction> {
+  async reinvest(sender: string, args: StakingArgs): Promise<Transaction[]> {
     return await this.transactionService.reinvest(sender, args);
   }
 
-  async harvest(sender: string, args: StakingArgs): Promise<Transaction> {
+  async harvest(sender: string, args: StakingArgs): Promise<Transaction[]> {
     return await this.transactionService.harvest(sender, args);
   }
 }

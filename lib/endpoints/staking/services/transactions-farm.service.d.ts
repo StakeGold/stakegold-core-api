@@ -17,7 +17,7 @@ export declare class TransactionsFarmService {
     unlockToken(sender: string, token: InputToken): Promise<Transaction>;
     unstake(sender: string, args: UnstakingArgs): Promise<Transaction>;
     unbond(sender: string, args: StakingArgs): Promise<Transaction>;
-    harvest(sender: string, args: StakingArgs): Promise<Transaction>;
-    reinvest(sender: string, args: StakingArgs): Promise<Transaction>;
+    harvest(sender: string, args: StakingArgs): Promise<Transaction[]>;
+    reinvest(sender: string, args: StakingArgs): Promise<Transaction[]>;
     private SftFarmInteraction;
 }

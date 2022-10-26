@@ -30,13 +30,10 @@ export const calcUnlockDateText = ({
   stats: any;
   hasSteps: boolean;
 }) => {
-  console.log('calcUnlockDateText epochs', epochs);
-  console.log('calcUnlockDateText stats', stats);
   const unlockDate = calcUnlockDate({
     stats,
     epochs,
   });
-  console.log('calcUnlockDateText unlockDate', unlockDate);
   const isToday = calcIsToday(unlockDate);
   const alreadyUnlocked = calcAlreadyUnlocked(unlockDate);
   const unlocksLaterToday = isToday && Boolean(unlockDate?.isAfter(new Date()));
@@ -59,6 +56,5 @@ export const calcUnlockDateText = ({
       unlocksAtDate = unlockDate ? unlockDate.format('MMM Do YYYY') : '...';
       break;
   }
-  console.log('calcUnlockDateText unlocksAtText', unlocksAtText);
   return { unlocksAtText, unlocksAtDate };
 };
