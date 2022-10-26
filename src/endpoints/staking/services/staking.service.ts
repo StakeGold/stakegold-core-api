@@ -324,7 +324,6 @@ export class StakingService {
     args: DecodeAttributesArgs,
   ): Promise<UnbondTokenAttributesModel[]> {
     const decodedAttributesBatch = [];
-    console.log('decodeUnboundTokenAttributes');
     try {
       for (const arg of args.batchAttributes) {
         const attributesBuffer = Buffer.from(arg.attributes ?? '', 'base64');
@@ -342,7 +341,6 @@ export class StakingService {
           remainingEpochs,
           unlockDate,
         });
-        console.log('decodeUnboundTokenAttributes unlockDate', unlockDate);
 
         decodedAttributesBatch.push(unboundFarmTokenAttributes);
       }
@@ -354,9 +352,7 @@ export class StakingService {
   }
 
   private async getUnlockDate(remainingEpochs?: number): Promise<string | undefined> {
-    console.log('getUnlockDate epochs', remainingEpochs);
     if (remainingEpochs === undefined) {
-      console.log('getUnlockDate return');
       return undefined;
     }
 
@@ -366,12 +362,8 @@ export class StakingService {
       stats,
       hasSteps: false,
     });
-    console.log('getUnlockDate unlocksAtDate', unlocksAtDate);
-    console.log('getUnlockDate unlocksAtText', unlocksAtText);
-    console.log('getUnlockDate without trim', `${unlocksAtText} ${unlocksAtDate}`);
-    const returndata = `${unlocksAtText} ${unlocksAtDate}`?.trim();
-    console.log('getUnlockDate returndata', returndata);
-    return returndata;
+
+    return `${unlocksAtText} ${unlocksAtDate}`?.trim();
   }
 
   private async getUnbondigRemaingEpochs(unlockEpoch: number): Promise<number> {

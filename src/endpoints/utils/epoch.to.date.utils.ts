@@ -1,7 +1,6 @@
 import moment from 'moment';
 
 export const calcUnlockDate = ({ epochs, stats }: { epochs: number; stats: any }) => {
-  console.log('calcUnlockDate stats', stats);
   if (!stats) {
     return undefined;
   }
