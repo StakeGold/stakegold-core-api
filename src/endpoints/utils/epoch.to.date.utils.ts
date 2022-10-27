@@ -55,6 +55,5 @@ export const calcUnlockDateText = ({
       unlocksAtDate = unlockDate ? unlockDate.format('MMM Do YYYY') : '...';
       break;
   }
-
   return { unlocksAtText, unlocksAtDate };
 };

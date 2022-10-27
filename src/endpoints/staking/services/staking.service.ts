@@ -352,12 +352,11 @@ export class StakingService {
   }
 
   private async getUnlockDate(remainingEpochs?: number): Promise<string | undefined> {
-    if (!remainingEpochs) {
+    if (remainingEpochs === undefined) {
       return undefined;
     }
 
     const stats = await this.stakingGetterService.getStats();
-
     const { unlocksAtDate, unlocksAtText } = calcUnlockDateText({
       epochs: remainingEpochs,
       stats,
@@ -406,11 +405,11 @@ export class StakingService {
     return await this.transactionService.unbond(sender, args);
   }
 
-  async reinvest(sender: string, args: StakingArgs): Promise<Transaction> {
+  async reinvest(sender: string, args: StakingArgs): Promise<Transaction[]> {
     return await this.transactionService.reinvest(sender, args);
   }
 
-  async harvest(sender: string, args: StakingArgs): Promise<Transaction> {
+  async harvest(sender: string, args: StakingArgs): Promise<Transaction[]> {
     return await this.transactionService.harvest(sender, args);
   }
 }

@@ -37,7 +37,12 @@ export class StakingGetterService {
     try {
       const noCache = ContextTracker.get()?.noCache ?? false;
       if (noCache) {
-        return await createValueFunc();
+        const funcValue = await createValueFunc();
+        if (funcValue) {
+          await this.cachingService.setCache(cacheKey, funcValue, ttl);
+          return funcValue;
+        }
+        return undefined;
       }
 
       const cachedValue = await this.cachingService.getCache(cacheKey);

@@ -180,18 +180,44 @@ export class TransactionsFarmService {
     return await this.SftFarmInteraction(sender, args, method, gasLimit, []);
   }
 
-  async harvest(sender: string, args: StakingArgs): Promise<Transaction> {
+  async harvest(sender: string, args: StakingArgs): Promise<Transaction[]> {
     const method = 'claimRewards';
     const gasLimit = 35000000;
 
-    return await this.SftFarmInteraction(sender, args, method, gasLimit, []);
+    const transactions = [];
+    for (const token of args.tokens) {
+      transactions.push(
+        await this.SftFarmInteraction(
+          sender,
+          { tokens: [token], lockRewards: args.lockRewards } as StakingArgs,
+          method,
+          gasLimit,
+          [],
+        ),
+      );
+    }
+
+    return transactions;
   }
 
-  async reinvest(sender: string, args: StakingArgs): Promise<Transaction> {
+  async reinvest(sender: string, args: StakingArgs): Promise<Transaction[]> {
     const method = 'compoundRewards';
     const gasLimit = 35000000;
 
-    return await this.SftFarmInteraction(sender, args, method, gasLimit, []);
+    const transactions = [];
+    for (const token of args.tokens) {
+      transactions.push(
+        await this.SftFarmInteraction(
+          sender,
+          { tokens: [token], lockRewards: args.lockRewards } as StakingArgs,
+          method,
+          gasLimit,
+          [],
+        ),
+      );
+    }
+
+    return transactions;
   }
 
   private async SftFarmInteraction(
