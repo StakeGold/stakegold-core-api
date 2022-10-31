@@ -55,7 +55,6 @@ export class AccountsService {
     )
       .then((arr) => arr.flat())
       .catch(() => []);
-    console.log('tokenIds', tokenIds);
 
     const uniqueLockedTokenIds = [...new Set(tokenIds.map((id) => id))];
     const result = esdtTokens.filter((token) =>
