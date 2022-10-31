@@ -43,6 +43,7 @@ export class AccountsService {
           .flat(),
       )
       .flat();
+    tokenIds.push('LAUNCH-4f5e78');
     const uniqueLockedTokenIds = [...new Set(tokenIds.map((id) => id))];
     const result = esdtTokens.filter((token) =>
       uniqueLockedTokenIds.firstOrUndefined((item) => item === token.identifier),
