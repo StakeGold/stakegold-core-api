@@ -60,6 +60,7 @@ export class TransactionsFarmService {
     }
 
     return this.SftFarmInteraction(sender, args, method, gasLimit, [
+      BytesValue.fromUTF8(groupId),
       new BooleanValue(args.lockRewards),
     ]);
   }
