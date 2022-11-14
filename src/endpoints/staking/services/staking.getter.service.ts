@@ -329,10 +329,14 @@ export class StakingGetterService {
     if (!vestingAddress) {
       return undefined;
     }
+    return await this.getLockedAssetTokenIdByVestingAddress(vestingAddress);
+  }
+
+  async getLockedAssetTokenIdByVestingAddress(vestingAddress: string): Promise<string | undefined> {
     return await this.getData(
-      CacheInfo.lockedTokenId(groupId).key,
+      CacheInfo.lockedTokenId(vestingAddress).key,
       async () => await this.abiService.getLockedAssetTokenId(vestingAddress),
-      CacheInfo.lockedTokenId(groupId).ttl,
+      CacheInfo.lockedTokenId(vestingAddress).ttl,
     );
   }
 
