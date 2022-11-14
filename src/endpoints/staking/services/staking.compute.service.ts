@@ -24,6 +24,19 @@ export class StakingComputeService {
     const maxAnnualPercentageRewards = await this.stakingGetterService.getAnnualPercentageRewards(
       address,
     );
+
+    return this.computeCurrentApr(
+      perBlockRewardAmount,
+      farmTotalSupply,
+      maxAnnualPercentageRewards,
+    );
+  }
+
+  async computeCurrentApr(
+    perBlockRewardAmount: string | undefined,
+    farmTotalSupply: string | undefined,
+    maxAnnualPercentageRewards: string | undefined,
+  ): Promise<number | undefined> {
     if (perBlockRewardAmount && farmTotalSupply && maxAnnualPercentageRewards) {
       let totalSupplyNumber = new BigNumber(farmTotalSupply);
       if (totalSupplyNumber.isLessThanOrEqualTo(new BigNumber(0))) {
