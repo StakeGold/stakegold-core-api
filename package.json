@@ -1,5 +1,5 @@
 {
-  "name": "stakegold-core-api",
+  "name": "@stakegold/api-core",
   "version": "1.0.21",
   "description": "",
   "main": "lib/src/index.js",
