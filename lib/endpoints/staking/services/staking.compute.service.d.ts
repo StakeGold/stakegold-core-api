@@ -10,6 +10,7 @@ export declare class StakingComputeService {
     private readonly apiConfigService;
     constructor(stakingGetterService: StakingGetterService, apiConfigService: StakeGoldApiConfigService);
     computeAnnualPercentageReward(address: string): Promise<number | undefined>;
+    computeCurrentApr(perBlockRewardAmount: string | undefined, farmTotalSupply: string | undefined, maxAnnualPercentageRewards: string | undefined): Promise<number | undefined>;
     private getAllAprs;
     computeLowestApr(group: FarmGroup): number | undefined;
     computeHighestApr(group: FarmGroup): number | undefined;

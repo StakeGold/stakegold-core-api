@@ -139,13 +139,7 @@ export class AccountsService {
   }
 
   async getFarmTokens(address: string): Promise<MetaEsdtDetailed[]> {
-    const farmStakingGroups = await this.stakingGetterService.getFarmStakingGroups();
-
-    const farmTokenIds = farmStakingGroups
-      .map((group) => group.childContracts.map((childContract) => childContract.farmTokenId))
-      .flat();
-
-    const uniqueFarmTokenIds = [...new Set(farmTokenIds.map((id) => id))];
+    const uniqueFarmTokenIds = await this.getFarmTokenIds();
     if (uniqueFarmTokenIds.length === 0) {
       return [];
     }
@@ -153,5 +147,16 @@ export class AccountsService {
     const metaEsdts = await this.metaEsdtService.getMetaEsdts(address, uniqueFarmTokenIds);
 
     return metaEsdts;
+  }
+
+  async getFarmTokenIds(): Promise<string[]> {
+    const farmStakingGroups = await this.stakingGetterService.getFarmStakingGroups();
+
+    const farmTokenIds = farmStakingGroups
+      .map((group) => group.childContracts.map((childContract) => childContract.farmTokenId))
+      .flat()
+      .distinct();
+
+    return farmTokenIds;
   }
 }
