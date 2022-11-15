@@ -8,3 +8,4 @@ export * from './stakingTokenAttributes.model';
 export * from './transaction.model';
 export * from './unbondFarmToken.model';
 export * from './farm.state';
+export * from './farm.staking.contract';
