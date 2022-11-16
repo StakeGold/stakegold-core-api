@@ -12,7 +12,7 @@ export class GenericAbiService {
 
   constructor(
     @Inject(STAKEGOLD_ELROND_PROXY_SERVICE)
-    private readonly elrondProxy: StakeGoldElrondProxyService,
+    protected readonly elrondProxy: StakeGoldElrondProxyService,
     protected readonly serviceName: string,
   ) {
     this.logger = new Logger(serviceName);
