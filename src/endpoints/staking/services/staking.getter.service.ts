@@ -297,10 +297,7 @@ export class StakingGetterService {
     }
   }
 
-  async getEsdtOrNft(
-    identifier: string,
-    address?: string,
-  ): Promise<EsdtToken | NftCollection | undefined> {
+  async getEsdtOrNft(identifier: string): Promise<EsdtToken | NftCollection | undefined> {
     try {
       return await this.getData(
         CacheInfo.stakeToken(identifier).key,
@@ -309,12 +306,12 @@ export class StakingGetterService {
             return undefined;
           }
 
-          const esdtToken = await this.elrondApiService.getEsdtToken(identifier, address);
+          const esdtToken = await this.elrondApiService.getEsdtToken(identifier);
           if (esdtToken) {
             return esdtToken;
           }
 
-          const nftCollection = await this.elrondApiService.getNftCollection(identifier, address);
+          const nftCollection = await this.elrondApiService.getNftCollection(identifier);
           return nftCollection;
         },
         CacheInfo.stakeToken(identifier).ttl,
