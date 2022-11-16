@@ -1,6 +1,6 @@
 {
   "name": "@stakegold/api-core",
-  "version": "1.0.22",
+  "version": "1.0.23",
   "description": "",
   "main": "lib/src/index.js",
   "types": "lib/src/index.d.ts",
