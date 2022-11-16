@@ -1,18 +1,13 @@
+import { ProxyNetworkProvider } from '@elrondnetwork/erdjs-network-providers/out';
 import { Interaction, ResultsParser, TypedOutcomeBundle } from '@elrondnetwork/erdjs/out';
-import { Inject, Logger } from '@nestjs/common';
-import { StakeGoldElrondProxyService } from '../elrond-communication';
-import {
-  generateRunQueryLogMessage,
-  SmartContractProfiler,
-  STAKEGOLD_ELROND_PROXY_SERVICE,
-} from '../utils';
+import { Logger } from '@nestjs/common';
+import { generateRunQueryLogMessage, SmartContractProfiler } from '../utils';
 export class GenericAbiService {
   private readonly logger: Logger;
   private readonly resultParser: ResultsParser;
 
   constructor(
-    @Inject(STAKEGOLD_ELROND_PROXY_SERVICE)
-    protected readonly elrondProxy: StakeGoldElrondProxyService,
+    protected readonly proxyNetworkProvider: ProxyNetworkProvider,
     protected readonly serviceName: string,
   ) {
     this.logger = new Logger(serviceName);
@@ -25,7 +20,7 @@ export class GenericAbiService {
   ): Promise<TypedOutcomeBundle> {
     try {
       const queryResponse = await contract.runQuery(
-        this.elrondProxy.getService(),
+        this.proxyNetworkProvider,
         interaction.buildQuery(),
       );
       return this.resultParser.parseQueryResponse(queryResponse, interaction.getEndpoint());
