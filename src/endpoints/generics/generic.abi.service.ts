@@ -1,7 +1,8 @@
 import { ProxyNetworkProvider } from '@elrondnetwork/erdjs-network-providers/out';
 import { Interaction, ResultsParser, TypedOutcomeBundle } from '@elrondnetwork/erdjs/out';
-import { Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { generateRunQueryLogMessage, SmartContractProfiler } from '../utils';
+@Injectable()
 export class GenericAbiService {
   private readonly logger: Logger;
   private readonly resultParser: ResultsParser;

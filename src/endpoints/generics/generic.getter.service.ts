@@ -1,6 +1,7 @@
-import { Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CachingService, ContextTracker } from 'serdnest';
 import { generateGetLogMessage } from '../utils';
+@Injectable()
 export class GenericGetterService {
   private readonly logger: Logger;
 
