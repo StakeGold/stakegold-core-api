@@ -14,4 +14,12 @@ export interface NFTToken {
   url?: string;
   tags?: string[];
   balance: string;
+  media?: NftTokenMedia;
+}
+
+export interface NftTokenMedia {
+  url?: string;
+  originalUrl?: string;
+  thumbnailUrl?: string;
+  fileType?: string;
 }
