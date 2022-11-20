@@ -13,7 +13,7 @@ export interface NFTToken {
   uris?: string[];
   url?: string;
   tags?: string[];
-  balance: string;
+  balance?: string;
   media?: NftTokenMedia;
 }
 
