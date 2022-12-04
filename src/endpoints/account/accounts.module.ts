@@ -11,7 +11,7 @@ import { ElrondApiAsyncOptions, ElrondProxyAsyncOptions } from '../elrond-commun
 import { ProxyAsyncOptions } from '../proxy';
 import { ApiConfigAsyncOptions } from '../api-config';
 import { StakingModule } from '../staking';
-import { CachingModuleAsyncOptions } from '@elrondnetwork/erdnest';
+import { RedisCacheModuleAsyncOptions } from '@elrondnetwork/erdnest';
 
 @Module({})
 export class AccountsModule {
@@ -20,7 +20,7 @@ export class AccountsModule {
     proxyServiceOptions: ProxyAsyncOptions,
     apiConfigOptions: ApiConfigAsyncOptions,
     elrondApiOptions: ElrondApiAsyncOptions,
-    cachingModuleOptions: CachingModuleAsyncOptions,
+    cachingModuleOptions: RedisCacheModuleAsyncOptions,
   ): DynamicModule {
     const providers: Provider[] = [
       {
