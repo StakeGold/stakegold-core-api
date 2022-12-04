@@ -1,9 +1,9 @@
 import { StructType } from '@elrondnetwork/erdjs/out';
-export declare type UnlockMilestoneType = {
+export type UnlockMilestoneType = {
     epoch: number | undefined;
     percent: number | undefined;
 };
-export declare type LockedAssetAttributesType = {
+export type LockedAssetAttributesType = {
     unlockSchedule: UnlockMilestoneType[] | undefined;
     isMerged: boolean | undefined;
 };

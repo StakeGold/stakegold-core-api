@@ -1,7 +1,7 @@
 import { ITransactionValue, IContractFunction, IAddress, SmartContract, SmartContractAbi, TypedValue } from '@elrondnetwork/erdjs/out';
 import { INetworkProvider } from '@elrondnetwork/erdjs-network-providers/out/interface';
 import { ContractQueryResponse } from '@elrondnetwork/erdjs-network-providers/out';
-import { MetricsService } from 'serdnest';
+import { MetricsService } from '@elrondnetwork/erdnest';
 export declare class SmartContractProfiler extends SmartContract {
     private readonly metricsService;
     constructor(metricsService: MetricsService, scData: {

@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 import { AbiStakingService } from './staking.abi.service';
-import { CachingService } from 'serdnest';
+import { CachingService } from '@elrondnetwork/erdnest';
 import { StakeGoldProxyService } from '../../proxy/proxy.service';
 import { StakeGoldElrondApiService } from 'src/endpoints/elrond-communication/elrond-api.service';
 import { EsdtToken, NftCollection } from 'src/models';
@@ -40,7 +40,7 @@ export declare class StakingGetterService {
     getGroupsByOwner(address: string): Promise<string[]>;
     getFarmState(address: string): Promise<FarmState>;
     getEsdtToken(identifier: string, address?: string): Promise<EsdtToken | undefined>;
-    getEsdtOrNft(identifier: string, address?: string): Promise<EsdtToken | NftCollection | undefined>;
+    getEsdtOrNft(identifier: string): Promise<EsdtToken | NftCollection | undefined>;
     getLockedAssetTokenId(groupId: string): Promise<string | undefined>;
     getLockedAssetTokenIdByVestingAddress(vestingAddress: string): Promise<string | undefined>;
     getFarmStakingGroups(): Promise<FarmStakingGroupContract[]>;

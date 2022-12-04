@@ -1,6 +1,6 @@
 {
   "name": "@stakegold/api-core",
-  "version": "1.0.33",
+  "version": "1.1.0-alpha.1",
   "description": "",
   "main": "lib/src/index.js",
   "types": "lib/src/index.d.ts",
@@ -39,7 +39,7 @@
     "@typescript-eslint/parser": "^5.16.0",
     "axios-mock-adapter": "^1.20.0",
     "babel-jest": "^27.5.1",
-    "eslint": "^8.7.0",
+    "eslint": "^8.9.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "husky": "^8.0.1",
@@ -53,9 +53,9 @@
     "@elrondnetwork/erdjs": "*",
     "@elrondnetwork/erdjs-network-providers": "*",
     "@elrondnetwork/erdjs-walletcore": "*",
-    "serdnest": "^0.1.67",
-    "@nestjs/common": "^8.4.5",
-    "@nestjs/swagger": "^5.2.1",
+    "@elrondnetwork/erdnest": "^0.2.13",
+    "@nestjs/common": "^9.1.4",
+    "@nestjs/swagger": "^6.1.2",
     "bignumber.js": "^9.1.0"
   }
 }

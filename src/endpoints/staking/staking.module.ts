@@ -1,4 +1,4 @@
-import { CachingModuleAsyncOptions } from 'serdnest';
+import { CachingModuleAsyncOptions } from '@elrondnetwork/erdnest';
 import { DynamicModule, Module, Provider } from '@nestjs/common';
 import { ApiConfigAsyncOptions } from '../api-config';
 import { ContextTransactionsService } from '../context/context.transactions.service';

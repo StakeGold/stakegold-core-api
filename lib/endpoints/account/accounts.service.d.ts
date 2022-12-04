@@ -15,4 +15,5 @@ export declare class AccountsService {
     getLockedTokens(address: string): Promise<LockedTokenCollection[]>;
     private getLockedTokenUniqueIds;
     getFarmTokens(address: string): Promise<MetaEsdtDetailed[]>;
+    getFarmTokenIds(): Promise<string[]>;
 }
