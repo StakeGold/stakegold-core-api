@@ -68,10 +68,6 @@ export class StakingService {
     return groups;
   }
 
-  testFunc() {
-    console.log('this is a test function');
-  }
-
   private async getGroupFarmingTokens(
     groupId: string,
     farms: Farm[],
