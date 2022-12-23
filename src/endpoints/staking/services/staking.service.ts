@@ -78,9 +78,11 @@ export class StakingService {
   ): Promise<(NftCollection | EsdtToken)[]> {
     const farmingTokens: (NftCollection | EsdtToken)[] = [];
     const unlockedFarmingToken = await this.getGroupUnlockedFarmingToken(groupId, farms);
+    console.log('unlockedFarmingToken', unlockedFarmingToken);
     const lockedFarmingToken = this.getGroupLockedFarmingToken(farms);
 
     if (unlockedFarmingToken) {
+      console.log('unlockedFarmingToken not undefined add');
       farmingTokens.push(unlockedFarmingToken);
     }
 
@@ -95,17 +97,21 @@ export class StakingService {
     groupId: string,
     farms: Farm[],
   ): Promise<EsdtToken | NftCollection | undefined> {
+    console.log('getGroupUnlockedFarmingToken', farms);
     const unlockedFarmingToken = farms.find(
       (farm) => !isNftCollection(farm.farmingToken),
     )?.farmingToken;
 
+    console.log('unlockedFarmingToken', unlockedFarmingToken);
     if (unlockedFarmingToken) {
+      console.log('unlockedFarmingToken return');
       return unlockedFarmingToken;
     }
 
     const rewardTokenId = await this.stakingGetterService.getRewardTokenIdByGroupIdentifier(
       groupId,
     );
+    console.log('rewardTokenId', rewardTokenId);
     return this.stakingGetterService.getEsdtOrNft(rewardTokenId);
   }
 
