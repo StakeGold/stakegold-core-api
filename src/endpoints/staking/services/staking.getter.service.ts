@@ -39,20 +39,20 @@ export class StakingGetterService {
       if (noCache) {
         const funcValue = await createValueFunc();
         if (funcValue) {
-          await this.cachingService.set(cacheKey, funcValue, ttl);
+          await this.cachingService.setRemote(cacheKey, funcValue, ttl);
           return funcValue;
         }
         return undefined;
       }
 
-      const cachedValue = await this.cachingService.get(cacheKey);
+      const cachedValue = await this.cachingService.getRemote(cacheKey);
       if (cachedValue) {
         return cachedValue;
       }
 
       const funcValue = await createValueFunc();
       if (funcValue) {
-        await this.cachingService.set(cacheKey, funcValue, ttl);
+        await this.cachingService.setRemote(cacheKey, funcValue, ttl);
         return funcValue;
       }
 
