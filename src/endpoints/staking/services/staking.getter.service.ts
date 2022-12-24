@@ -215,11 +215,13 @@ export class StakingGetterService {
   }
 
   async getFarmTokenId(childContractAddress: string): Promise<string> {
-    return await this.getData(
-      CacheInfo.getFarmTokenId(childContractAddress).key,
-      () => this.abiService.getFarmTokenId(childContractAddress),
-      CacheInfo.getFarmTokenId(childContractAddress).ttl,
-    );
+    // return await this.getData(
+    //   CacheInfo.getFarmTokenId(childContractAddress).key,
+    //   () => this.abiService.getFarmTokenId(childContractAddress),
+    //   CacheInfo.getFarmTokenId(childContractAddress).ttl,
+    // );
+    console.log(childContractAddress);
+    return 'dasd';
   }
 
   async getFarmingTokenId(childContractAddress: string): Promise<string> {
@@ -239,11 +241,13 @@ export class StakingGetterService {
   }
 
   async areRewardsLocked(childContractAddress: string): Promise<boolean> {
-    return await this.getData(
-      CacheInfo.areRewardsLocked(childContractAddress).key,
-      () => this.abiService.areRewardsLocked(childContractAddress),
-      CacheInfo.areRewardsLocked(childContractAddress).ttl,
-    );
+    // return await this.getData(
+    //   CacheInfo.areRewardsLocked(childContractAddress).key,
+    //   () => this.abiService.areRewardsLocked(childContractAddress),
+    //   CacheInfo.areRewardsLocked(childContractAddress).ttl,
+    // );
+    console.log(childContractAddress);
+    return false;
   }
 
   async getVestingAddressByGroupIdentifier(groupId: string): Promise<string | undefined> {
@@ -271,11 +275,13 @@ export class StakingGetterService {
   }
 
   async getFarmState(address: string): Promise<FarmState> {
-    return await this.getData(
-      CacheInfo.FarmState(address).key,
-      () => this.abiService.getFarmState(address),
-      CacheInfo.FarmState(address).ttl,
-    );
+    // return await this.getData(
+    //   CacheInfo.FarmState(address).key,
+    //   () => this.abiService.getFarmState(address),
+    //   CacheInfo.FarmState(address).ttl,
+    // );
+    console.log(address);
+    return FarmState.DEPLOYED;
   }
 
   async getEsdtToken(identifier: string, address?: string): Promise<EsdtToken | undefined> {
