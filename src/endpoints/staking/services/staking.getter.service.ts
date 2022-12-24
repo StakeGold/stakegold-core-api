@@ -37,29 +37,15 @@ export class StakingGetterService {
     try {
       const noCache = ContextTracker.get()?.noCache ?? false;
       if (noCache) {
-        console.log(`getData for key ${cacheKey} from remote`);
         const funcValue = await createValueFunc();
         if (funcValue) {
-          await this.cachingService.setRemote(cacheKey, funcValue, ttl);
+          await this.cachingService.setOrUpdate(cacheKey, funcValue, ttl);
           return funcValue;
         }
         return undefined;
       }
 
-      console.log(`getData for key ${cacheKey} with ttl ${ttl} from cache`);
-      const cachedValue = await this.cachingService.getRemote(cacheKey);
-      if (cachedValue) {
-        return cachedValue;
-      }
-
-      console.log(`getData for key ${cacheKey} with ttl ${ttl} from contract`);
-      const funcValue = await createValueFunc();
-      if (funcValue) {
-        await this.cachingService.setRemote(cacheKey, funcValue, ttl);
-        return funcValue;
-      }
-
-      return undefined;
+      return this.cachingService.getOrSet(cacheKey, createValueFunc, ttl);
     } catch (error) {
       const logMessage = generateGetLogMessage(
         StakingGetterService.name,
@@ -345,6 +331,8 @@ export class StakingGetterService {
     console.time(`groupIds${dada}`);
     const groupIds = await this.getGroupIdentifiers();
     console.timeEnd(`groupIds`);
+
+    const knownFarmingTokenIds = new Map<string, string>();
 
     const results = await Promise.all(
       groupIds.map(async (groupId) => {
