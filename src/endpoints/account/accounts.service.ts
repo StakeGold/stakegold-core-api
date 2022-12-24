@@ -26,7 +26,8 @@ export class AccountsService {
   async getAccountDetails(address: string) {
     const egldBalance = await this.getEgldBalance(address);
     const farmStakingGroups = await this.stakingGetterService.getFarmStakingGroups();
-    return { address, egldBalance, farmStakingGroups } as AccountDetails;
+    const accountEsdtTokens = await this.elrondApiService.getEsdtTokens(address);
+    return { address, egldBalance, farmStakingGroups, accountEsdtTokens } as AccountDetails;
   }
 
   async getEgldBalance(address: string): Promise<string> {

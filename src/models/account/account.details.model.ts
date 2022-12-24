@@ -9,4 +9,5 @@ export interface AccountDetails {
   lockedTokens: LockedTokenCollection[];
   farmTokens: MetaEsdtDetailed[];
   farmStakingGroups: FarmStakingGroupContract[];
+  accountEsdtTokens: EsdtToken[];
 }
