@@ -45,18 +45,7 @@ export class StakingGetterService {
         return undefined;
       }
 
-      const cachedValue = await this.cachingService.getRemote(cacheKey);
-      if (cachedValue) {
-        return cachedValue;
-      }
-
-      const funcValue = await createValueFunc();
-      if (funcValue) {
-        await this.cachingService.setRemote(cacheKey, funcValue, ttl);
-        return funcValue;
-      }
-
-      return undefined;
+      return this.cachingService.getOrSetRemote(cacheKey, createValueFunc, ttl);
     } catch (error) {
       const logMessage = generateGetLogMessage(
         StakingGetterService.name,
@@ -346,10 +335,10 @@ export class StakingGetterService {
         const childContracts = await Promise.all(
           farmAddresses.map(async (farmAddress) => {
             const [farmTokenId, farmingTokenId, areRewardsLocked, state] = await Promise.all([
-              await this.getFarmTokenId(farmAddress),
-              await this.getFarmingTokenId(farmAddress),
-              await this.areRewardsLocked(farmAddress),
-              await this.getFarmState(farmAddress),
+              this.getFarmTokenId(farmAddress),
+              this.getFarmingTokenId(farmAddress),
+              this.areRewardsLocked(farmAddress),
+              this.getFarmState(farmAddress),
             ]);
 
             let rewardTokenId: string | undefined;

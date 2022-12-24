@@ -1,4 +1,5 @@
 import { LockedTokenCollection, MetaEsdtDetailed } from '../meta-esdt';
+import { FarmStakingGroupContract } from '../staking';
 import { EsdtToken } from './esdtToken.model';
 
 export interface AccountDetails {
@@ -7,4 +8,6 @@ export interface AccountDetails {
   esdtTokens: EsdtToken[];
   lockedTokens: LockedTokenCollection[];
   farmTokens: MetaEsdtDetailed[];
+  farmStakingGroups: FarmStakingGroupContract[];
+  accountEsdtTokens: EsdtToken[];
 }
