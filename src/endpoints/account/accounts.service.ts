@@ -42,8 +42,7 @@ export class AccountsService {
 
           const ids = group.childContracts
             .map((childContract) => [childContract.farmingTokenId, childContract.rewardTokenId])
-            .flat()
-            .distinctBy((t: string) => t);
+            .flat();
 
           if (!ids.includes(groupRewardTokenId)) {
             ids.push(groupRewardTokenId);
@@ -58,9 +57,7 @@ export class AccountsService {
 
     const distinctIds = tokenIds.distinctBy((t: string) => t);
 
-    const result = esdtTokens
-      .filter((token) => distinctIds.includes(token.identifier))
-      .distinctBy((esdt: EsdtToken) => esdt.identifier);
+    const result = esdtTokens.filter((token) => distinctIds.includes(token.identifier));
     return result;
   }
 
