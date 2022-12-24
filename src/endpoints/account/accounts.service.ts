@@ -37,7 +37,6 @@ export class AccountsService {
     const farmStakingGroups = await this.stakingGetterService.getFarmStakingGroups();
     console.timeEnd('farmStakingGroups');
 
-    console.time('tokenIds');
     const tokenIds = (await Promise.all(
       farmStakingGroups
         .map(async (group) => {
@@ -58,15 +57,10 @@ export class AccountsService {
     )
       .then((arr) => arr.flat())
       .catch(() => [])) as string[];
-    console.timeEnd('tokenIds');
 
-    console.time('uniqueLockedTokenIds');
     const uniqueLockedTokenIds = [...new Set(tokenIds.map((id) => id))];
-    console.timeEnd('uniqueLockedTokenIds');
 
-    console.time('result');
     const result = esdtTokens.filter((token) => uniqueLockedTokenIds.includes(token.identifier));
-    console.timeEnd('result');
     return result;
   }
 
