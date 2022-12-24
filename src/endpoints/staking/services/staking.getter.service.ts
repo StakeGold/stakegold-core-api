@@ -39,7 +39,7 @@ export class StakingGetterService {
       if (noCache) {
         const funcValue = await createValueFunc();
         if (funcValue) {
-          await this.cachingService.setOrUpdate(cacheKey, funcValue, ttl);
+          await this.cachingService.setRemote(cacheKey, funcValue, ttl);
           return funcValue;
         }
         return undefined;
@@ -327,53 +327,25 @@ export class StakingGetterService {
   }
 
   async getFarmStakingGroups(): Promise<FarmStakingGroupContract[]> {
-    const dada = Math.random();
-    console.time(`groupIds${dada}`);
     const groupIds = await this.getGroupIdentifiers();
-    console.timeEnd(`groupIds`);
 
     const results = await Promise.all(
       groupIds.map(async (groupId) => {
-        const hhh = Math.random();
-        console.time(`farmAddresses${hhh}`);
         const farmAddresses = await this.getAddressesByGroupId(groupId);
-        console.timeEnd(`farmAddresses${hhh}`);
-
         const childContracts = await Promise.all(
           farmAddresses.map(async (farmAddress) => {
-            // const [farmTokenId, farmingTokenId, areRewardsLocked, state] = await Promise.all([
-            //   this.getFarmTokenId(farmAddress),
-            //   this.getFarmingTokenId(farmAddress),
-            //   this.areRewardsLocked(farmAddress),
-            //   this.getFarmState(farmAddress),
-            // ]);
-
-            const rand = Math.random();
-            console.time(`farmTokenId${rand}`);
-            const farmTokenId = await this.getFarmTokenId(farmAddress);
-            console.timeEnd(`farmTokenId${rand}`);
-
-            console.time(`farmingTokenId${rand}`);
-            const farmingTokenId = await this.getFarmingTokenId(farmAddress);
-            console.timeEnd(`farmingTokenId${rand}`);
-
-            console.time(`areRewardsLocked${rand}`);
-            const areRewardsLocked = await this.areRewardsLocked(farmAddress);
-            console.timeEnd(`areRewardsLocked${rand}`);
-
-            console.time(`state${rand}`);
-            const state = await this.getFarmState(farmAddress);
-            console.timeEnd(`state${rand}`);
+            const [farmTokenId, farmingTokenId, areRewardsLocked, state] = await Promise.all([
+              this.getFarmTokenId(farmAddress),
+              this.getFarmingTokenId(farmAddress),
+              this.areRewardsLocked(farmAddress),
+              this.getFarmState(farmAddress),
+            ]);
 
             let rewardTokenId: string | undefined;
             if (areRewardsLocked) {
-              console.time(`rewardTokenId with areRewardsLocked${rand}`);
               rewardTokenId = await this.getLockedAssetTokenId(groupId);
-              console.timeEnd(`rewardTokenId with areRewardsLocked${rand}`);
             } else {
-              console.time(`rewardTokenId${rand}`);
               rewardTokenId = await this.getRewardTokenId(farmAddress);
-              console.timeEnd(`rewardTokenId${rand}`);
             }
 
             return {
