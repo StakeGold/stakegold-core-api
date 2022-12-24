@@ -37,6 +37,7 @@ export class StakingGetterService {
     try {
       const noCache = ContextTracker.get()?.noCache ?? false;
       if (noCache) {
+        console.log(`getData for key ${cacheKey} from remote`);
         const funcValue = await createValueFunc();
         if (funcValue) {
           await this.cachingService.setRemote(cacheKey, funcValue, ttl);
@@ -45,11 +46,13 @@ export class StakingGetterService {
         return undefined;
       }
 
+      console.log(`getData for key ${cacheKey} with ttl ${ttl} from cache`);
       const cachedValue = await this.cachingService.getRemote(cacheKey);
       if (cachedValue) {
         return cachedValue;
       }
 
+      console.log(`getData for key ${cacheKey} with ttl ${ttl} from contract`);
       const funcValue = await createValueFunc();
       if (funcValue) {
         await this.cachingService.setRemote(cacheKey, funcValue, ttl);
