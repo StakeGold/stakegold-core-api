@@ -295,13 +295,13 @@ export class StakingGetterService {
             return undefined;
           }
 
-          const esdtToken = await this.elrondApiService.getEsdtToken(identifier);
-          if (esdtToken) {
-            return esdtToken;
+          const nftCollection = await this.elrondApiService.getNftCollection(identifier);
+          if (nftCollection) {
+            return nftCollection;
           }
 
-          const nftCollection = await this.elrondApiService.getNftCollection(identifier);
-          return nftCollection;
+          const esdtToken = await this.elrondApiService.getEsdtToken(identifier);
+          return esdtToken;
         },
         CacheInfo.stakeToken(identifier).ttl,
       );
