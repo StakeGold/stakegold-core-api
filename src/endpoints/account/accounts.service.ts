@@ -32,8 +32,7 @@ export class AccountsService {
     return await this.elrondApiService.getAccountBalance(address);
   }
 
-  async getEsdtTokens(address: string): Promise<EsdtToken[]> {
-    const esdtTokens = await this.elrondApiService.getEsdtTokens(address);
+  async getStakingEsdtTokens(esdtTokens: EsdtToken[]): Promise<EsdtToken[]> {
     const farmStakingGroups = await this.stakingGetterService.getFarmStakingGroups();
     const tokenIds = await Promise.all(
       farmStakingGroups
@@ -43,7 +42,8 @@ export class AccountsService {
 
           const ids = group.childContracts
             .map((childContract) => [childContract.farmingTokenId, childContract.rewardTokenId])
-            .flat();
+            .flat()
+            .distinctBy((t: string) => t);
 
           if (!ids.includes(groupRewardTokenId)) {
             ids.push(groupRewardTokenId);
@@ -56,10 +56,11 @@ export class AccountsService {
       .then((arr) => arr.flat())
       .catch(() => []);
 
-    const uniqueLockedTokenIds = [...new Set(tokenIds.map((id) => id))];
-    const result = esdtTokens.filter((token) =>
-      uniqueLockedTokenIds.firstOrUndefined((item) => item === token.identifier),
-    );
+    const distinctIds = tokenIds.distinctBy((t: string) => t);
+
+    const result = esdtTokens
+      .filter((token) => distinctIds.includes(token.identifier))
+      .distinctBy((esdt: EsdtToken) => esdt.identifier);
     return result;
   }
 
