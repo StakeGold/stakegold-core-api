@@ -338,15 +338,17 @@ export class StakingGetterService {
   }
 
   async getFarmStakingGroups(): Promise<FarmStakingGroupContract[]> {
-    console.time('groupIds');
+    const dada = Math.random();
+    console.time(`groupIds${dada}`);
     const groupIds = await this.getGroupIdentifiers();
-    console.timeEnd('groupIds');
+    console.timeEnd(`groupIds`);
 
     const results = await Promise.all(
       groupIds.map(async (groupId) => {
-        console.time('farmAddresses');
+        const hhh = Math.random();
+        console.time(`farmAddresses${hhh}`);
         const farmAddresses = await this.getAddressesByGroupId(groupId);
-        console.timeEnd('farmAddresses');
+        console.timeEnd(`farmAddresses${hhh}`);
 
         const childContracts = await Promise.all(
           farmAddresses.map(async (farmAddress) => {
@@ -357,31 +359,32 @@ export class StakingGetterService {
             //   this.getFarmState(farmAddress),
             // ]);
 
-            console.time('farmTokenId');
+            const rand = Math.random();
+            console.time(`farmTokenId${rand}`);
             const farmTokenId = await this.getFarmTokenId(farmAddress);
-            console.timeEnd('farmTokenId');
+            console.timeEnd(`farmTokenId${rand}`);
 
-            console.time('farmingTokenId');
+            console.time(`farmingTokenId${rand}`);
             const farmingTokenId = await this.getFarmingTokenId(farmAddress);
-            console.timeEnd('farmingTokenId');
+            console.timeEnd(`farmingTokenId${rand}`);
 
-            console.time('areRewardsLocked');
+            console.time(`areRewardsLocked${rand}`);
             const areRewardsLocked = await this.areRewardsLocked(farmAddress);
-            console.timeEnd('areRewardsLocked');
+            console.timeEnd(`areRewardsLocked${rand}`);
 
-            console.time('state');
+            console.time(`state${rand}`);
             const state = await this.getFarmState(farmAddress);
-            console.timeEnd('state');
+            console.timeEnd(`state${rand}`);
 
             let rewardTokenId: string | undefined;
             if (areRewardsLocked) {
-              console.time('rewardTokenId with areRewardsLocked');
+              console.time(`rewardTokenId with areRewardsLocked${rand}`);
               rewardTokenId = await this.getLockedAssetTokenId(groupId);
-              console.timeEnd('rewardTokenId with areRewardsLocked');
+              console.timeEnd(`rewardTokenId with areRewardsLocked${rand}`);
             } else {
-              console.time('rewardTokenId');
+              console.time(`rewardTokenId${rand}`);
               rewardTokenId = await this.getRewardTokenId(farmAddress);
-              console.timeEnd('rewardTokenId');
+              console.timeEnd(`rewardTokenId${rand}`);
             }
 
             return {
