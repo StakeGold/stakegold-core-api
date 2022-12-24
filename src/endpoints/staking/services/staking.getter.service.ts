@@ -332,8 +332,6 @@ export class StakingGetterService {
     const groupIds = await this.getGroupIdentifiers();
     console.timeEnd(`groupIds`);
 
-    const knownFarmingTokenIds = new Map<string, string>();
-
     const results = await Promise.all(
       groupIds.map(async (groupId) => {
         const hhh = Math.random();
