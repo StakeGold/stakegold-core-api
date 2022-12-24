@@ -34,7 +34,7 @@ export class AccountsService {
 
   async getStakingEsdtTokens(esdtTokens: EsdtToken[]): Promise<EsdtToken[]> {
     const farmStakingGroups = await this.stakingGetterService.getFarmStakingGroups();
-    const tokenIds = await Promise.all(
+    const tokenIds = (await Promise.all(
       farmStakingGroups
         .map(async (group) => {
           const groupRewardTokenId =
@@ -53,11 +53,11 @@ export class AccountsService {
         .flat(),
     )
       .then((arr) => arr.flat())
-      .catch(() => []);
+      .catch(() => [])) as string[];
 
-    const distinctIds = tokenIds.distinctBy((t: string) => t);
+    const uniqueLockedTokenIds = [...new Set(tokenIds.map((id) => id))];
 
-    const result = esdtTokens.filter((token) => distinctIds.includes(token.identifier));
+    const result = esdtTokens.filter((token) => uniqueLockedTokenIds.includes(token.identifier));
     return result;
   }
 
