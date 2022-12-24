@@ -45,7 +45,7 @@ export class StakingGetterService {
         return undefined;
       }
 
-      return this.cachingService.getOrSet(cacheKey, createValueFunc, ttl);
+      return this.cachingService.getOrSetRemote(cacheKey, createValueFunc, ttl);
     } catch (error) {
       const logMessage = generateGetLogMessage(
         StakingGetterService.name,
