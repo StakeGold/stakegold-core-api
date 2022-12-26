@@ -328,6 +328,23 @@ export class StakingGetterService {
 
   async getActiveFarmStakingGroups(): Promise<FarmStakingGroupContract[]> {
     const groupIds = await this.getGroupIdentifiers();
+    // for (const groupId of groupIds) {
+    //   const farmAddresses = await this.getAddressesByGroupId(groupId);
+
+    //   for (const farmAddress of farmAddresses) {
+    //     const state = await this.getFarmState(farmAddress);
+    //     if (state !== FarmState.SETUP_COMPLETE) {
+    //       continue;
+    //     }
+
+    //     const [farmTokenId, farmingTokenId, areRewardsLocked] = await Promise.all([
+    //       this.getFarmTokenId(farmAddress),
+    //       this.getFarmingTokenId(farmAddress),
+    //       this.areRewardsLocked(farmAddress),
+    //     ]);
+
+    //   }
+    // }
 
     const results = await Promise.all(
       groupIds.map(async (groupId) => {
@@ -341,6 +358,7 @@ export class StakingGetterService {
               return state === FarmState.SETUP_COMPLETE;
             })
             .map(async (farmAddress) => {
+              console.log('getActiveFarmStakingGroups map ', farmAddress);
               const [farmTokenId, farmingTokenId, areRewardsLocked] = await Promise.all([
                 this.getFarmTokenId(farmAddress),
                 this.getFarmingTokenId(farmAddress),
