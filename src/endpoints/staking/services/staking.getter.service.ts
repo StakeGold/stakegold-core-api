@@ -336,6 +336,8 @@ export class StakingGetterService {
           farmAddresses
             .filter(async (farmAddress) => {
               const state = await this.getFarmState(farmAddress);
+              console.log('getActiveFarmStakingGroups filter', farmAddress);
+              console.log('state', state);
               return state === FarmState.SETUP_COMPLETE;
             })
             .map(async (farmAddress) => {
@@ -344,6 +346,8 @@ export class StakingGetterService {
                 this.getFarmingTokenId(farmAddress),
                 this.areRewardsLocked(farmAddress),
               ]);
+
+              console.log('farmTokenId', farmTokenId);
 
               let rewardTokenId: string | undefined;
               if (areRewardsLocked) {
