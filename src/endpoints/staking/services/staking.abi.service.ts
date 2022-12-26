@@ -196,7 +196,6 @@ export class AbiStakingService {
     const contract = await this.elrondProxy.getFarmSmartContract(childContractAddress);
     const interaction: Interaction = contract.methods.getFarmTokenIdentifier([]);
     const response = await this.getGenericData(contract, interaction);
-    console.log('getFarmTokenId', response);
     return response.firstValue?.valueOf();
   }
 

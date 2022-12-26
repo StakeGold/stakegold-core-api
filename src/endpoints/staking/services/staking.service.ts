@@ -39,10 +39,8 @@ export class StakingService {
     const farmTokenIds = farmStakingGroups
       .map((group) => group.childContracts.map((childContract) => childContract.farmTokenId))
       .flat();
-    console.log('farmTokenIds', farmTokenIds);
     const uniqueFarmTokenIds = [...new Set(farmTokenIds.map((id) => id))];
     const metaEsdtsDetails = (await this.getMetaEsdtsDetails(uniqueFarmTokenIds, address)) ?? [];
-    console.log('metaEsdtsDetails', metaEsdtsDetails);
 
     await Promise.all(
       farmStakingGroups.map(async (group) => {
@@ -204,9 +202,8 @@ export class StakingService {
     if (!address) {
       return [];
     }
-    console.log('getMetaEsdtsDetails', farmTokens);
+
     const metaEsdts = await this.metaEsdtService.getMetaEsdts(address, farmTokens);
-    console.log('metaEsdts', metaEsdts);
 
     const promises = metaEsdts.map(async (metaEsdt) => {
       const stakeDecodedAttributes = this.decodeStakingTokenAttributes({
@@ -217,7 +214,6 @@ export class StakingService {
           },
         ],
       });
-      console.log('stakeDecodedAttributes', stakeDecodedAttributes);
       if (stakeDecodedAttributes && stakeDecodedAttributes.length > 0) {
         const stakeFarmToken = metaEsdt as StakeFarmToken;
         stakeFarmToken.decodedAttributes = stakeDecodedAttributes[0];
@@ -231,7 +227,6 @@ export class StakingService {
             },
           ],
         });
-        console.log('unbondDecodedAttributes', unbondDecodedAttributes);
         const unbondFarmToken = metaEsdt as UnbondFarmToken;
         if (unbondDecodedAttributes && unbondDecodedAttributes.length > 0) {
           unbondFarmToken.decodedAttributes = unbondDecodedAttributes[0];
