@@ -203,7 +203,7 @@ export class StakingService {
     if (!address) {
       return [];
     }
-    console.log('getMetaEsdtsDetails');
+    console.log('getMetaEsdtsDetails', farmTokens);
     const metaEsdts = await this.metaEsdtService.getMetaEsdts(address, farmTokens);
     console.log('metaEsdts', metaEsdts);
 
