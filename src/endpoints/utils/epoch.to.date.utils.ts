@@ -1,6 +1,7 @@
 import moment from 'moment';
 
 export const calcUnlockDate = ({ epochs, stats }: { epochs: number; stats: any }) => {
+  console.log('stats', stats);
   if (!stats) {
     return undefined;
   }
@@ -33,9 +34,13 @@ export const calcUnlockDateText = ({
     stats,
     epochs,
   });
+  console.log('unlockDate', unlockDate);
   const isToday = calcIsToday(unlockDate);
+  console.log('isToday', isToday);
   const alreadyUnlocked = calcAlreadyUnlocked(unlockDate);
+  console.log('alreadyUnlocked', alreadyUnlocked);
   const unlocksLaterToday = isToday && Boolean(unlockDate?.isAfter(new Date()));
+  console.log('unlocksLaterToday', unlocksLaterToday);
 
   let unlocksAtText, unlocksAtDate;
 

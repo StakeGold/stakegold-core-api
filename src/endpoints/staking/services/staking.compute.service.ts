@@ -115,7 +115,6 @@ export class StakingComputeService {
         rewardToken.balance = rewards.toFixed();
       }
       const minUnbondEpochs = await this.stakingGetterService.getMinUnbondEpochs(farmAddress);
-      console.log('minUnbondEpochs', minUnbondEpochs);
 
       return { farmToken: esdt, rewardToken: rewardToken, minUnbondEpochs } as Position;
     });
