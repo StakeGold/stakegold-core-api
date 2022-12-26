@@ -21,11 +21,11 @@ export class AccountsService {
     private readonly elrondApiService: StakeGoldElrondApiService,
     private readonly metaEsdtService: MetaEsdtService,
     private readonly stakingGetterService: StakingGetterService,
-  ) { }
+  ) {}
 
   async getAccountDetails(address: string) {
     const egldBalance = await this.getEgldBalance(address);
-    const farmStakingGroups = await this.stakingGetterService.getFarmStakingGroups();
+    const farmStakingGroups = await this.stakingGetterService.getActiveFarmStakingGroups();
     const accountEsdtTokens = await this.elrondApiService.getEsdtTokens(address);
     return { address, egldBalance, farmStakingGroups, accountEsdtTokens } as AccountDetails;
   }
@@ -39,20 +39,21 @@ export class AccountsService {
     farmStakingGroups: FarmStakingGroupContract[],
   ): Promise<EsdtToken[]> {
     const tokenIds = (await Promise.all(
-      farmStakingGroups.map(async (group) => {
-        const groupRewardTokenId =
-          await this.stakingGetterService.getRewardTokenIdByGroupIdentifier(group.groupId);
+      farmStakingGroups
+        .map(async (group) => {
+          const groupRewardTokenId =
+            await this.stakingGetterService.getRewardTokenIdByGroupIdentifier(group.groupId);
 
-        const ids = group.childContracts
-          .map((childContract) => [childContract.farmingTokenId, childContract.rewardTokenId])
-          .flat();
+          const ids = group.childContracts
+            .map((childContract) => [childContract.farmingTokenId, childContract.rewardTokenId])
+            .flat();
 
-        if (!ids.includes(groupRewardTokenId)) {
-          ids.push(groupRewardTokenId);
-        }
+          if (!ids.includes(groupRewardTokenId)) {
+            ids.push(groupRewardTokenId);
+          }
 
-        return ids;
-      })
+          return ids;
+        })
         .flat(),
     )
       .then((arr) => arr.flat())
@@ -64,7 +65,10 @@ export class AccountsService {
     return result;
   }
 
-  async getLockedTokens(address: string, farmStakingGroups: FarmStakingGroupContract[],): Promise<LockedTokenCollection[]> {
+  async getLockedTokens(
+    address: string,
+    farmStakingGroups: FarmStakingGroupContract[],
+  ): Promise<LockedTokenCollection[]> {
     const uniqueLockedTokenIds = await this.getLockedTokenUniqueIds(farmStakingGroups);
     if (uniqueLockedTokenIds.length === 0) {
       return [];
@@ -137,7 +141,10 @@ export class AccountsService {
     return uniqueLockedTokenIds;
   }
 
-  async getFarmTokens(address: string, farmStakingGroups: FarmStakingGroupContract[],): Promise<MetaEsdtDetailed[]> {
+  async getFarmTokens(
+    address: string,
+    farmStakingGroups: FarmStakingGroupContract[],
+  ): Promise<MetaEsdtDetailed[]> {
     const uniqueFarmTokenIds = await this.getFarmTokenIds(farmStakingGroups);
     if (uniqueFarmTokenIds.length === 0) {
       return [];
@@ -148,7 +155,7 @@ export class AccountsService {
     return metaEsdts;
   }
 
-  async getFarmTokenIds(farmStakingGroups: FarmStakingGroupContract[],): Promise<string[]> {
+  async getFarmTokenIds(farmStakingGroups: FarmStakingGroupContract[]): Promise<string[]> {
     const farmTokenIds = farmStakingGroups
       .map((group) => group.childContracts.map((childContract) => childContract.farmTokenId))
       .flat()

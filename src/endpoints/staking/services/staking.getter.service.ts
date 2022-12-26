@@ -99,6 +99,14 @@ export class StakingGetterService {
     );
   }
 
+  async getMinUnbondEpochs(farmAddress: string): Promise<number> {
+    return await this.getData(
+      CacheInfo.MinUnbondEpochs(farmAddress).key,
+      () => this.abiService.getMinUnbondEpochs(farmAddress),
+      CacheInfo.MinUnbondEpochs(farmAddress).ttl,
+    );
+  }
+
   async getStats(): Promise<any> {
     return await this.getData(
       CacheInfo.Stats.key,
@@ -326,50 +334,46 @@ export class StakingGetterService {
     );
   }
 
-  async getFarmStakingGroups(): Promise<FarmStakingGroupContract[]> {
+  async getActiveFarmStakingGroups(): Promise<FarmStakingGroupContract[]> {
+    const activeFarmStakingGroups: FarmStakingGroupContract[] = [];
     const groupIds = await this.getGroupIdentifiers();
+    for (const groupId of groupIds) {
+      const farmAddresses = await this.getAddressesByGroupId(groupId);
 
-    const results = await Promise.all(
-      groupIds.map(async (groupId) => {
-        const farmAddresses = await this.getAddressesByGroupId(groupId);
-        const childContracts = await Promise.all(
-          farmAddresses.map(async (farmAddress) => {
-            const [farmTokenId, farmingTokenId, areRewardsLocked, state] = await Promise.all([
-              this.getFarmTokenId(farmAddress),
-              this.getFarmingTokenId(farmAddress),
-              this.areRewardsLocked(farmAddress),
-              this.getFarmState(farmAddress),
-            ]);
+      const childContracts: ChildFarmStakingContract[] = [];
+      for (const farmAddress of farmAddresses) {
+        const state = await this.getFarmState(farmAddress);
+        if (state !== FarmState.SETUP_COMPLETE) {
+          continue;
+        }
 
-            let rewardTokenId: string | undefined;
-            if (areRewardsLocked) {
-              rewardTokenId = await this.getLockedAssetTokenId(groupId);
-            } else {
-              rewardTokenId = await this.getRewardTokenId(farmAddress);
-            }
+        const [farmTokenId, farmingTokenId, areRewardsLocked] = await Promise.all([
+          this.getFarmTokenId(farmAddress),
+          this.getFarmingTokenId(farmAddress),
+          this.areRewardsLocked(farmAddress),
+        ]);
 
-            return {
-              farmAddress,
-              farmTokenId,
-              farmingTokenId,
-              rewardTokenId,
-              areRewardsLocked,
-              state,
-            } as ChildFarmStakingContract;
-          }),
-        );
+        let rewardTokenId: string | undefined;
+        if (areRewardsLocked) {
+          rewardTokenId = await this.getLockedAssetTokenId(groupId);
+        } else {
+          rewardTokenId = await this.getRewardTokenId(farmAddress);
+        }
 
-        return { groupId, childContracts } as FarmStakingGroupContract;
-      }),
-    );
+        childContracts.push({
+          farmAddress,
+          farmTokenId,
+          farmingTokenId,
+          rewardTokenId,
+          areRewardsLocked,
+          state: FarmState.SETUP_COMPLETE,
+        } as ChildFarmStakingContract);
+      }
 
-    return results
-      .filter((group) =>
-        group.childContracts.find(
-          (childContract) => childContract.state === FarmState.SETUP_COMPLETE,
-        ),
-      )
-      .flat();
+      activeFarmStakingGroups.push({ groupId, childContracts });
+    }
+
+    return activeFarmStakingGroups;
   }
 
   async getGroupIdFromLockedAssetId(assetTokenId: string): Promise<string | undefined> {
