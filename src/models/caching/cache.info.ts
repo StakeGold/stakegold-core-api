@@ -32,6 +32,13 @@ export class CacheInfo {
     };
   }
 
+  static MinUnbondEpochs(address: string): CacheInfo {
+    return {
+      key: `minUnbondEpochs:${address}`,
+      ttl: Constants.oneWeek(),
+    };
+  }
+
   static PerBlockRewardAmount(address: string): CacheInfo {
     return {
       key: `perBlockRewardAmount:${address}`,

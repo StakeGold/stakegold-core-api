@@ -99,6 +99,14 @@ export class StakingGetterService {
     );
   }
 
+  async getMinUnbondEpochs(farmAddress: string): Promise<number> {
+    return await this.getData(
+      CacheInfo.MinUnbondEpochs(farmAddress).key,
+      () => this.abiService.getMinUnbondEpochs(farmAddress),
+      CacheInfo.MinUnbondEpochs(farmAddress).ttl,
+    );
+  }
+
   async getStats(): Promise<any> {
     return await this.getData(
       CacheInfo.Stats.key,

@@ -85,6 +85,13 @@ export class AbiStakingService {
     return response.firstValue?.valueOf()?.toFixed();
   }
 
+  async getMinUnbondEpochs(farmAddress: string): Promise<number> {
+    const contract = await this.elrondProxy.getFarmSmartContract(farmAddress);
+    const interaction: Interaction = contract.methods.getMinUnbondEpochs([]);
+    const response = await this.getGenericData(contract, interaction);
+    return response.firstValue?.valueOf() ?? 0;
+  }
+
   async getPerBlockRewardAmount(farmAddress: string): Promise<string> {
     const contract = await this.elrondProxy.getFarmSmartContract(farmAddress);
     const interaction: Interaction = contract.methods.getPerBlockRewardAmount([]);
