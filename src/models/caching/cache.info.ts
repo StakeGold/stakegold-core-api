@@ -1,4 +1,4 @@
-import { Constants } from 'serdnest';
+import { Constants } from '@elrondnetwork/erdnest';
 
 export class CacheInfo {
   key: string = '';
@@ -29,6 +29,13 @@ export class CacheInfo {
     return {
       key: `annualPercentageRewards:${address}`,
       ttl: Constants.oneHour(),
+    };
+  }
+
+  static MinUnbondEpochs(address: string): CacheInfo {
+    return {
+      key: `minUnbondEpochs:${address}`,
+      ttl: Constants.oneWeek(),
     };
   }
 
@@ -187,7 +194,7 @@ export class CacheInfo {
   static FarmState(address: string): CacheInfo {
     return {
       key: `farm-state:${address}`,
-      ttl: Constants.oneSecond() * 6,
+      ttl: Constants.oneHour(),
     };
   }
 

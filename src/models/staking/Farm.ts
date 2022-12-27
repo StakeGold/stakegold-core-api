@@ -30,4 +30,5 @@ export interface Farm {
 export interface Position {
   farmToken: MetaEsdtDetailed;
   rewardToken: NftCollection | EsdtToken;
+  minUnbondEpochs: number;
 }

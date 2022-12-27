@@ -1,4 +1,4 @@
-import { CachingModuleAsyncOptions } from 'serdnest';
+import { RedisCacheModuleAsyncOptions } from '@elrondnetwork/erdnest';
 import { DynamicModule, Module, Provider } from '@nestjs/common';
 import { ApiConfigAsyncOptions } from '../api-config';
 import { ContextTransactionsService } from '../context/context.transactions.service';
@@ -25,7 +25,7 @@ export class StakingModule {
     proxyServiceOptions: ProxyAsyncOptions,
     apiConfigOptions: ApiConfigAsyncOptions,
     elrondApiOptions: ElrondApiAsyncOptions,
-    cachingModuleOptions: CachingModuleAsyncOptions,
+    cachingModuleOptions: RedisCacheModuleAsyncOptions,
   ): DynamicModule {
     const providers: Provider[] = [
       {

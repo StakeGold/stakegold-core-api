@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js';
 import { CacheInfo } from '../../../models/caching/cache.info';
 import { STAKEGOLD_ELROND_API_SERVICE, STAKEGOLD_PROXY_SERVICE } from '../../utils/constants';
 import { AbiStakingService } from './staking.abi.service';
-import { CachingService, Constants, ContextTracker } from 'serdnest';
+import { Constants, ContextTracker, ElrondCachingService } from '@elrondnetwork/erdnest';
 import { generateGetLogMessage } from '../../utils/generate-log-message';
 import { StakeGoldProxyService } from '../../proxy/proxy.service';
 import { StakeGoldElrondApiService } from 'src/endpoints/elrond-communication/elrond-api.service';
@@ -20,7 +20,7 @@ export class StakingGetterService {
 
   constructor(
     private readonly abiService: AbiStakingService,
-    private readonly cachingService: CachingService,
+    private readonly cachingService: ElrondCachingService,
     @Inject(STAKEGOLD_ELROND_API_SERVICE)
     private readonly elrondApiService: StakeGoldElrondApiService,
     @Inject(STAKEGOLD_PROXY_SERVICE)
@@ -39,24 +39,13 @@ export class StakingGetterService {
       if (noCache) {
         const funcValue = await createValueFunc();
         if (funcValue) {
-          await this.cachingService.setCache(cacheKey, funcValue, ttl);
+          await this.cachingService.setRemote(cacheKey, funcValue, ttl);
           return funcValue;
         }
         return undefined;
       }
 
-      const cachedValue = await this.cachingService.getCache(cacheKey);
-      if (cachedValue) {
-        return cachedValue;
-      }
-
-      const funcValue = await createValueFunc();
-      if (funcValue) {
-        await this.cachingService.setCache(cacheKey, funcValue, ttl);
-        return funcValue;
-      }
-
-      return undefined;
+      return this.cachingService.getOrSetRemote(cacheKey, createValueFunc, ttl);
     } catch (error) {
       const logMessage = generateGetLogMessage(
         StakingGetterService.name,
@@ -107,6 +96,14 @@ export class StakingGetterService {
       CacheInfo.AnnualPercentageRewards(farmAddress).key,
       () => this.abiService.getAnnualPercentageRewards(farmAddress),
       CacheInfo.AnnualPercentageRewards(farmAddress).ttl,
+    );
+  }
+
+  async getMinUnbondEpochs(farmAddress: string): Promise<number> {
+    return await this.getData(
+      CacheInfo.MinUnbondEpochs(farmAddress).key,
+      () => this.abiService.getMinUnbondEpochs(farmAddress),
+      CacheInfo.MinUnbondEpochs(farmAddress).ttl,
     );
   }
 
@@ -306,13 +303,13 @@ export class StakingGetterService {
             return undefined;
           }
 
-          const esdtToken = await this.elrondApiService.getEsdtToken(identifier);
-          if (esdtToken) {
-            return esdtToken;
+          const nftCollection = await this.elrondApiService.getNftCollection(identifier);
+          if (nftCollection) {
+            return nftCollection;
           }
 
-          const nftCollection = await this.elrondApiService.getNftCollection(identifier);
-          return nftCollection;
+          const esdtToken = await this.elrondApiService.getEsdtToken(identifier);
+          return esdtToken;
         },
         CacheInfo.stakeToken(identifier).ttl,
       );
@@ -337,50 +334,46 @@ export class StakingGetterService {
     );
   }
 
-  async getFarmStakingGroups(): Promise<FarmStakingGroupContract[]> {
+  async getActiveFarmStakingGroups(): Promise<FarmStakingGroupContract[]> {
+    const activeFarmStakingGroups: FarmStakingGroupContract[] = [];
     const groupIds = await this.getGroupIdentifiers();
+    for (const groupId of groupIds) {
+      const farmAddresses = await this.getAddressesByGroupId(groupId);
 
-    const results = await Promise.all(
-      groupIds.map(async (groupId) => {
-        const farmAddresses = await this.getAddressesByGroupId(groupId);
-        const childContracts = await Promise.all(
-          farmAddresses.map(async (farmAddress) => {
-            const [farmTokenId, farmingTokenId, areRewardsLocked, state] = await Promise.all([
-              await this.getFarmTokenId(farmAddress),
-              await this.getFarmingTokenId(farmAddress),
-              await this.areRewardsLocked(farmAddress),
-              await this.getFarmState(farmAddress),
-            ]);
+      const childContracts: ChildFarmStakingContract[] = [];
+      for (const farmAddress of farmAddresses) {
+        const state = await this.getFarmState(farmAddress);
+        if (state !== FarmState.SETUP_COMPLETE) {
+          continue;
+        }
 
-            let rewardTokenId: string | undefined;
-            if (areRewardsLocked) {
-              rewardTokenId = await this.getLockedAssetTokenId(groupId);
-            } else {
-              rewardTokenId = await this.getRewardTokenId(farmAddress);
-            }
+        const [farmTokenId, farmingTokenId, areRewardsLocked] = await Promise.all([
+          this.getFarmTokenId(farmAddress),
+          this.getFarmingTokenId(farmAddress),
+          this.areRewardsLocked(farmAddress),
+        ]);
 
-            return {
-              farmAddress,
-              farmTokenId,
-              farmingTokenId,
-              rewardTokenId,
-              areRewardsLocked,
-              state,
-            } as ChildFarmStakingContract;
-          }),
-        );
+        let rewardTokenId: string | undefined;
+        if (areRewardsLocked) {
+          rewardTokenId = await this.getLockedAssetTokenId(groupId);
+        } else {
+          rewardTokenId = await this.getRewardTokenId(farmAddress);
+        }
 
-        return { groupId, childContracts } as FarmStakingGroupContract;
-      }),
-    );
+        childContracts.push({
+          farmAddress,
+          farmTokenId,
+          farmingTokenId,
+          rewardTokenId,
+          areRewardsLocked,
+          state: FarmState.SETUP_COMPLETE,
+        } as ChildFarmStakingContract);
+      }
 
-    return results
-      .filter((group) =>
-        group.childContracts.find(
-          (childContract) => childContract.state === FarmState.SETUP_COMPLETE,
-        ),
-      )
-      .flat();
+      activeFarmStakingGroups.push({ groupId, childContracts });
+    }
+
+    return activeFarmStakingGroups;
   }
 
   async getGroupIdFromLockedAssetId(assetTokenId: string): Promise<string | undefined> {

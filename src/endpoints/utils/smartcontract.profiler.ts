@@ -10,7 +10,7 @@ import { Injectable } from '@nestjs/common';
 import { INetworkProvider } from '@elrondnetwork/erdjs-network-providers/out/interface';
 import { ContractQueryResponse } from '@elrondnetwork/erdjs-network-providers/out';
 import { PerformanceProfiler } from './performance.profiler';
-import { MetricsService } from 'serdnest';
+import { MetricsService } from '@elrondnetwork/erdnest';
 
 @Injectable()
 export class SmartContractProfiler extends SmartContract {

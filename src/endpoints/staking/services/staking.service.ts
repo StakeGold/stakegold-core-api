@@ -35,7 +35,7 @@ export class StakingService {
 
   async getFarms(address?: string, vmQuery?: boolean): Promise<FarmGroup[]> {
     const groups: FarmGroup[] = [];
-    const farmStakingGroups = await this.stakingGetterService.getFarmStakingGroups();
+    const farmStakingGroups = await this.stakingGetterService.getActiveFarmStakingGroups();
     const farmTokenIds = farmStakingGroups
       .map((group) => group.childContracts.map((childContract) => childContract.farmTokenId))
       .flat();

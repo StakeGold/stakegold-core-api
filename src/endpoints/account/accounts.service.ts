@@ -25,17 +25,20 @@ export class AccountsService {
 
   async getAccountDetails(address: string) {
     const egldBalance = await this.getEgldBalance(address);
-    return { address, egldBalance } as AccountDetails;
+    const farmStakingGroups = await this.stakingGetterService.getActiveFarmStakingGroups();
+    const accountEsdtTokens = await this.elrondApiService.getEsdtTokens(address);
+    return { address, egldBalance, farmStakingGroups, accountEsdtTokens } as AccountDetails;
   }
 
   async getEgldBalance(address: string): Promise<string> {
     return await this.elrondApiService.getAccountBalance(address);
   }
 
-  async getEsdtTokens(address: string): Promise<EsdtToken[]> {
-    const esdtTokens = await this.elrondApiService.getEsdtTokens(address);
-    const farmStakingGroups = await this.stakingGetterService.getFarmStakingGroups();
-    const tokenIds = await Promise.all(
+  async getStakingEsdtTokens(
+    esdtTokens: EsdtToken[],
+    farmStakingGroups: FarmStakingGroupContract[],
+  ): Promise<EsdtToken[]> {
+    const tokenIds = (await Promise.all(
       farmStakingGroups
         .map(async (group) => {
           const groupRewardTokenId =
@@ -54,18 +57,18 @@ export class AccountsService {
         .flat(),
     )
       .then((arr) => arr.flat())
-      .catch(() => []);
+      .catch(() => [])) as string[];
 
     const uniqueLockedTokenIds = [...new Set(tokenIds.map((id) => id))];
-    const result = esdtTokens.filter((token) =>
-      uniqueLockedTokenIds.firstOrUndefined((item) => item === token.identifier),
-    );
+
+    const result = esdtTokens.filter((token) => uniqueLockedTokenIds.includes(token.identifier));
     return result;
   }
 
-  async getLockedTokens(address: string): Promise<LockedTokenCollection[]> {
-    const farmStakingGroups = await this.stakingGetterService.getFarmStakingGroups();
-
+  async getLockedTokens(
+    address: string,
+    farmStakingGroups: FarmStakingGroupContract[],
+  ): Promise<LockedTokenCollection[]> {
     const uniqueLockedTokenIds = await this.getLockedTokenUniqueIds(farmStakingGroups);
     if (uniqueLockedTokenIds.length === 0) {
       return [];
@@ -138,8 +141,11 @@ export class AccountsService {
     return uniqueLockedTokenIds;
   }
 
-  async getFarmTokens(address: string): Promise<MetaEsdtDetailed[]> {
-    const uniqueFarmTokenIds = await this.getFarmTokenIds();
+  async getFarmTokens(
+    address: string,
+    farmStakingGroups: FarmStakingGroupContract[],
+  ): Promise<MetaEsdtDetailed[]> {
+    const uniqueFarmTokenIds = await this.getFarmTokenIds(farmStakingGroups);
     if (uniqueFarmTokenIds.length === 0) {
       return [];
     }
@@ -149,9 +155,7 @@ export class AccountsService {
     return metaEsdts;
   }
 
-  async getFarmTokenIds(): Promise<string[]> {
-    const farmStakingGroups = await this.stakingGetterService.getFarmStakingGroups();
-
+  async getFarmTokenIds(farmStakingGroups: FarmStakingGroupContract[]): Promise<string[]> {
     const farmTokenIds = farmStakingGroups
       .map((group) => group.childContracts.map((childContract) => childContract.farmTokenId))
       .flat()
