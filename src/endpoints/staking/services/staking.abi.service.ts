@@ -192,11 +192,16 @@ export class AbiStakingService {
     return response.firstValue?.valueOf()?.toString();
   }
 
-  async getLockedAssetTokenId(vestingAddress: string): Promise<string> {
+  async getLockedAssetTokenId(vestingAddress: string): Promise<string | undefined> {
     const contract = await this.elrondProxy.getVestingSmartContract(vestingAddress);
     const interaction: Interaction = contract.methods.getLockedAssetTokenId([]);
     const response = await this.getGenericData(contract, interaction);
-    return response.firstValue?.valueOf()?.toString();
+
+    const id = response.firstValue?.valueOf()?.toString();
+    if (id?.length > 0) {
+      return id;
+    }
+    return undefined;
   }
 
   async getFarmTokenId(childContractAddress: string): Promise<string> {
