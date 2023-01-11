@@ -22,4 +22,5 @@ export interface EsdtToken {
 
 export interface Assets {
   svgUrl?: string;
+  pngUrl?: string;
 }

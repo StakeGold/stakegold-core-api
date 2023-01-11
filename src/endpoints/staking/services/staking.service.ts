@@ -52,7 +52,7 @@ export class StakingService {
           farms.find((farm) => !isNftCollection(farm.farmingToken))?.farmingToken ??
           farms.firstOrUndefined()?.farmingToken;
         const decimals = farmingToken?.decimals ?? 0;
-        const icon = farmingToken?.assets?.svgUrl;
+        const icon = farmingToken?.assets?.pngUrl ?? farmingToken?.assets?.svgUrl;
 
         groups.push({
           groupId: group.groupId,
